@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/discord", "destination": "/api/discordWebhook.js" }
+  ]
+}
