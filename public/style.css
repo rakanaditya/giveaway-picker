@@ -49,6 +49,12 @@ button:hover {
   border-radius: 6px;
 }
 
+#winner {
+  font-size: 20px;
+  margin-top: 15px;
+  color: green;
+}
+
 #formStatus {
   margin-top: 10px;
   font-weight: bold;
