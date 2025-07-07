@@ -32,32 +32,44 @@
     const partList = document.getElementById("participants");
 
     form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const username = usernameInput.value.trim();
-      const number = parseInt(numberInput.value.trim());
+  e.preventDefault();
+  const username = usernameInput.value.trim();
+  const number = parseInt(numberInput.value.trim());
 
-      statusEl.textContent = "";
-      if (!username) return statusEl.textContent = "❌ Username tidak boleh kosong!";
-      if (isNaN(number) || number < 1 || number > 1000) return statusEl.textContent = "❌ Angka harus antara 1–1000!";
+  statusEl.textContent = "";
+  if (!username) {
+    statusEl.textContent = "❌ Username tidak boleh kosong!";
+    return;
+  }
 
-      try {
-        const res = await fetch("/api/data", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ author: { username }, content: number })
-        });
-        const text = await res.text();
-        if (text === "OK") {
-          statusEl.textContent = "✅ Submit berhasil!";
-          form.reset();
-          fetchData();
-        } else {
-          statusEl.textContent = "⚠️ Gagal submit: " + text;
-        }
-      } catch (err) {
-        statusEl.textContent = "❌ Error mengirim: " + err.message;
-      }
+  if (isNaN(number) || number < 1 || number > 1000) {
+    statusEl.textContent = "❌ Angka harus antara 1–1000!";
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/data", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ author: { username }, content: number })
     });
+
+    const text = await res.text();
+
+    if (text === "OK") {
+      statusEl.textContent = "✅ Submit berhasil!";
+      form.reset();
+      fetchData();
+    } else if (text.includes("Angka sudah dipakai")) {
+      statusEl.textContent = "❌ Angka tersebut sudah digunakan. Pilih angka lain!";
+    } else {
+      statusEl.textContent = "⚠️ Gagal submit: " + text;
+    }
+  } catch (err) {
+    statusEl.textContent = "❌ Error mengirim: " + err.message;
+  }
+});
+
 
     async function fetchData() {
       try {
