@@ -12,11 +12,9 @@
 
     <div id="countdown" class="countdown">⏳ Menghitung waktu...</div>
 
-    <!-- Username tampil otomatis -->
     <p>👤 Login sebagai: <strong id="userDisplay"></strong></p>
     <button onclick="logout()">🔓 Logout</button>
 
-    <!-- Form hanya angka -->
     <form id="giveawayForm" class="form">
       <input type="number" id="number" placeholder="🎲 Angka (1–1000)" min="1" max="1000" required />
       <button type="submit">🚀 Kirim</button>
@@ -30,19 +28,15 @@
   </div>
 
   <script>
-
-
-
-    // Cek login
+    // === Proteksi login
     const user = JSON.parse(localStorage.getItem("giveawayUser"));
     if (!user || !user.username) {
       window.location.href = "/login.html";
     }
 
-    // Tampilkan nama user
+    // === Tampilkan nama user login
     document.getElementById("userDisplay").textContent = user.username;
 
-    // Logout
     function logout() {
       localStorage.removeItem("giveawayUser");
       window.location.href = "/login.html";
@@ -55,36 +49,39 @@
     const partList = document.getElementById("participants");
 
     form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const number = parseInt(numberInput.value.trim());
-  const username = user.username; // Ambil dari login, bukan input lagi
+      e.preventDefault();
+      const number = parseInt(numberInput.value.trim());
+      const username = user.username;
 
-  statusEl.textContent = "";
-  if (isNaN(number) || number < 1 || number > 1000) {
-    statusEl.textContent = "❌ Angka harus antara 1–1000!";
-    return;
-  }
+      statusEl.textContent = "";
+      if (isNaN(number) || number < 1 || number > 1000) {
+        statusEl.textContent = "❌ Angka harus antara 1–1000!";
+        return;
+      }
 
-  try {
-    const res = await fetch("/api/data", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ author: { username }, content: number })
+      try {
+        const res = await fetch("/api/data", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ author: { username }, content: number })
+        });
+
+        const text = await res.text();
+        if (text === "OK") {
+          statusEl.textContent = "✅ Submit berhasil!";
+          form.reset();
+          fetchData();
+        } else if (text.includes("Angka sudah dipakai")) {
+          statusEl.textContent = "❌ Angka sudah digunakan. Pilih angka lain!";
+        } else if (text.includes("Username sudah pernah submit")) {
+          statusEl.textContent = "❌ Kamu sudah submit sebelumnya!";
+        } else {
+          statusEl.textContent = "⚠️ Gagal submit: " + text;
+        }
+      } catch (err) {
+        statusEl.textContent = "❌ Error mengirim: " + err.message;
+      }
     });
-
-    const text = await res.text();
-    if (text === "OK") {
-      statusEl.textContent = "✅ Submit berhasil!";
-      form.reset();
-      fetchData();
-    } else {
-      statusEl.textContent = "⚠️ Gagal submit: " + text;
-    }
-  } catch (err) {
-    statusEl.textContent = "❌ Error mengirim: " + err.message;
-  }
-});
-
 
     async function fetchData() {
       try {
@@ -106,21 +103,18 @@
       }
     }
 
-    // Countdown waktu akhir
- // Ambil dari localStorage (diset di admin.html)
-const deadlineStr = localStorage.getItem("giveawayDeadline");
-const giveawayDeadline = deadlineStr ? new Date(deadlineStr) : new Date("2025-07-06T22:00:00+07:00");
-
+    // === Countdown Giveaway
+    const deadlineStr = localStorage.getItem("giveawayDeadline");
+    const giveawayDeadline = deadlineStr ? new Date(deadlineStr) : new Date("2025-07-06T22:00:00+07:00");
 
     function updateCountdown() {
       const now = new Date();
       const diff = giveawayDeadline - now;
-
       const countdownEl = document.getElementById("countdown");
 
       if (diff <= 0) {
         countdownEl.textContent = "⛔ Giveaway sudah ditutup!";
-        form.style.display = "none"; // Sembunyikan form
+        form.style.display = "none";
         return;
       }
 
