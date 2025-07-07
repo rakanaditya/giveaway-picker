@@ -17,3 +17,8 @@ Sistem pengambil pemenang giveaway berbasis Google Sheets dan Discord.
 - Publish → Deploy as Web App
 
 ### 2. Vercel `.env`
+
+## ✨ Features
+- Live viewer peserta
+- Menampilkan pemenang secara acak
+- Integrasi dengan Discord Webhook
