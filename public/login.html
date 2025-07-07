@@ -39,17 +39,22 @@
         const loginRes = await fetch("/api/auth", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "login", username, password })
+          body: JSON.stringify({
+            action: "login",
+            username,
+            password
+          })
         });
 
         const loginText = await loginRes.text();
-        console.log("🔒 loginText:", loginText); // debugging
+        console.log("🧪 loginText:", loginText);
+
         if (loginText !== "OK") {
           statusEl.textContent = "❌ " + loginText;
           return;
         }
 
-        // === Cek apakah user adalah admin (dengan endpoint terpisah) ===
+        // === Cek admin flag (gunakan endpoint khusus admin) ===
         const adminRes = await fetch("/api/admin-auth", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -57,18 +62,20 @@
         });
 
         const result = await adminRes.json();
+        console.log("🧪 admin check result:", result);
 
-        // === Simpan ke localStorage ===
+        // === Simpan session user ke localStorage
         localStorage.setItem("giveawayUser", JSON.stringify({
           username,
           isAdmin: result.isAdmin || false
         }));
 
-        // === Arahkan ke halaman sesuai role ===
+        // === Arahkan ke halaman sesuai role
         window.location.href = result.isAdmin ? "/admin.html" : "/index.html";
 
       } catch (err) {
-        statusEl.textContent = "❌ Error saat login: " + err.message;
+        console.error("Login error:", err);
+        statusEl.textContent = "❌ Terjadi kesalahan: " + err.message;
       }
     });
   </script>
