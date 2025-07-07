@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎛️ Admin Panel Giveaway</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>🎛️ Admin Panel</h1>
+    <p>Login sebagai: <strong id="adminUser"></strong></p>
+    <button onclick="logout()">🔓 Logout</button>
+
+    <h3>🕒 Atur Deadline Giveaway</h3>
+    <input type="datetime-local" id="deadlineInput" />
+    <button onclick="saveDeadline()">💾 Simpan</button>
+
+    <div id="statusMsg"></div>
+  </div>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem("giveawayUser"));
+    if (!user || user.username !== "admin") {
+      alert("⛔ Hanya admin yang bisa akses halaman ini!");
+      window.location.href = "/login.html";
+    } else {
+      document.getElementById("adminUser").textContent = user.username;
+    }
+
+    const deadlineInput = document.getElementById("deadlineInput");
+    const statusMsg = document.getElementById("statusMsg");
+
+    // Ambil deadline dari localStorage
+    const savedDeadline = localStorage.getItem("giveawayDeadline");
+    if (savedDeadline) {
+      deadlineInput.value = new Date(savedDeadline).toISOString().slice(0,16);
+    }
+
+    function saveDeadline() {
+      const value = deadlineInput.value;
+      if (!value) {
+        statusMsg.textContent = "❌ Masukkan waktu deadline!";
+        return;
+      }
+      localStorage.setItem("giveawayDeadline", new Date(value).toISOString());
+      statusMsg.textContent = "✅ Deadline berhasil disimpan!";
+    }
+
+    function logout() {
+      localStorage.removeItem("giveawayUser");
+      window.location.href = "/login.html";
+    }
+  </script>
+</body>
+</html>
