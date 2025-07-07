@@ -1,0 +1,11 @@
+{
+  "name": "giveaway-picker",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "vercel-build": "echo Build successful"
+  },
+  "engines": {
+    "node": "22.x"
+  }
+}
