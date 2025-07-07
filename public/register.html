@@ -22,7 +22,7 @@
     const form = document.getElementById("registerForm");
     const statusEl = document.getElementById("regStatus");
 
-    form.addEventListener("submit", (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const username = document.getElementById("regUsername").value.trim();
@@ -33,21 +33,45 @@
         return;
       }
 
-      const users = JSON.parse(localStorage.getItem("giveawayUsers") || "[]");
-      if (users.find(u => u.username === username)) {
-        statusEl.textContent = "❌ Username sudah terdaftar!";
-        return;
-      }
+      try {
+        // Kirim ke endpoint GAS untuk register
+        const res = await fetch("/api/auth", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "register",
+            username,
+            password
+          })
+        });
 
-      users.push({ username, password });
-      localStorage.setItem("giveawayUsers", JSON.stringify(users));
-      localStorage.setItem("giveawayUser", JSON.stringify({ username }));
+        const text = await res.text();
 
-      // Jika user adalah admin
-      if (username === "admin") {
-        window.location.href = "/admin.html";
-      } else {
-        window.location.href = "/index.html";
+        if (text !== "OK") {
+          statusEl.textContent = "⚠️ Gagal daftar: " + text;
+          return;
+        }
+
+        // Cek apakah akun ini adalah admin
+        const adminRes = await fetch("/api/admin-auth", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+
+        const result = await adminRes.json();
+
+        // Simpan sesi user (dan admin flag)
+        localStorage.setItem("giveawayUser", JSON.stringify({
+          username,
+          isAdmin: result.isAdmin || false
+        }));
+
+        // Redirect sesuai peran
+        window.location.href = result.isAdmin ? "/admin.html" : "/index.html";
+
+      } catch (err) {
+        statusEl.textContent = "❌ Error saat daftar: " + err.message;
       }
     });
   </script>
