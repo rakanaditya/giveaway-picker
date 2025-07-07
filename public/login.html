@@ -24,9 +24,10 @@
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      statusEl.textContent = "🔄 Sedang memproses...";
 
       const username = document.getElementById("loginUsername").value.trim();
-      const password = document.getElementById("loginPassword").value;
+      const password = document.getElementById("loginPassword").value.trim();
 
       if (!username || password.length < 4) {
         statusEl.textContent = "❌ Username/password tidak valid!";
@@ -34,7 +35,7 @@
       }
 
       try {
-        // Validasi login ke Google Apps Script
+        // === Kirim permintaan login ke GAS ===
         const loginRes = await fetch("/api/auth", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -48,11 +49,11 @@
         const loginText = await loginRes.text();
 
         if (loginText !== "OK") {
-          statusEl.textContent = "❌ Username atau password salah!";
+          statusEl.textContent = "❌ " + loginText;
           return;
         }
 
-        // Cek apakah user adalah admin
+        // === Cek apakah user adalah admin ===
         const adminRes = await fetch("/api/admin-auth", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -61,13 +62,13 @@
 
         const result = await adminRes.json();
 
-        // Simpan data sesi
+        // === Simpan sesi ke localStorage ===
         localStorage.setItem("giveawayUser", JSON.stringify({
           username,
           isAdmin: result.isAdmin || false
         }));
 
-        // Redirect ke halaman sesuai role
+        // === Redirect ke halaman sesuai role ===
         window.location.href = result.isAdmin ? "/admin.html" : "/index.html";
 
       } catch (err) {
