@@ -1,13 +1,10 @@
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).end("Hanya menerima POST");
-
   const GAS_URL = process.env.GAS_URL;
-  if (!GAS_URL) return res.status(500).send("GAS_URL belum diset");
+
+  if (req.method !== "POST") return res.status(405).send("Hanya menerima POST");
 
   const { author, content } = req.body;
-  if (!author?.username || !content) {
-    return res.status(400).send("Missing data");
-  }
+  if (!author?.username || !content) return res.status(400).send("Missing data");
 
   const body = {
     username: author.username,
@@ -23,7 +20,6 @@ export default async function handler(req, res) {
     const text = await r.text();
     return res.status(200).send(text);
   } catch (err) {
-    console.error("Submit error:", err);
-    return res.status(500).send("Server error");
+    return res.status(500).send("Gagal kirim ke GAS");
   }
 }
