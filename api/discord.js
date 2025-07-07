@@ -1,4 +1,3 @@
-// pages/api/discord.js
 export default async function handler(req, res) {
   const GAS_URL = process.env.GAS_POST_URL;
 
