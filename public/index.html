@@ -3,50 +3,64 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🎉 Random Giveaway Picker</title>
+  <title>🎁 Giveaway Input</title>
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
   <div class="container">
-    <h1>🎁 Discord Giveaway Tracker</h1>
-    <div id="winner" class="winner loading">⏳ Loading winner...</div>
-    
-    <h3>👥 All Participants</h3>
-    <div id="participants" class="participants loading">⏳ Loading participants...</div>
+    <h1>🎯 Ikutan Giveaway!</h1>
+    <form id="giveawayForm">
+      <input type="text" id="username" placeholder="Username Discord" required />
+      <input type="number" id="angka" placeholder="Masukkan angka 1-1000" min="1" max="1000" required />
+      <button type="submit">🚀 Kirim</button>
+    </form>
+    <div id="formStatus"></div>
+
+    <h3>🎉 Peserta Terdaftar Giveaways</h3>
+    <div id="participants"></div>
   </div>
 
   <script>
-    async function fetchData() {
+    async function fetchParticipants() {
       try {
         const res = await fetch("/api/data");
-        if (!res.ok) throw new Error("Fetch failed");
-
         const data = await res.json();
-
-        const winnerEl = document.getElementById("winner");
-        if (data.winner) {
-          winnerEl.classList.remove("loading");
-          winnerEl.textContent = `🎉 Winner: ${data.winner.username} (${data.winner.number})`;
-        } else {
-          winnerEl.textContent = "❌ Belum ada peserta.";
-        }
-
-        const partList = data.participants.map(p =>
-          `<div class="participant">${p.username}: ${p.number}</div>`
-        ).join('');
-        const partEl = document.getElementById("participants");
-        partEl.classList.remove("loading");
-        partEl.innerHTML = partList || "<div class='participant'>Belum ada peserta</div>";
-
-      } catch (err) {
-        document.getElementById("winner").textContent = "⚠️ Error fetching data";
-        document.getElementById("participants").innerHTML = "<div class='participant'>⚠️ Tidak dapat mengambil data</div>";
-        console.error(err);
+        const list = data.participants.map(p => `<div class="participant">${p.username}: ${p.number}</div>`).join('');
+        document.getElementById("participants").innerHTML = list;
+      } catch (e) {
+        console.error(e);
+        document.getElementById("participants").textContent = "Gagal mengambil data peserta.";
       }
     }
 
-    fetchData();
-    setInterval(fetchData, 5000);
+    document.getElementById("giveawayForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const username = document.getElementById("username").value.trim();
+      const number = parseInt(document.getElementById("angka").value);
+      const status = document.getElementById("formStatus");
+
+      if (!username || isNaN(number) || number < 1 || number > 1000) {
+        status.textContent = "❌ Masukkan valid!";
+        return;
+      }
+
+      const res = await fetch("/api/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ author: { username }, content: number.toString() })
+      });
+
+      if (res.ok) {
+        status.textContent = "✅ Angka berhasil dikirim!";
+        document.getElementById("giveawayForm").reset();
+        fetchParticipants();
+      } else {
+        status.textContent = "❌ Gagal mengirim angka.";
+      }
+    });
+
+    fetchParticipants();
   </script>
 </body>
 </html>
