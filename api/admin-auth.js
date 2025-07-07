@@ -5,13 +5,12 @@ export default function handler(req, res) {
 
   const { username, password } = req.body;
 
-  // Cek admin tetap
-  const adminUsername = process.env.ADMIN_USERNAME;
-  const adminPassword = process.env.ADMIN_PASSWORD;
+  // Fixed admin (bisa juga nanti dari ENV)
+  const ADMIN_USERNAME = "rakanaditya";
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
-  if (username === adminUsername && password === adminPassword) {
-    return res.status(200).json({ isAdmin: true });
-  }
+  const isAdmin =
+    username === ADMIN_USERNAME && password === ADMIN_PASSWORD;
 
-  return res.status(200).json({ isAdmin: false });
+  return res.status(200).json({ isAdmin });
 }
