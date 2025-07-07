@@ -1,5 +1,10 @@
 {
   "rewrites": [
-    { "source": "/discord", "destination": "/api/data.js" }
-  ]
+    {
+      "source": "/",
+      "destination": "/index.html"
+    }
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false
 }
