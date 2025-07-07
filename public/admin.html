@@ -21,12 +21,12 @@
 
   <script>
     const user = JSON.parse(localStorage.getItem("giveawayUser"));
-    if (!user || user.username !== "admin") {
-      alert("⛔ Hanya admin yang bisa akses halaman ini!");
-      window.location.href = "/login.html";
-    } else {
-      document.getElementById("adminUser").textContent = user.username;
-    }
+  if (username === "rakanaditya" && password === "aditganteng213") {
+  localStorage.setItem("giveawayUser", JSON.stringify({ username, isAdmin: true }));
+} else {
+  localStorage.setItem("giveawayUser", JSON.stringify({ username, isAdmin: false }));
+}
+
 
     const deadlineInput = document.getElementById("deadlineInput");
     const statusMsg = document.getElementById("statusMsg");
