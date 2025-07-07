@@ -10,8 +10,7 @@
   <div class="container">
     <h1>🎁 Discord Giveaway Tracker</h1>
 
-<div id="countdown" class="countdown">⏳ Menghitung waktu...</div>
-
+    <div id="countdown" class="countdown">⏳ Menghitung waktu...</div>
 
     <form id="giveawayForm" class="form">
       <input type="text" id="username" placeholder="🧑 Username Discord" autocomplete="off" required />
@@ -33,49 +32,42 @@
     const statusEl = document.getElementById("formStatus");
     const winnerEl = document.getElementById("winner");
     const partList = document.getElementById("participants");
+    const countdownEl = document.getElementById("countdown");
 
     form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const username = usernameInput.value.trim();
-  const number = parseInt(numberInput.value.trim());
+      e.preventDefault();
 
-  statusEl.textContent = "";
-  if (!username) {
-    statusEl.textContent = "❌ Username tidak boleh kosong!";
-    return;
-  }
+      const username = usernameInput.value.trim();
+      const number = parseInt(numberInput.value.trim());
 
-  if (isNaN(number) || number < 1 || number > 1000) {
-    statusEl.textContent = "❌ Angka harus antara 1–1000!";
-    return;
-  }
+      statusEl.textContent = "";
+      if (!username) return statusEl.textContent = "❌ Username tidak boleh kosong!";
+      if (isNaN(number) || number < 1 || number > 1000) return statusEl.textContent = "❌ Angka harus antara 1–1000!";
 
-  try {
-    const res = await fetch("/api/data", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ author: { username }, content: number })
+      try {
+        const res = await fetch("/api/data", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ author: { username }, content: number })
+        });
+
+        const text = await res.text();
+
+        if (text === "OK") {
+          statusEl.textContent = "✅ Submit berhasil!";
+          form.reset();
+          fetchData();
+        } else if (text.includes("Angka sudah dipakai")) {
+          statusEl.textContent = "❌ Angka tersebut sudah digunakan. Pilih angka lain!";
+        } else if (text.includes("Username sudah ikut")) {
+          statusEl.textContent = "⚠️ Kamu sudah pernah ikut!";
+        } else {
+          statusEl.textContent = "⚠️ Gagal submit: " + text;
+        }
+      } catch (err) {
+        statusEl.textContent = "❌ Error mengirim: " + err.message;
+      }
     });
-
-    const text = await res.text();
-
-    if (text === "OK") {
-      statusEl.textContent = "✅ Submit berhasil!";
-      form.reset();
-      fetchData();
-else if (text.includes("Username sudah ikut")) {
-  statusEl.textContent = "⚠️ Kamu sudah pernah submit!";
-}
-    } else if (text.includes("Angka sudah dipakai")) {
-      statusEl.textContent = "❌ Angka tersebut sudah digunakan. Pilih angka lain!";
-    } else {
-      statusEl.textContent = "⚠️ Gagal submit: " + text;
-    }
-  } catch (err) {
-    statusEl.textContent = "❌ Error mengirim: " + err.message;
-  }
-});
-
 
     async function fetchData() {
       try {
@@ -97,29 +89,28 @@ else if (text.includes("Username sudah ikut")) {
       }
     }
 
-// Atur waktu akhir giveaway (local time)
-const giveawayDeadline = new Date("2025-07-05T22:00:00+07:00");
+    // Atur waktu akhir giveaway (ubah sesuai kebutuhan)
+    const giveawayDeadline = new Date("2025-07-05T22:00:00+07:00");
 
-function updateCountdown() {
-  const now = new Date();
-  const diff = giveawayDeadline - now;
+    function updateCountdown() {
+      const now = new Date();
+      const diff = giveawayDeadline - now;
 
-  const countdownEl = document.getElementById("countdown");
+      if (diff <= 0) {
+        countdownEl.textContent = "⛔ Giveaway sudah ditutup!";
+        form.style.display = "none";
+        return;
+      }
 
-  if (diff <= 0) {
-    countdownEl.textContent = "⛔ Giveaway sudah ditutup!";
-    form.style.display = "none"; // Sembunyikan form
-    return;
-  }
-
-  const minutes = Math.floor(diff / 1000 / 60);
-  const seconds = Math.floor((diff / 1000) % 60);
-  countdownEl.textContent = `⏳ Tersisa: ${minutes}m ${seconds}s`;
-}
+      const minutes = Math.floor(diff / 1000 / 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+      countdownEl.textContent = `⏳ Tersisa: ${minutes}m ${seconds}s`;
+    }
 
     fetchData();
+    updateCountdown();
     setInterval(fetchData, 5000);
-updateCountdown(); // panggil pertama kali
+    setInterval(updateCountdown, 1000);
   </script>
 </body>
 </html>
