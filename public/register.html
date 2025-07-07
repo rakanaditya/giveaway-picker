@@ -1,27 +1,55 @@
-<form id="registerForm">
-  <input type="text" id="username" placeholder="Username" required />
-  <input type="password" id="password" placeholder="Password" required />
-  <button type="submit">Daftar</button>
-</form>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daftar Giveaway</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>📝 Daftar Akun Giveaway</h2>
+    <form id="registerForm" class="form">
+      <input type="text" id="regUsername" placeholder="🧑 Username" required />
+      <input type="password" id="regPassword" placeholder="🔒 Password" required />
+      <button type="submit">📥 Daftar</button>
+      <div id="regStatus" class="status-message"></div>
+    </form>
+    <p>Sudah punya akun? <a href="/login.html">Login di sini</a></p>
+  </div>
 
-<script>
-document.getElementById("registerForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  const username = document.getElementById("username").value.trim();
-  const password = document.getElementById("password").value.trim();
+  <script>
+    const form = document.getElementById("registerForm");
+    const statusEl = document.getElementById("regStatus");
 
-  const res = await fetch("/api/auth", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "register", username, password })
-  });
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
 
-  const text = await res.text();
-  if (text === "OK") {
-    localStorage.setItem("giveawayUser", JSON.stringify({ username }));
-    window.location.href = "/index.html";
-  } else {
-    alert("❌ " + text);
-  }
-});
-</script>
+      const username = document.getElementById("regUsername").value.trim();
+      const password = document.getElementById("regPassword").value;
+
+      if (!username || password.length < 4) {
+        statusEl.textContent = "❌ Username tidak boleh kosong & password minimal 4 karakter!";
+        return;
+      }
+
+      const users = JSON.parse(localStorage.getItem("giveawayUsers") || "[]");
+      if (users.find(u => u.username === username)) {
+        statusEl.textContent = "❌ Username sudah terdaftar!";
+        return;
+      }
+
+      users.push({ username, password });
+      localStorage.setItem("giveawayUsers", JSON.stringify(users));
+      localStorage.setItem("giveawayUser", JSON.stringify({ username }));
+
+      // Jika user adalah admin
+      if (username === "admin") {
+        window.location.href = "/admin.html";
+      } else {
+        window.location.href = "/index.html";
+      }
+    });
+  </script>
+</body>
+</html>
