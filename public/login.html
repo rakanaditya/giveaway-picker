@@ -1,0 +1,47 @@
+<!-- public/login.html -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login Akun</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>🔐 Login</h2>
+    <form id="loginForm">
+      <input type="text" id="loginUsername" placeholder="Username" required />
+      <input type="password" id="loginPassword" placeholder="Password" required />
+      <button type="submit">🔓 Login</button>
+      <div id="loginStatus"></div>
+    </form>
+    <p>Belum punya akun? <a href="/register.html">Daftar sekarang</a></p>
+  </div>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const username = document.getElementById("loginUsername").value.trim();
+      const password = document.getElementById("loginPassword").value.trim();
+      const status = document.getElementById("loginStatus");
+
+      if (!username || !password) return status.textContent = "❌ Isi semua field.";
+
+      const res = await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password, mode: "login" })
+      });
+      const result = await res.json();
+
+      if (result.success) {
+        localStorage.setItem("user", username);
+        status.textContent = "✅ Login berhasil!";
+        setTimeout(() => window.location.href = "/", 1000);
+      } else {
+        status.textContent = "❌ " + (result.message || "Gagal login.");
+      }
+    });
+  </script>
+</body>
+</html>
