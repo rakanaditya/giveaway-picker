@@ -11,7 +11,7 @@
     <h1>🎁 Discord Giveaway Tracker</h1>
 
     <form id="giveawayForm" class="form">
-      <input type="text" id="username" placeholder="🧑 Username Discord" required />
+      <input type="text" id="username" placeholder="🧑 Username Discord" autocomplete="off" required />
       <input type="number" id="number" placeholder="🎲 Angka (1–1000)" min="1" max="1000" required />
       <button type="submit">🚀 Kirim</button>
       <div id="formStatus" class="status-message"></div>
@@ -24,11 +24,18 @@
   </div>
 
   <script>
-    document.getElementById("giveawayForm").addEventListener("submit", async function(e) {
+    const form = document.getElementById("giveawayForm");
+    const usernameInput = document.getElementById("username");
+    const numberInput = document.getElementById("number");
+    const statusEl = document.getElementById("formStatus");
+    const winnerEl = document.getElementById("winner");
+    const partList = document.getElementById("participants");
+
+    form.addEventListener("submit", async function(e) {
       e.preventDefault();
-      const username = document.getElementById("username").value.trim();
-      const number = parseInt(document.getElementById("number").value.trim());
-      const statusEl = document.getElementById("formStatus");
+
+      const username = usernameInput.value.trim();
+      const number = parseInt(numberInput.value.trim());
 
       if (!username) {
         statusEl.textContent = "❌ Username tidak boleh kosong!";
@@ -50,7 +57,7 @@
         const text = await res.text();
         if (text === "OK") {
           statusEl.textContent = "✅ Submit berhasil!";
-          document.getElementById("giveawayForm").reset();
+          form.reset();
           fetchData();
         } else {
           statusEl.textContent = "⚠️ Gagal submit: " + text;
@@ -61,9 +68,6 @@
     });
 
     async function fetchData() {
-      const winnerEl = document.getElementById("winner");
-      const partList = document.getElementById("participants");
-
       try {
         const res = await fetch("/api/data");
         const data = await res.json();
