@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>🎉 Random Giveaway Picker</title>
+  <meta charset="UTF-8" />
+  <style>
+    body { font-family: sans-serif; text-align: center; }
+    .winner { font-size: 24px; color: green; margin-top: 20px; }
+    .participant { font-size: 14px; margin: 5px; }
+  </style>
+</head>
+<body>
+  <h1>🎁 Discord Giveaway Tracker</h1>
+  <div id="winner" class="winner">Loading winner...</div>
+  <h3>All Participants</h3>
+  <div id="participants"></div>
+
+<script>
+  async function fetchData() {
+    const res = await fetch("/api/discordWebhook"); // 🔁 fetch lewat backend proxy
+    const data = await res.json();
+    document.getElementById("winner").textContent = `🎉 Winner: ${data.winner.username} (${data.winner.number})`;
+    const partList = data.participants.map(p => 
+      `<div class="participant">${p.username}: ${p.number}</div>`).join('');
+    document.getElementById("participants").innerHTML = partList;
+  }
+  fetchData();
+  setInterval(fetchData, 5000);
+</script>
+</body>
+</html>
