@@ -43,7 +43,7 @@
         });
 
         const loginText = await loginRes.text();
-
+        console.log("🔒 loginText:", loginText); // debugging
         if (loginText !== "OK") {
           statusEl.textContent = "❌ " + loginText;
           return;
