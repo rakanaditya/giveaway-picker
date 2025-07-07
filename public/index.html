@@ -48,40 +48,35 @@
     const winnerEl = document.getElementById("winner");
     const partList = document.getElementById("participants");
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const number = parseInt(numberInput.value.trim());
-      const username = user.username;
+   form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    statusEl.textContent = "🔄 Sedang memproses...";
 
-      statusEl.textContent = "";
-      if (isNaN(number) || number < 1 || number > 1000) {
-        statusEl.textContent = "❌ Angka harus antara 1–1000!";
+    const username = loginUsername.value.trim();
+    const password = loginPassword.value.trim();
+
+    try {
+      const loginRes = await fetch("/api/auth", { /* … */ });
+      const loginText = await loginRes.text();
+      console.log("🔒 loginText:", loginText); // debugging
+
+      if (loginText !== "OK") {
+        statusEl.textContent = "❌ " + loginText;
         return;
       }
 
-      try {
-        const res = await fetch("/api/data", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ author: { username }, content: number })
-        });
+      const adminRes = await fetch("/api/admin-auth", /* … */);
+      const result = await adminRes.json();
 
-        const text = await res.text();
-        if (text === "OK") {
-          statusEl.textContent = "✅ Submit berhasil!";
-          form.reset();
-          fetchData();
-        } else if (text.includes("Angka sudah dipakai")) {
-          statusEl.textContent = "❌ Angka sudah digunakan. Pilih angka lain!";
-        } else if (text.includes("Username sudah pernah submit")) {
-          statusEl.textContent = "❌ Kamu sudah submit sebelumnya!";
-        } else {
-          statusEl.textContent = "⚠️ Gagal submit: " + text;
-        }
-      } catch (err) {
-        statusEl.textContent = "❌ Error mengirim: " + err.message;
-      }
-    });
+      localStorage.setItem("giveawayUser", JSON.stringify({
+        username,
+        isAdmin: result.isAdmin || false
+      }));
+      window.location.href = result.isAdmin ? "/admin.html" : "/index.html";
+    } catch (err) {
+      statusEl.textContent = "❌ Error saat login: " + err.message;
+    }
+  });
 
     async function fetchData() {
       try {
