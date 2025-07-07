@@ -22,12 +22,13 @@
     const form = document.getElementById("loginForm");
     const statusEl = document.getElementById("loginStatus");
 
-    form.addEventListener("submit", (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const username = document.getElementById("loginUsername").value.trim();
       const password = document.getElementById("loginPassword").value;
 
+      // Cek dari local user storage
       const users = JSON.parse(localStorage.getItem("giveawayUsers") || "[]");
       const user = users.find(u => u.username === username && u.password === password);
 
@@ -36,13 +37,28 @@
         return;
       }
 
-      localStorage.setItem("giveawayUser", JSON.stringify({ username }));
+      // Check apakah dia admin melalui API
+      try {
+        const res = await fetch("/api/admin-auth", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
 
-       if (username === "rakanaditya" && password === "aditganteng213") {
-  localStorage.setItem("giveawayUser", JSON.stringify({ username, isAdmin: true }));
-} else {
-  localStorage.setItem("giveawayUser", JSON.stringify({ username, isAdmin: false }));
-}
+        const result = await res.json();
+
+        // Simpan ke localStorage
+        localStorage.setItem("giveawayUser", JSON.stringify({
+          username,
+          isAdmin: result.isAdmin
+        }));
+
+        // Redirect ke index.html
+        window.location.href = "/index.html";
+
+      } catch (err) {
+        statusEl.textContent = "❌ Gagal verifikasi admin: " + err.message;
+      }
     });
   </script>
 </body>
