@@ -102,7 +102,10 @@
     }
 
     // Countdown waktu akhir
-    const giveawayDeadline = new Date("2025-08-05T22:00:00+07:00");
+ // Ambil dari localStorage (diset di admin.html)
+const deadlineStr = localStorage.getItem("giveawayDeadline");
+const giveawayDeadline = deadlineStr ? new Date(deadlineStr) : new Date("2025-07-06T22:00:00+07:00");
+
 
     function updateCountdown() {
       const now = new Date();
