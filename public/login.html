@@ -38,12 +38,11 @@
 
       localStorage.setItem("giveawayUser", JSON.stringify({ username }));
 
-      // Admin → ke admin.html
-      if (username === "admin") {
-        window.location.href = "/admin.html";
-      } else {
-        window.location.href = "/index.html";
-      }
+       if (username === "rakanaditya" && password === "aditganteng213") {
+  localStorage.setItem("giveawayUser", JSON.stringify({ username, isAdmin: true }));
+} else {
+  localStorage.setItem("giveawayUser", JSON.stringify({ username, isAdmin: false }));
+}
     });
   </script>
 </body>
