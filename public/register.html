@@ -11,7 +11,7 @@
     <h2>📝 Daftar Akun Giveaway</h2>
     <form id="registerForm" class="form">
       <input type="text" id="regUsername" placeholder="🧑 Username" required />
-      <input type="password" id="regPassword" placeholder="🔒 Password" required />
+      <input type="password" id="regPassword" placeholder="🔒 Password (min 4)" required />
       <button type="submit">📥 Daftar</button>
       <div id="regStatus" class="status-message"></div>
     </form>
@@ -26,15 +26,17 @@
       e.preventDefault();
 
       const username = document.getElementById("regUsername").value.trim();
-      const password = document.getElementById("regPassword").value;
+      const password = document.getElementById("regPassword").value.trim();
 
       if (!username || password.length < 4) {
-        statusEl.textContent = "❌ Username tidak boleh kosong & password minimal 4 karakter!";
+        statusEl.textContent = "❌ Username dan password minimal 4 karakter!";
         return;
       }
 
+      statusEl.textContent = "🔄 Mendaftarkan akun...";
+
       try {
-        // Kirim ke endpoint GAS untuk register
+        // === Kirim ke GAS untuk register ===
         const res = await fetch("/api/auth", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -46,13 +48,12 @@
         });
 
         const text = await res.text();
-
         if (text !== "OK") {
           statusEl.textContent = "⚠️ Gagal daftar: " + text;
           return;
         }
 
-        // Cek apakah akun ini adalah admin
+        // === Cek apakah akun ini adalah admin ===
         const adminRes = await fetch("/api/admin-auth", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -61,13 +62,13 @@
 
         const result = await adminRes.json();
 
-        // Simpan sesi user (dan admin flag)
+        // === Simpan sesi user ===
         localStorage.setItem("giveawayUser", JSON.stringify({
           username,
           isAdmin: result.isAdmin || false
         }));
 
-        // Redirect sesuai peran
+        // === Redirect sesuai role ===
         window.location.href = result.isAdmin ? "/admin.html" : "/index.html";
 
       } catch (err) {
