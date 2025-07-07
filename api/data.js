@@ -1,10 +1,8 @@
-// pages/api/data.js
-
 export default async function handler(req, res) {
-  const GAS_URL = process.env.GAS_WEBHOOK_URL; // URL Google Apps Script GET
+  const GAS_URL = process.env.GAS_GET_URL;
 
   if (!GAS_URL) {
-    return res.status(500).json({ error: "GAS_WEBHOOK_URL belum diset di .env" });
+    return res.status(500).json({ error: "GAS_GET_URL belum diset di .env" });
   }
 
   try {
