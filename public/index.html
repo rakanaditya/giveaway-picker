@@ -12,8 +12,12 @@
 
     <div id="countdown" class="countdown">⏳ Menghitung waktu...</div>
 
+    <!-- Username tampil otomatis -->
+    <p>👤 Login sebagai: <strong id="userDisplay"></strong></p>
+    <button onclick="logout()">🔓 Logout</button>
+
+    <!-- Form hanya angka -->
     <form id="giveawayForm" class="form">
-      <input type="text" id="username" placeholder="🧑 Username Discord" autocomplete="off" required />
       <input type="number" id="number" placeholder="🎲 Angka (1–1000)" min="1" max="1000" required />
       <button type="submit">🚀 Kirim</button>
       <div id="formStatus" class="status-message"></div>
@@ -26,41 +30,49 @@
   </div>
 
   <script>
+    // Cek login
+    const user = JSON.parse(localStorage.getItem("giveawayUser"));
+    if (!user || !user.username) {
+      window.location.href = "/login.html";
+    }
+
+    // Tampilkan nama user
+    document.getElementById("userDisplay").textContent = user.username;
+
+    // Logout
+    function logout() {
+      localStorage.removeItem("giveawayUser");
+      window.location.href = "/login.html";
+    }
+
     const form = document.getElementById("giveawayForm");
-    const usernameInput = document.getElementById("username");
     const numberInput = document.getElementById("number");
     const statusEl = document.getElementById("formStatus");
     const winnerEl = document.getElementById("winner");
     const partList = document.getElementById("participants");
-    const countdownEl = document.getElementById("countdown");
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-
-      const username = usernameInput.value.trim();
       const number = parseInt(numberInput.value.trim());
 
       statusEl.textContent = "";
-      if (!username) return statusEl.textContent = "❌ Username tidak boleh kosong!";
-      if (isNaN(number) || number < 1 || number > 1000) return statusEl.textContent = "❌ Angka harus antara 1–1000!";
+      if (isNaN(number) || number < 1 || number > 1000) {
+        statusEl.textContent = "❌ Angka harus antara 1–1000!";
+        return;
+      }
 
       try {
         const res = await fetch("/api/data", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ author: { username }, content: number })
+          body: JSON.stringify({ author: { username: user.username }, content: number })
         });
 
         const text = await res.text();
-
         if (text === "OK") {
           statusEl.textContent = "✅ Submit berhasil!";
           form.reset();
           fetchData();
-        } else if (text.includes("Angka sudah dipakai")) {
-          statusEl.textContent = "❌ Angka tersebut sudah digunakan. Pilih angka lain!";
-        } else if (text.includes("Username sudah ikut")) {
-          statusEl.textContent = "⚠️ Kamu sudah pernah ikut!";
         } else {
           statusEl.textContent = "⚠️ Gagal submit: " + text;
         }
@@ -89,16 +101,18 @@
       }
     }
 
-    // Atur waktu akhir giveaway (ubah sesuai kebutuhan)
-    const giveawayDeadline = new Date("2025-07-05T22:00:00+07:00");
+    // Countdown waktu akhir
+    const giveawayDeadline = new Date("2025-08-05T22:00:00+07:00");
 
     function updateCountdown() {
       const now = new Date();
       const diff = giveawayDeadline - now;
 
+      const countdownEl = document.getElementById("countdown");
+
       if (diff <= 0) {
         countdownEl.textContent = "⛔ Giveaway sudah ditutup!";
-        form.style.display = "none";
+        form.style.display = "none"; // Sembunyikan form
         return;
       }
 
@@ -108,9 +122,9 @@
     }
 
     fetchData();
-    updateCountdown();
     setInterval(fetchData, 5000);
     setInterval(updateCountdown, 1000);
+    updateCountdown();
   </script>
 </body>
 </html>
