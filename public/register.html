@@ -19,28 +19,40 @@
   </div>
 
   <script>
-    document.getElementById("registerForm").addEventListener("submit", async function(e) {
-      e.preventDefault();
-      const username = document.getElementById("regUsername").value.trim();
-      const password = document.getElementById("regPassword").value.trim();
-      const status = document.getElementById("registerStatus");
+   document.getElementById("registerForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value.trim();
 
-      if (!username || !password) return status.textContent = "❌ Isi semua field.";
+  if (!username || !password) {
+    alert("❌ Username dan password wajib diisi!");
+    return;
+  }
 
-      const res = await fetch("/api/auth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, mode: "register" })
-      });
-      const result = await res.json();
+  // Simpan ke localStorage (bisa diganti kirim ke Google Sheet)
+  const newUser = { username, password };
+  let users = JSON.parse(localStorage.getItem("giveawayUsers") || "[]");
 
-      if (result.success) {
-        status.textContent = "✅ Berhasil daftar. Arahkan ke login...";
-        setTimeout(() => window.location.href = "/login.html", 1500);
-      } else {
-        status.textContent = "❌ " + (result.message || "Gagal daftar.");
-      }
-    });
+  // Cek apakah username sudah terdaftar
+  if (users.find(u => u.username === username)) {
+    alert("⚠️ Username sudah terdaftar!");
+    return;
+  }
+
+  users.push(newUser);
+  localStorage.setItem("giveawayUsers", JSON.stringify(users));
+
+  // 🔒 Tambahkan role admin jika username === "admin"
+  if (username === "adminrakanaditya") {
+    localStorage.setItem("giveawayUser", JSON.stringify({ username: "admin" }));
+  } else {
+    localStorage.setItem("giveawayUser", JSON.stringify({ username }));
+  }
+
+  alert("✅ Registrasi berhasil!");
+  window.location.href = "/index.html";
+});
+
   </script>
 </body>
 </html>
