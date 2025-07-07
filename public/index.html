@@ -1,25 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-  <title>🎉 Random Giveaway Picker</title>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎉 Random Giveaway Picker</title>
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
   <div class="container">
-    <h1>🎁 Discord Giveaway</h1>
+    <h1>🎁 Discord Giveaway Tracker</h1>
 
-    <form id="giveawayForm">
+    <form id="giveawayForm" class="form">
       <input type="text" id="username" placeholder="🧑 Username Discord" required />
       <input type="number" id="number" placeholder="🎲 Angka (1–1000)" min="1" max="1000" required />
       <button type="submit">🚀 Kirim</button>
-      <div id="formStatus"></div>
+      <div id="formStatus" class="status-message"></div>
     </form>
 
-    <div id="winner" class="winner">Loading winner...</div>
+    <div id="winner" class="winner">⏳ Memuat pemenang...</div>
 
-    <h3>📋 All Participants</h3>
-    <div id="participants"></div>
+    <h3>📋 Semua Peserta</h3>
+    <div id="participants" class="participant-list">Memuat peserta...</div>
   </div>
 
   <script>
@@ -29,41 +30,57 @@
       const number = parseInt(document.getElementById("number").value.trim());
       const statusEl = document.getElementById("formStatus");
 
-      if (!username) return statusEl.textContent = "❌ Username tidak boleh kosong!";
-      if (isNaN(number) || number < 1 || number > 1000) return statusEl.textContent = "❌ Angka harus 1–1000";
+      if (!username) {
+        statusEl.textContent = "❌ Username tidak boleh kosong!";
+        return;
+      }
 
-      const res = await fetch("/api/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ author: { username }, content: number })
-      });
-      const text = await res.text();
+      if (isNaN(number) || number < 1 || number > 1000) {
+        statusEl.textContent = "❌ Angka harus antara 1 sampai 1000!";
+        return;
+      }
 
-      if (text === "OK") {
-        statusEl.textContent = "✅ Submit berhasil!";
-        fetchData(); // refresh peserta
-      } else if (text === "Sudah submit") {
-        statusEl.textContent = "⚠️ Kamu sudah ikut!";
-      } else {
-        statusEl.textContent = "❌ Gagal: " + text;
+      try {
+        const res = await fetch("/api/discord", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ author: { username }, content: number })
+        });
+
+        const text = await res.text();
+        if (text === "OK") {
+          statusEl.textContent = "✅ Submit berhasil!";
+          document.getElementById("giveawayForm").reset();
+          fetchData();
+        } else {
+          statusEl.textContent = "⚠️ Gagal submit: " + text;
+        }
+      } catch (err) {
+        statusEl.textContent = "❌ Error saat mengirim: " + err.message;
       }
     });
 
     async function fetchData() {
-      const res = await fetch("/api/data");
-      const data = await res.json();
       const winnerEl = document.getElementById("winner");
       const partList = document.getElementById("participants");
 
-      if (data.winner) {
-        winnerEl.textContent = `🏆 Pemenang: ${data.winner.username} (${data.winner.number})`;
-      } else {
-        winnerEl.textContent = "Belum ada peserta.";
-      }
+      try {
+        const res = await fetch("/api/data");
+        const data = await res.json();
 
-      partList.innerHTML = data.participants.map(p =>
-        `<div class="participant">${p.username} (${p.number})</div>`
-      ).join('');
+        if (data.winner) {
+          winnerEl.textContent = `🏆 Pemenang: ${data.winner.username} (${data.winner.number})`;
+        } else {
+          winnerEl.textContent = "Belum ada peserta.";
+        }
+
+        partList.innerHTML = data.participants.map(p =>
+          `<div class="participant">👤 ${p.username} — 🎯 ${p.number}</div>`
+        ).join('');
+      } catch (err) {
+        winnerEl.textContent = "❌ Gagal memuat data";
+        partList.textContent = "🚫 Tidak dapat mengambil peserta";
+      }
     }
 
     fetchData();
