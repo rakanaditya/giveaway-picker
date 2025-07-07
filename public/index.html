@@ -1,31 +1,52 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>🎉 Random Giveaway Picker</title>
   <meta charset="UTF-8" />
-  <style>
-    body { font-family: sans-serif; text-align: center; }
-    .winner { font-size: 24px; color: green; margin-top: 20px; }
-    .participant { font-size: 14px; margin: 5px; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎉 Random Giveaway Picker</title>
+  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <h1>🎁 Discord Giveaway Tracker</h1>
-  <div id="winner" class="winner">Loading winner...</div>
-  <h3>All Participants</h3>
-  <div id="participants"></div>
+  <div class="container">
+    <h1>🎁 Discord Giveaway Tracker</h1>
+    <div id="winner" class="winner loading">⏳ Loading winner...</div>
+    
+    <h3>👥 All Participants</h3>
+    <div id="participants" class="participants loading">⏳ Loading participants...</div>
+  </div>
 
-<script>
-  async function fetchData() {
-    const res = await fetch("/api/data");
-    const data = await res.json();
-    document.getElementById("winner").textContent = `🎉 Winner: ${data.winner.username} (${data.winner.number})`;
-    const partList = data.participants.map(p => 
-      `<div class="participant">${p.username}: ${p.number}</div>`).join('');
-    document.getElementById("participants").innerHTML = partList;
-  }
-  fetchData();
-  setInterval(fetchData, 5000);
-</script>
+  <script>
+    async function fetchData() {
+      try {
+        const res = await fetch("/api/data");
+        if (!res.ok) throw new Error("Fetch failed");
+
+        const data = await res.json();
+
+        const winnerEl = document.getElementById("winner");
+        if (data.winner) {
+          winnerEl.classList.remove("loading");
+          winnerEl.textContent = `🎉 Winner: ${data.winner.username} (${data.winner.number})`;
+        } else {
+          winnerEl.textContent = "❌ Belum ada peserta.";
+        }
+
+        const partList = data.participants.map(p =>
+          `<div class="participant">${p.username}: ${p.number}</div>`
+        ).join('');
+        const partEl = document.getElementById("participants");
+        partEl.classList.remove("loading");
+        partEl.innerHTML = partList || "<div class='participant'>Belum ada peserta</div>";
+
+      } catch (err) {
+        document.getElementById("winner").textContent = "⚠️ Error fetching data";
+        document.getElementById("participants").innerHTML = "<div class='participant'>⚠️ Tidak dapat mengambil data</div>";
+        console.error(err);
+      }
+    }
+
+    fetchData();
+    setInterval(fetchData, 5000);
+  </script>
 </body>
 </html>
