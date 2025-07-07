@@ -1,10 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/",
-      "destination": "/index.html"
+      "source": "/api/admin-auth",
+      "destination": "https://giveaway-picker.app/api/admin-auth.js"
     }
-  ],
-  "cleanUrls": true,
-  "trailingSlash": false
+  ]
 }
