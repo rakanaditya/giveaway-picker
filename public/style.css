@@ -1,54 +1,55 @@
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f5f7fa;
-  color: #333;
-  margin: 0;
-  padding: 40px 20px;
+  font-family: "Segoe UI", sans-serif;
+  background: #f5f5f5;
+  padding: 20px;
   text-align: center;
+  color: #333;
 }
 
 .container {
-  max-width: 600px;
-  margin: auto;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  max-width: 500px;
+  margin: 0 auto;
+  background: white;
   padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
 }
 
-h1 {
-  font-size: 30px;
-  margin-bottom: 20px;
+input[type="text"],
+input[type="number"] {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  font-size: 16px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
 }
 
-h3 {
-  margin-top: 30px;
-  font-size: 20px;
-  color: #555;
-}
-
-.winner {
-  font-size: 24px;
-  font-weight: bold;
-  color: #2e7d32;
-  margin-top: 20px;
-}
-
-.participants {
+button {
+  background: #007bff;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
   margin-top: 10px;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background: #0056b3;
 }
 
 .participant {
-  font-size: 16px;
-  background: #eef2f7;
-  margin: 6px auto;
-  padding: 10px 20px;
-  width: fit-content;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+  margin: 6px;
+  font-size: 14px;
+  background: #f0f8ff;
+  padding: 8px;
+  border-radius: 6px;
 }
 
-.loading {
-  font-style: italic;
-  color: gray;
+#formStatus {
+  margin-top: 10px;
+  font-weight: bold;
 }
