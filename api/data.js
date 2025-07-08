@@ -7,34 +7,35 @@ export default async function handler(req, res) {
   if (req.method === "POST") {
     const { action, username, password, message } = req.body || {};
 
-    // === Validasi data dasar ===
+    // === Validasi dasar ===
     if (!action || !username) {
       return res.status(400).send("Missing action or username");
     }
 
- // ✅ Tambahkan validasi username aman
-  if (typeof username !== "string" || username.trim().length < 3) {
-    return res.status(400).send("Username tidak valid");
-  }
+    if (typeof username !== "string" || username.trim().length < 3) {
+      return res.status(400).send("Username tidak valid");
+    }
 
-    // === Untuk auth (register/login) ===
+    // === REGISTER / LOGIN ===
     if (action === "register" || action === "login") {
       try {
         const resGAS = await fetch(GAS_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action, username, password, captcha })
+          body: JSON.stringify({ action, username, password }) // 🚫 Tanpa captcha
         });
         const text = await resGAS.text();
         return res.status(200).send(text);
       } catch (err) {
+        console.error("❌ Error koneksi GAS (auth):", err.message);
         return res.status(500).send("Gagal koneksi ke GAS (auth)");
       }
     }
 
-    // === Untuk ikut giveaway ===
+    // === SUBMIT GIVEAWAY ===
     if (action === "submit") {
       if (!message) return res.status(400).send("Missing angka");
+
       try {
         const resGAS = await fetch(GAS_URL, {
           method: "POST",
@@ -44,11 +45,12 @@ export default async function handler(req, res) {
         const text = await resGAS.text();
         return res.status(200).send(text);
       } catch (err) {
+        console.error("❌ Error kirim angka:", err.message);
         return res.status(500).send("Gagal kirim angka ke GAS");
       }
     }
 
-    // === Untuk reset (admin) ===
+    // === RESET DATA (ADMIN) ===
     if (action === "reset") {
       try {
         const resGAS = await fetch(GAS_URL, {
@@ -59,6 +61,7 @@ export default async function handler(req, res) {
         const text = await resGAS.text();
         return res.status(200).send(text);
       } catch (err) {
+        console.error("❌ Error reset data:", err.message);
         return res.status(500).send("Gagal reset data");
       }
     }
@@ -66,16 +69,17 @@ export default async function handler(req, res) {
     return res.status(400).send("Action tidak dikenali");
   }
 
-  // === GET request: Ambil peserta + winner ===
+  // === GET Peserta & Winner
   if (req.method === "GET") {
     try {
       const response = await fetch(GAS_URL);
       const json = await response.json();
       return res.status(200).json(json);
     } catch (err) {
+      console.error("❌ Gagal ambil data:", err.message);
       return res.status(500).json({ error: "Gagal ambil data dari GAS" });
     }
   }
 
-  res.status(405).send("Method tidak diizinkan");
+  return res.status(405).send("Method tidak diizinkan");
 }
