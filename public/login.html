@@ -14,7 +14,7 @@
       <input type="text" id="loginUsername" placeholder="🧑 Username" required />
       <input type="password" id="loginPassword" placeholder="🔒 Password" required />
       
-      <div class="g-recaptcha" data-sitekey="6Lc-hHsrAAAAAICyP_sTMHD94cinCjd28XJEGwuW"></div>
+   <!--   <div class="g-recaptcha" data-sitekey="site key"></div> !-->
 
       <button type="submit">🔓 Login</button>
       <div id="loginStatus" class="status-message"></div>
@@ -54,7 +54,7 @@
             action: "login",
             username,
             password,
-            captcha: captchaToken
+            captcha: captchaToken // opsional
           })
         });
 
