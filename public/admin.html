@@ -16,19 +16,18 @@
     <input type="datetime-local" id="deadlineInput" />
     <button onclick="saveDeadline()">💾 Simpan</button>
 
-<h3>🧹 Reset Peserta</h3>
-<button onclick="resetPeserta()">🚨 Reset Giveaway</button>
+    <h3>🧹 Reset Peserta</h3>
+    <button onclick="resetPeserta()">🚨 Reset Giveaway</button>
 
-
-    <div id="statusMsg"></div>
+    <div id="statusMsg" class="status-message"></div>
   </div>
 
   <script>
-   const user = JSON.parse(localStorage.getItem("giveawayUser"));
-  if (!user || !user.isAdmin) {
-    alert("⛔ Akses admin ditolak!");
-    window.location.href = "/index.html";
-  }
+    const user = JSON.parse(localStorage.getItem("giveawayUser"));
+    if (!user || !user.isAdmin) {
+      alert("⛔ Akses admin ditolak!");
+      window.location.href = "/login.html";
+    }
 
     const adminUser = document.getElementById("adminUser");
     adminUser.textContent = user.username;
@@ -36,12 +35,13 @@
     const deadlineInput = document.getElementById("deadlineInput");
     const statusMsg = document.getElementById("statusMsg");
 
-    // Ambil deadline dari localStorage
+    // === Load deadline dari localStorage
     const savedDeadline = localStorage.getItem("giveawayDeadline");
     if (savedDeadline) {
-      deadlineInput.value = new Date(savedDeadline).toISOString().slice(0,16);
+      deadlineInput.value = new Date(savedDeadline).toISOString().slice(0, 16);
     }
 
+    // === Simpan Deadline
     function saveDeadline() {
       const value = deadlineInput.value;
       if (!value) {
@@ -52,6 +52,26 @@
       statusMsg.textContent = "✅ Deadline berhasil disimpan!";
     }
 
+    // === Reset Peserta
+    async function resetPeserta() {
+      statusMsg.textContent = "🔄 Mereset peserta...";
+      try {
+        const res = await fetch("/api/data", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "reset",
+            username: user.username
+          })
+        });
+        const text = await res.text();
+        statusMsg.textContent = "✅ " + text;
+      } catch (err) {
+        statusMsg.textContent = "❌ Gagal reset: " + err.message;
+      }
+    }
+
+    // === Logout
     function logout() {
       localStorage.removeItem("giveawayUser");
       window.location.href = "/login.html";
