@@ -25,24 +25,23 @@
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const username = document.getElementById("registerUsername").value.trim();
-      const password = document.getElementById("registerPassword").value.trim();
+      const username = document.getElementById("regUsername").value.trim();
+      const password = document.getElementById("regPassword").value.trim();
 
-
-    if (!username || password.length < 4) {
-  statusEl.textContent = "❌ Username dan password minimal 4 karakter!";
-  return;
-}
-
-if (/^\d+$/.test(password)) {
-  statusEl.textContent = "❌ Password tidak boleh hanya angka!";
-  return;
-}
+      // Validasi input
+      if (username.length < 3 || password.length < 4) {
+        statusEl.textContent = "❌ Username dan password minimal 4 karakter!";
+        return;
+      }
+      if (/^\d+$/.test(password)) {
+        statusEl.textContent = "❌ Password tidak boleh hanya angka!";
+        return;
+      }
 
       statusEl.textContent = "🔄 Mendaftarkan akun...";
 
       try {
-        // === Kirim ke GAS untuk register ===
+        // Kirim ke backend untuk register
         const res = await fetch("/api/data", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -59,7 +58,7 @@ if (/^\d+$/.test(password)) {
           return;
         }
 
-        // === Cek apakah akun ini adalah admin ===
+        // Cek apakah akun adalah admin
         const adminRes = await fetch("/api/admin-auth", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -68,13 +67,13 @@ if (/^\d+$/.test(password)) {
 
         const result = await adminRes.json();
 
-        // === Simpan sesi user ===
+        // Simpan sesi user
         localStorage.setItem("giveawayUser", JSON.stringify({
           username,
           isAdmin: result.isAdmin || false
         }));
 
-        // === Redirect sesuai role ===
+        // Redirect ke halaman sesuai role
         window.location.href = result.isAdmin ? "/admin.html" : "/index.html";
 
       } catch (err) {
