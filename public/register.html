@@ -25,8 +25,9 @@
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const username = document.getElementById("regUsername").value.trim();
-      const password = document.getElementById("regPassword").value.trim();
+      const username = document.getElementById("registerUsername").value.trim();
+      const password = document.getElementById("registerPassword").value.trim();
+
 
       if (!username || password.length < 4) {
         statusEl.textContent = "❌ Username dan password minimal 4 karakter!";
