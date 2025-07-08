@@ -29,10 +29,16 @@
       const password = document.getElementById("registerPassword").value.trim();
 
 
-      if (!username || password.length < 4) {
-        statusEl.textContent = "❌ Username dan password minimal 4 karakter!";
-        return;
-      }
+    if (!username || password.length < 4) {
+  statusEl.textContent = "❌ Username dan password minimal 4 karakter!";
+  return;
+}
+
+if (/^\d+$/.test(password)) {
+  statusEl.textContent = "❌ Password tidak boleh hanya angka!";
+  return;
+}
+
 
       statusEl.textContent = "🔄 Mendaftarkan akun...";
 
