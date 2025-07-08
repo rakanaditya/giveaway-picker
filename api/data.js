@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   if (!GAS_URL) return res.status(500).send("GAS_URL belum diset di .env");
 
   if (req.method === "POST") {
-    const { action, username, password, message, captcha } = req.body || {};
+    const { action, username, password, message } = req.body || {};
 
     // === Validasi data dasar ===
     if (!action || !username) {
