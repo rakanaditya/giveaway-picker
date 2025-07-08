@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Daftar Giveaway</title>
@@ -14,7 +12,6 @@
     <form id="registerForm" class="form">
       <input type="text" id="regUsername" placeholder="🧑 Username" required />
       <input type="password" id="regPassword" placeholder="🔒 Password (min 4)" required />
-<div class="g-recaptcha" data-sitekey="6Lc-hHsrAAAAAICyP_sTMHD94cinCjd28XJEGwuW"></div>
       <button type="submit">📥 Daftar</button>
       <div id="regStatus" class="status-message"></div>
     </form>
@@ -42,14 +39,6 @@ if (/^\d+$/.test(password)) {
   return;
 }
 
-const captchaResponse = grecaptcha.getResponse();
-if (!captchaResponse) {
-  statusEl.textContent = "⚠️ Silakan centang verifikasi 'Saya bukan robot'";
-  return;
-}
-
-
-
       statusEl.textContent = "🔄 Mendaftarkan akun...";
 
       try {
@@ -60,8 +49,7 @@ if (!captchaResponse) {
           body: JSON.stringify({
             action: "register",
             username,
-            password,
-            captcha: captchaResponse
+            password
           })
         });
 
