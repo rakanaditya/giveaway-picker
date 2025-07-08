@@ -1,9 +1,12 @@
+
 /* === GLOBAL === */
 body {
   margin: 0;
   padding: 20px;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: #f0f2f5;
+  background: url('/gradient-abstract-background_23-2149101392.png') no-repeat center center fixed;
+  background-size: cover;
+  background-color: #f0f2f5;
   text-align: center;
   color: #333;
 }
@@ -12,11 +15,12 @@ body {
 .container {
   max-width: 500px;
   margin: auto;
-  background: white;
+  background: rgba(255, 255, 255, 0.9);
   padding: 30px 40px;
   border-radius: 16px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
 }
+
 
 /* === TITLE === */
 h2 {
