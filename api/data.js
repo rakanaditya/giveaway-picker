@@ -12,6 +12,11 @@ export default async function handler(req, res) {
       return res.status(400).send("Missing action or username");
     }
 
+ // ✅ Tambahkan validasi username aman
+  if (typeof username !== "string" || username.trim().length < 3) {
+    return res.status(400).send("Username tidak valid");
+  }
+
     // === Untuk auth (register/login) ===
     if (action === "register" || action === "login") {
       try {
