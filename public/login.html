@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login Giveaway</title>
   <link rel="stylesheet" href="/style.css" />
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
   <div class="container">
@@ -13,9 +12,6 @@
     <form id="loginForm" class="form">
       <input type="text" id="loginUsername" placeholder="🧑 Username" required />
       <input type="password" id="loginPassword" placeholder="🔒 Password" required />
-      
-   <!--   <div class="g-recaptcha" data-sitekey="site key"></div> !-->
-
       <button type="submit">🔓 Login</button>
       <div id="loginStatus" class="status-message"></div>
     </form>
@@ -39,12 +35,6 @@
         statusEl.textContent = "❌ Username/password tidak valid!";
         return;
       }
-
-      if (!captchaToken) {
-        statusEl.textContent = "⚠️ Silakan centang captcha!";
-        return;
-      }
-
       try {
         // Kirim ke GAS via /api/data (login)
         const loginRes = await fetch("/api/data", {
@@ -53,8 +43,7 @@
           body: JSON.stringify({
             action: "login",
             username,
-            password,
-            captcha: captchaToken // opsional
+            password
           })
         });
 
@@ -62,7 +51,6 @@
 
         if (loginText !== "OK") {
           statusEl.textContent = "❌ " + loginText;
-          grecaptcha.reset(); // reset captcha jika gagal
           return;
         }
 
@@ -86,7 +74,6 @@
 
       } catch (err) {
         statusEl.textContent = "❌ Gagal login: " + err.message;
-        grecaptcha.reset();
       }
     });
   </script>
