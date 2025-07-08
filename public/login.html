@@ -36,13 +36,14 @@
 
       try {
         // === Kirim permintaan login ke GAS ===
-        const loginRes = await fetch("/api/auth", {
+        const loginRes = await fetch("/api/data", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             action: "login",
             username,
-            password
+            password,
+            captcha: captchaToken // opsional
           })
         });
 
