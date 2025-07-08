@@ -1,60 +1,76 @@
+// pages/api/data.js
+
 export default async function handler(req, res) {
   const GAS_URL = process.env.GAS_URL;
   if (!GAS_URL) return res.status(500).send("GAS_URL belum diset di .env");
 
   if (req.method === "POST") {
+    const { action, username, password, message, captcha } = req.body || {};
+
+    // === Validasi data dasar ===
+    if (!action || !username) {
+      return res.status(400).send("Missing action or username");
+    }
+
+    // === Untuk auth (register/login) ===
+    if (action === "register" || action === "login") {
+      try {
+        const resGAS = await fetch(GAS_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action, username, password, captcha })
+        });
+        const text = await resGAS.text();
+        return res.status(200).send(text);
+      } catch (err) {
+        return res.status(500).send("Gagal koneksi ke GAS (auth)");
+      }
+    }
+
+    // === Untuk ikut giveaway ===
+    if (action === "submit") {
+      if (!message) return res.status(400).send("Missing angka");
+      try {
+        const resGAS = await fetch(GAS_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, message })
+        });
+        const text = await resGAS.text();
+        return res.status(200).send(text);
+      } catch (err) {
+        return res.status(500).send("Gagal kirim angka ke GAS");
+      }
+    }
+
+    // === Untuk reset (admin) ===
+    if (action === "reset") {
+      try {
+        const resGAS = await fetch(GAS_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "reset", username })
+        });
+        const text = await resGAS.text();
+        return res.status(200).send(text);
+      } catch (err) {
+        return res.status(500).send("Gagal reset data");
+      }
+    }
+
+    return res.status(400).send("Action tidak dikenali");
+  }
+
+  // === GET request: Ambil peserta + winner ===
+  if (req.method === "GET") {
     try {
-      const body = req.body;
-
-      // ✅ LOGIN / REGISTER
-      if (body.action && body.username && body.password) {
-        const payload = {
-          action: body.action,
-          username: body.username,
-          password: body.password,
-          captcha: body.captcha || "" // untuk register yang pakai reCAPTCHA
-        };
-
-        const r = await fetch(GAS_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-
-        const text = await r.text();
-        return res.status(200).send(text);
-      }
-
-      // ✅ SUBMIT ANGKA GIVEAWAY
-      if (body.author?.username && body.content !== undefined) {
-        const r = await fetch(GAS_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            username: body.author.username,
-            message: body.content.toString()
-          })
-        });
-
-        const text = await r.text();
-        return res.status(200).send(text);
-      }
-
-      return res.status(400).send("Data POST tidak valid");
+      const response = await fetch(GAS_URL);
+      const json = await response.json();
+      return res.status(200).json(json);
     } catch (err) {
-      console.error("POST to GAS failed:", err);
-      return res.status(500).send("Gagal kirim ke GAS");
+      return res.status(500).json({ error: "Gagal ambil data dari GAS" });
     }
   }
 
-  // ✅ GET: Fetch peserta dan pemenang
-  try {
-    const r = await fetch(GAS_URL);
-    const text = await r.text();
-    const data = JSON.parse(text);
-    return res.status(200).json(data);
-  } catch (err) {
-    console.error("GET from GAS failed:", err);
-    return res.status(500).json({ error: "Fetch error", detail: err.message });
-  }
+  res.status(405).send("Method tidak diizinkan");
 }
