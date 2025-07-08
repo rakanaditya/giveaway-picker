@@ -33,22 +33,27 @@ export default async function handler(req, res) {
     }
 
     // === SUBMIT GIVEAWAY ===
-    if (action === "submit") {
-      if (!message) return res.status(400).send("Missing angka");
+ if (action === "submit") {
+  if (!message) return res.status(400).send("Missing angka");
 
-      try {
-        const resGAS = await fetch(GAS_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, message })
-        });
-        const text = await resGAS.text();
-        return res.status(200).send(text);
-      } catch (err) {
-        console.error("❌ Error kirim angka:", err.message);
-        return res.status(500).send("Gagal kirim angka ke GAS");
-      }
-    }
+  try {
+    const resGAS = await fetch(GAS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "submit", // ✅ tambahkan action!
+        username,
+        message
+      })
+    });
+    const text = await resGAS.text();
+    return res.status(200).send(text);
+  } catch (err) {
+    console.error("❌ Error kirim angka:", err.message);
+    return res.status(500).send("Gagal kirim angka ke GAS");
+  }
+}
+
 
     // === RESET DATA (ADMIN) ===
     if (action === "reset") {
