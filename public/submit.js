@@ -18,14 +18,16 @@ form.addEventListener("submit", async (e) => {
 
   statusEl.textContent = "🔄 Mengirim...";
 
-  const res = await fetch("/api/data", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      author: { username: user.username },
-      content: number
-    })
-  });
+const res = await fetch("/api/data", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    action: "submit",
+    username: user.username,
+    message: number
+  })
+});
+
 
   const text = await res.text();
   if (text === "OK") {
