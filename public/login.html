@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login Giveaway</title>
   <link rel="stylesheet" href="/style.css" />
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
   <div class="container">
@@ -12,6 +13,9 @@
     <form id="loginForm" class="form">
       <input type="text" id="loginUsername" placeholder="🧑 Username" required />
       <input type="password" id="loginPassword" placeholder="🔒 Password" required />
+      
+      <div class="g-recaptcha" data-sitekey="6Lc-hHsrAAAAAICyP_sTMHD94cinCjd28XJEGwuW"></div>
+
       <button type="submit">🔓 Login</button>
       <div id="loginStatus" class="status-message"></div>
     </form>
@@ -28,14 +32,21 @@
 
       const username = document.getElementById("loginUsername").value.trim();
       const password = document.getElementById("loginPassword").value.trim();
+      const captchaToken = grecaptcha.getResponse();
 
-      if (!username || password.length < 4) {
+      // Validasi input
+      if (username.length < 3 || password.length < 4) {
         statusEl.textContent = "❌ Username/password tidak valid!";
         return;
       }
 
+      if (!captchaToken) {
+        statusEl.textContent = "⚠️ Silakan centang captcha!";
+        return;
+      }
+
       try {
-        // === Kirim permintaan login ke GAS ===
+        // Kirim ke GAS via /api/data (login)
         const loginRes = await fetch("/api/data", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -43,7 +54,7 @@
             action: "login",
             username,
             password,
-            captcha: captchaToken // opsional
+            captcha: captchaToken
           })
         });
 
@@ -51,10 +62,11 @@
 
         if (loginText !== "OK") {
           statusEl.textContent = "❌ " + loginText;
+          grecaptcha.reset(); // reset captcha jika gagal
           return;
         }
 
-        // === Cek apakah user adalah admin ===
+        // Cek apakah admin
         const adminRes = await fetch("/api/admin-auth", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -63,17 +75,18 @@
 
         const result = await adminRes.json();
 
-        // === Simpan sesi ke localStorage ===
+        // Simpan login
         localStorage.setItem("giveawayUser", JSON.stringify({
           username,
           isAdmin: result.isAdmin || false
         }));
 
-        // === Redirect ke halaman sesuai role ===
+        // Redirect ke halaman sesuai role
         window.location.href = result.isAdmin ? "/admin.html" : "/index.html";
 
       } catch (err) {
-        statusEl.textContent = "❌ Error saat login: " + err.message;
+        statusEl.textContent = "❌ Gagal login: " + err.message;
+        grecaptcha.reset();
       }
     });
   </script>
