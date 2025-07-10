@@ -27,113 +27,119 @@
     <div id="participants" class="participant-list">Memuat peserta...</div>
   </div>
 
-  <script>
-    // === Proteksi login
-    const user = JSON.parse(localStorage.getItem("giveawayUser"));
-    if (!user || !user.username) {
-      window.location.href = "/login.html";
+<script>
+  // === Proteksi login
+  const user = JSON.parse(localStorage.getItem("giveawayUser"));
+  if (!user || !user.username) {
+    window.location.href = "/login.html";
+  }
+
+  document.getElementById("userDisplay").textContent = user.username;
+
+  function logout() {
+    localStorage.removeItem("giveawayUser");
+    window.location.href = "/login.html";
+  }
+
+  const form = document.getElementById("giveawayForm");
+  const numberInput = document.getElementById("number");
+  const statusEl = document.getElementById("formStatus");
+  const winnerEl = document.getElementById("winner");
+  const partList = document.getElementById("participants");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const number = parseInt(numberInput.value);
+
+    if (isNaN(number) || number < 1 || number > 1000) {
+      statusEl.textContent = "❌ Masukkan angka antara 1–1000";
+      return;
     }
 
-    // === Tampilkan nama user login
-    document.getElementById("userDisplay").textContent = user.username;
-
-    function logout() {
-      localStorage.removeItem("giveawayUser");
-      window.location.href = "/login.html";
+    if (giveawayDeadline - new Date() <= 0) {
+      statusEl.textContent = "⛔ Giveaway sudah ditutup!";
+      return;
     }
 
-    const form = document.getElementById("giveawayForm");
-    const numberInput = document.getElementById("number");
-    const statusEl = document.getElementById("formStatus");
-    const winnerEl = document.getElementById("winner");
-    const partList = document.getElementById("participants");
+    statusEl.textContent = "🔄 Mengirim angka...";
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const number = parseInt(numberInput.value);
+    try {
+      const res = await fetch("/api/data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "submit",
+          username: user.username,
+          message: number
+        })
+      });
 
-      // Validasi angka
-      if (isNaN(number) || number < 1 || number > 1000) {
-        statusEl.textContent = "❌ Masukkan angka antara 1–1000";
-        return;
+      const text = await res.text();
+      if (text === "OK") {
+        statusEl.textContent = "✅ Berhasil ikut giveaway!";
+        numberInput.value = "";
+        fetchData();
+      } else {
+        statusEl.textContent = "⚠️ " + text;
+      }
+    } catch (err) {
+      statusEl.textContent = "❌ Gagal kirim: " + err.message;
+    }
+  });
+
+  async function fetchData() {
+    try {
+      const res = await fetch("/api/data");
+      const data = await res.json();
+
+      if (data.winner) {
+        winnerEl.textContent = `🏆 Pemenang: ${data.winner.username} (${data.winner.number})`;
+      } else {
+        winnerEl.textContent = "Belum ada peserta.";
       }
 
-      // Cek deadline
-      if (giveawayDeadline - new Date() <= 0) {
-        statusEl.textContent = "⛔ Giveaway sudah ditutup!";
-        return;
-      }
+      partList.innerHTML = data.participants.map(p =>
+        `<div class="participant">👤 ${p.username} — 🎯 ${p.number}</div>`
+      ).join('');
+    } catch (err) {
+      winnerEl.textContent = "❌ Gagal memuat data";
+      partList.textContent = "🚫 Tidak bisa mengambil data";
+    }
+  }
 
-      statusEl.textContent = "🔄 Mengirim angka...";
+  // === Countdown Giveaway
+  const deadlineStr = localStorage.getItem("giveawayDeadline");
+  const giveawayDeadline = deadlineStr ? new Date(deadlineStr) : new Date("2025-07-10T22:00:00+07:00");
 
-      try {
-       const res = await fetch("/api/data", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    action: "submit",
-    username: user.username,
-    message: number
-  })
-});
+  function updateCountdown() {
+    const now = new Date();
+    const diff = giveawayDeadline - now;
+    const countdownEl = document.getElementById("countdown");
 
-
-        const text = await res.text();
-        if (text === "OK") {
-          statusEl.textContent = "✅ Berhasil ikut giveaway!";
-          numberInput.value = "";
-        } else {
-          statusEl.textContent = "⚠️ " + text;
-        }
-      } catch (err) {
-        statusEl.textContent = "❌ Gagal kirim: " + err.message;
-      }
-    });
-
-    async function fetchData() {
-      try {
-        const res = await fetch("/api/data");
-        const data = await res.json();
-
-        if (data.winner) {
-          winnerEl.textContent = `🏆 Pemenang: ${data.winner.username} (${data.winner.number})`;
-        } else {
-          winnerEl.textContent = "Belum ada peserta.";
-        }
-
-        partList.innerHTML = data.participants.map(p =>
-          `<div class="participant">👤 ${p.username} — 🎯 ${p.number}</div>`
-        ).join('');
-      } catch (err) {
-        winnerEl.textContent = "❌ Gagal memuat data";
-        partList.textContent = "🚫 Tidak bisa mengambil data";
-      }
+    if (diff <= 0) {
+      countdownEl.textContent = "⛔ Giveaway sudah ditutup!";
+      form.style.display = "none";
+      return;
     }
 
-    // === Countdown Giveaway
-    const deadlineStr = localStorage.getItem("giveawayDeadline");
-    const giveawayDeadline = deadlineStr ? new Date(deadlineStr) : new Date("2025-07-06T22:00:00+07:00");
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / 1000 / 60) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
 
-    function updateCountdown() {
-      const now = new Date();
-      const diff = giveawayDeadline - now;
-      const countdownEl = document.getElementById("countdown");
+    let parts = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (hours > 0 || days > 0) parts.push(`${hours}h`);
+    if (minutes > 0 || hours > 0 || days > 0) parts.push(`${minutes}m`);
+    parts.push(`${seconds}s`);
 
-      if (diff <= 0) {
-        countdownEl.textContent = "⛔ Giveaway sudah ditutup!";
-        form.style.display = "none";
-        return;
-      }
+    countdownEl.textContent = `⏳ Tersisa: ${parts.join(" ")}`;
+  }
 
-      const minutes = Math.floor(diff / 1000 / 60);
-      const seconds = Math.floor((diff / 1000) % 60);
-      countdownEl.textContent = `⏳ Tersisa: ${minutes}m ${seconds}s`;
-    }
-
-    fetchData();
-    setInterval(fetchData, 5000);
-    setInterval(updateCountdown, 1000);
-    updateCountdown();
-  </script>
+  fetchData();
+  updateCountdown();
+  setInterval(fetchData, 5000);
+  setInterval(updateCountdown, 1000);
+</script>
 </body>
 </html>
