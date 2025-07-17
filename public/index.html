@@ -10,7 +10,7 @@
   <div class="container">
     <h1>🎁 Discord Giveaway Tracker</h1>
 
-<p id="statusText" class="status">🔄 Memuat status...</p>
+    <p id="statusText" class="status">🔄 Memuat status...</p>
     <div id="countdown" class="countdown">⏳ Menghitung waktu...</div>
 
     <p>👤 Login sebagai: <strong id="userDisplay"></strong></p>
@@ -48,9 +48,8 @@
   const winnerEl = document.getElementById("winner");
   const partList = document.getElementById("participants");
 
-  // Atur deadline dari localStorage atau default
-  let giveawayDeadline = localStorage.getItem("giveawayDeadline");
-  giveawayDeadline = giveawayDeadline ? new Date(giveawayDeadline) : new Date("2025-07-10T22:00:00+07:00");
+  let startTime = null;
+  let endTime = null;
 
   // === Form Submit
   form.addEventListener("submit", async (e) => {
@@ -62,8 +61,9 @@
       return;
     }
 
-    if (giveawayDeadline - new Date() <= 0) {
-      statusEl.textContent = "⛔ Giveaway sudah ditutup!";
+    const now = new Date();
+    if (!startTime || !endTime || now < startTime || now > endTime) {
+      statusEl.textContent = "⛔ Giveaway belum aktif atau sudah berakhir!";
       return;
     }
 
@@ -93,61 +93,81 @@
     }
   });
 
-  // === Fetch Peserta dan Pemenang
- async function fetchData() {
-  try {
-    const res = await fetch("/api/data");
-    const data = await res.json();
+  // === Fetch Peserta, Pemenang, dan Waktu
+  async function fetchData() {
+    try {
+      const res = await fetch("/api/data");
+      const data = await res.json();
 
-    // Tampilkan status giveaway
-    const statusEl = document.getElementById("statusText");
+      const statusText = document.getElementById("statusText");
 
-    if (data.status === "closed") {
-      statusEl.textContent = "⛔ Giveaway telah ditutup.";
-    } else if (data.status === "upcoming") {
-      statusEl.textContent = "⏳ Giveaway belum dimulai.";
-    } else if (data.status === "open") {
-      statusEl.textContent = "🎉 Giveaway sedang berlangsung!";
-    } else {
-      statusEl.textContent = "❓ Status tidak diketahui";
+      // Simpan start & end time
+      if (data.startTime) startTime = new Date(data.startTime);
+      if (data.endTime) endTime = new Date(data.endTime);
+
+      // Status server
+      if (data.status === "closed") {
+        statusText.textContent = "⛔ Giveaway telah ditutup.";
+        form.style.display = "none";
+      } else if (data.status === "upcoming") {
+        statusText.textContent = "⏳ Giveaway belum dimulai.";
+        form.style.display = "none";
+      } else if (data.status === "open") {
+        statusText.textContent = "🎉 Giveaway sedang berlangsung!";
+        form.style.display = "block";
+      } else {
+        statusText.textContent = "❓ Status tidak diketahui";
+        form.style.display = "none";
+      }
+
+      // Pemenang
+      if (data.winner) {
+        winnerEl.textContent = `🏆 Pemenang: ${data.winner.username} (${data.winner.number})`;
+      } else {
+        winnerEl.textContent = "Belum ada pemenang.";
+      }
+
+      // Peserta
+      if (Array.isArray(data.participants)) {
+        partList.innerHTML = data.participants.map(p =>
+          `<div class="participant">👤 ${p.username} — 🎯 ${p.number}</div>`
+        ).join('');
+      } else {
+        partList.textContent = "Belum ada peserta.";
+      }
+
+    } catch (err) {
+      console.error("❌ Fetch error:", err.message);
+      winnerEl.textContent = "❌ Gagal memuat data";
+      partList.textContent = "🚫 Tidak bisa mengambil data";
     }
-
-    // Tampilkan pemenang
-    if (data.winner) {
-      winnerEl.textContent = `🏆 Pemenang: ${data.winner.username} (${data.winner.number})`;
-    } else {
-      winnerEl.textContent = "Belum ada pemenang.";
-    }
-
-    // Tampilkan peserta
-    if (Array.isArray(data.participants)) {
-      partList.innerHTML = data.participants.map(p =>
-        `<div class="participant">👤 ${p.username} — 🎯 ${p.number}</div>`
-      ).join('');
-    } else {
-      partList.textContent = "Belum ada peserta.";
-    }
-
-  } catch (err) {
-    console.error("❌ Fetch error:", err.message);
-    winnerEl.textContent = "❌ Gagal memuat data";
-    partList.textContent = "🚫 Tidak bisa mengambil data";
   }
-}
-
 
   // === Countdown Timer
   function updateCountdown() {
     const now = new Date();
-    const diff = giveawayDeadline - now;
     const countdownEl = document.getElementById("countdown");
 
-    if (diff <= 0) {
-      countdownEl.textContent = "⛔ Giveaway sudah ditutup!";
-      form.style.display = "none";
+    if (!startTime || !endTime) {
+      countdownEl.textContent = "⏳ Memuat waktu giveaway...";
       return;
     }
 
+    if (now < startTime) {
+      const diff = startTime - now;
+      countdownEl.textContent = `🕒 Dimulai dalam: ${formatTime(diff)}`;
+      form.style.display = "none";
+    } else if (now >= startTime && now <= endTime) {
+      const diff = endTime - now;
+      countdownEl.textContent = `⏳ Tersisa: ${formatTime(diff)}`;
+      form.style.display = "block";
+    } else {
+      countdownEl.textContent = "⛔ Giveaway sudah ditutup!";
+      form.style.display = "none";
+    }
+  }
+
+  function formatTime(diff) {
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
     const minutes = Math.floor((diff / 1000 / 60) % 60);
@@ -159,12 +179,11 @@
     if (minutes > 0 || hours > 0 || days > 0) parts.push(`${minutes}m`);
     parts.push(`${seconds}s`);
 
-    countdownEl.textContent = `⏳ Tersisa: ${parts.join(" ")}`;
+    return parts.join(" ");
   }
 
   // === Init
   fetchData();
-  updateCountdown();
   setInterval(fetchData, 5000);
   setInterval(updateCountdown, 1000);
 </script>
