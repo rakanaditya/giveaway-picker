@@ -16,17 +16,18 @@ form.addEventListener("submit", async (e) => {
     user = JSON.parse(userRaw);
   } catch (err) {
     statusEl.textContent = "⛔ Data login rusak, silakan login ulang.";
+    localStorage.removeItem("giveawayUser");
     return;
   }
 
-  if (!user || !user.username) {
+  if (!user || !user.username || user.username.trim() === "") {
     statusEl.textContent = "⛔ Harap login kembali!";
     return;
   }
 
   // Ambil angka dari input
   const numberInput = document.getElementById("numberInput").value.trim();
-  const number = parseInt(numberInput);
+  const number = parseInt(numberInput, 10);
 
   if (!numberInput || isNaN(number) || number < 1 || number > 1000) {
     statusEl.textContent = "❌ Masukkan angka 1–1000";
@@ -42,10 +43,15 @@ form.addEventListener("submit", async (e) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         action: "submit",
-        username: user.username,
+        username: user.username.trim(),
         number: number,
       }),
     });
+
+    if (!res.ok) {
+      statusEl.textContent = `⚠️ Gagal submit (Kode ${res.status})`;
+      return;
+    }
 
     const data = await res.json();
 
@@ -55,7 +61,7 @@ form.addEventListener("submit", async (e) => {
       statusEl.textContent = "⚠️ " + (data.error || "Gagal submit");
     }
   } catch (err) {
-    statusEl.textContent = "🚫 Gagal koneksi ke server!";
     console.error("Submit error:", err);
+    statusEl.textContent = "🚫 Gagal koneksi ke server!";
   }
 });
