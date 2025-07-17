@@ -47,9 +47,11 @@
   const winnerEl = document.getElementById("winner");
   const partList = document.getElementById("participants");
 
+  // Atur deadline dari localStorage atau default
   let giveawayDeadline = localStorage.getItem("giveawayDeadline");
   giveawayDeadline = giveawayDeadline ? new Date(giveawayDeadline) : new Date("2025-07-10T22:00:00+07:00");
 
+  // === Form Submit
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const number = parseInt(numberInput.value);
@@ -90,6 +92,7 @@
     }
   });
 
+  // === Fetch Peserta dan Pemenang
   async function fetchData() {
     try {
       const res = await fetch("/api/data");
@@ -112,6 +115,7 @@
     }
   }
 
+  // === Countdown Timer
   function updateCountdown() {
     const now = new Date();
     const diff = giveawayDeadline - now;
@@ -137,6 +141,7 @@
     countdownEl.textContent = `⏳ Tersisa: ${parts.join(" ")}`;
   }
 
+  // === Init
   fetchData();
   updateCountdown();
   setInterval(fetchData, 5000);
