@@ -9,7 +9,7 @@
 <body>
   <div class="container">
     <h1>🎁 Discord Giveaway</h1>
-    
+
     <div id="statusText">⏳ Memuat status...</div>
     <div id="countdown"></div>
 
@@ -39,11 +39,14 @@
     let endTime = null;
     let submitted = false;
 
-    const user = localStorage.getItem("username");
-    if (!user) {
+    // ✅ Ambil user dari localStorage
+    const savedUser = JSON.parse(localStorage.getItem("giveawayUser"));
+    const username = savedUser?.username;
+
+    if (!username) {
       window.location.href = "/login.html";
     } else {
-      userInfo.textContent = `👤 Masuk sebagai: ${user}`;
+      userInfo.textContent = `👤 Masuk sebagai: ${username}`;
     }
 
     form.addEventListener("submit", async (e) => {
@@ -57,28 +60,26 @@
       try {
         const res = await fetch("/api/data", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             action: "submit",
-            username: user,
+            username: username,
             number: number,
           }),
         });
 
         const data = await res.json();
         if (data.success) {
-          alert("Berhasil kirim angka!");
+          alert("✅ Angka berhasil dikirim!");
           numberInput.value = "";
           submitted = true;
           fetchData(); // refresh tampilan
         } else {
-          alert(data.message || "Gagal submit!");
+          alert(data.message || "❌ Gagal submit.");
         }
       } catch (err) {
         console.error(err);
-        alert("Terjadi kesalahan saat mengirim.");
+        alert("❌ Terjadi kesalahan saat mengirim.");
       }
     });
 
@@ -107,7 +108,7 @@
         const now = new Date();
 
         if (data.status === "upcoming") {
-          statusText.textContent = "🔒 Giveaway belum dibuka";
+          statusText.textContent = "🔒 Giveaway belum dimulai";
           form.style.display = "none";
         } else if (data.status === "open") {
           statusText.textContent = "🎉 Giveaway sedang berlangsung!";
@@ -116,14 +117,14 @@
           statusText.textContent = "⛔ Giveaway sudah ditutup";
           form.style.display = "none";
         } else {
-          statusText.textContent = "❓ Status tidak tersedia dari server.";
+          statusText.textContent = "❓ Status tidak dikenali dari server.";
           form.style.display = "none";
-          console.warn("Unknown status from API:", data.status);
+          console.warn("Unknown status:", data.status);
         }
 
         updateCountdown(now);
       } catch (err) {
-        console.error("Gagal memuat data:", err);
+        console.error("❌ Gagal memuat data:", err);
         statusText.textContent = "❌ Gagal memuat status giveaway.";
       }
     }
@@ -147,7 +148,7 @@
     }
 
     fetchData();
-    setInterval(fetchData, 10000); // refresh tiap 10 detik
+    setInterval(fetchData, 10000);
   </script>
 </body>
 </html>
