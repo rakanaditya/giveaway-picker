@@ -10,6 +10,9 @@
   <div class="container">
     <h1>🎁 Discord Giveaway Tracker</h1>
 
+    <p id="formStatus" class="status">🔄 Memuat status...</p>
+
+
     <div id="countdown" class="countdown">⏳ Menghitung waktu...</div>
 
     <p>👤 Login sebagai: <strong id="userDisplay"></strong></p>
@@ -93,27 +96,47 @@
   });
 
   // === Fetch Peserta dan Pemenang
-  async function fetchData() {
-    try {
-      const res = await fetch("/api/data");
-      const data = await res.json();
+ async function fetchData() {
+  try {
+    const res = await fetch("/api/data");
+    const data = await res.json();
 
-      if (data.winner && data.winner.username) {
-        winnerEl.textContent = `🏆 Pemenang: ${data.winner.username} (${data.winner.number})`;
-      } else {
-        winnerEl.textContent = "Belum ada pemenang.";
-      }
+    // Tampilkan status giveaway
+    const statusEl = document.getElementById("statusText");
 
-      partList.innerHTML = data.participants?.length > 0
-        ? data.participants.map(p =>
-            `<div class="participant">👤 ${p.username} — 🎯 ${p.number}</div>`
-          ).join('')
-        : "Belum ada peserta.";
-    } catch (err) {
-      winnerEl.textContent = "❌ Gagal memuat data";
-      partList.textContent = "🚫 Tidak bisa mengambil data";
+    if (data.status === "closed") {
+      statusEl.textContent = "⛔ Giveaway telah ditutup.";
+    } else if (data.status === "upcoming") {
+      statusEl.textContent = "⏳ Giveaway belum dimulai.";
+    } else if (data.status === "open") {
+      statusEl.textContent = "🎉 Giveaway sedang berlangsung!";
+    } else {
+      statusEl.textContent = "❓ Status tidak diketahui";
     }
+
+    // Tampilkan pemenang
+    if (data.winner) {
+      winnerEl.textContent = `🏆 Pemenang: ${data.winner.username} (${data.winner.number})`;
+    } else {
+      winnerEl.textContent = "Belum ada pemenang.";
+    }
+
+    // Tampilkan peserta
+    if (Array.isArray(data.participants)) {
+      partList.innerHTML = data.participants.map(p =>
+        `<div class="participant">👤 ${p.username} — 🎯 ${p.number}</div>`
+      ).join('');
+    } else {
+      partList.textContent = "Belum ada peserta.";
+    }
+
+  } catch (err) {
+    console.error("❌ Fetch error:", err.message);
+    winnerEl.textContent = "❌ Gagal memuat data";
+    partList.textContent = "🚫 Tidak bisa mengambil data";
   }
+}
+
 
   // === Countdown Timer
   function updateCountdown() {
