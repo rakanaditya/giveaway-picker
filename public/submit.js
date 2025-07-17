@@ -27,6 +27,7 @@ form.addEventListener("submit", async (e) => {
   // Ambil angka dari input
   const numberInput = document.getElementById("numberInput").value.trim();
   const number = parseInt(numberInput);
+
   if (!numberInput || isNaN(number) || number < 1 || number > 1000) {
     statusEl.textContent = "❌ Masukkan angka 1–1000";
     return;
