@@ -35,7 +35,6 @@
 
   <script>
     const form = document.getElementById("numberForm");
-    const numberInput = document.getElementById("numberInput");
     const statusText = document.getElementById("statusText");
     const countdown = document.getElementById("countdown");
     const winnerSection = document.getElementById("winnerSection");
@@ -63,57 +62,6 @@
     logoutBtn.addEventListener("click", () => {
       localStorage.removeItem("giveawayUser");
       window.location.href = "/login.html";
-    });
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const number = parseInt(numberInput.value);
-      if (isNaN(number) || number < 1 || number > 1000) {
-        submitStatus.textContent = "❌ Masukkan angka 1–1000";
-        return;
-      }
-
-      submitStatus.textContent = "🔄 Mengirim...";
-      try {
-        const res = await fetch("/api/data", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "submit",
-            username: username,
-            number: number,
-          }),
-        });
-
-        const text = await res.text();
-
-        try {
-          const json = JSON.parse(text);
-          if (json.success) {
-            submitStatus.textContent = "✅ " + json.message;
-            submitted = true;
-            form.style.display = "none";
-            numberInput.value = "";
-            fetchData();
-          } else {
-            submitStatus.textContent = "⚠️ " + (json.message || "Gagal submit");
-          }
-        } catch {
-          // Handle legacy "OK" plain text
-          if (text === "OK") {
-            submitStatus.textContent = "✅ Angka berhasil dikirim!";
-            submitted = true;
-            form.style.display = "none";
-            numberInput.value = "";
-            fetchData();
-          } else {
-            submitStatus.textContent = "⚠️ " + text;
-          }
-        }
-      } catch (err) {
-        console.error(err);
-        submitStatus.textContent = "❌ Terjadi kesalahan saat mengirim.";
-      }
     });
 
     async function fetchData() {
@@ -194,6 +142,13 @@
 
     fetchData();
     setInterval(fetchData, 10000);
+  </script>
+
+  <!-- 🧠 Import modular script di bawah ini -->
+  <script type="module">
+    import { handleSubmit } from './submit.js';
+    const form = document.getElementById("numberForm");
+    form.addEventListener("submit", handleSubmit);
   </script>
 </body>
 </html>
