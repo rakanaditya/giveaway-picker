@@ -12,6 +12,7 @@
 
     <div id="statusText">⏳ Memuat status...</div>
     <div id="countdown"></div>
+    <div id="submitStatus" style="margin-top:10px;"></div>
 
     <form id="numberForm" style="display:none">
       <input type="number" id="numberInput" placeholder="Tebak angka (1–1000)" required min="1" max="1000" />
@@ -23,7 +24,13 @@
       <div id="winnerText">Belum ada</div>
     </div>
 
-    <div id="userInfo"></div>
+    <div id="participantsList" style="margin-top:20px; display:none;">
+      <h3>👥 Peserta Saat Ini:</h3>
+      <ul id="participantsUl"></ul>
+    </div>
+
+    <div id="userInfo" style="margin-top:20px;"></div>
+    <button id="logoutBtn" style="display:none; margin-top:10px;">🔓 Logout</button>
   </div>
 
   <script>
@@ -34,12 +41,15 @@
     const winnerSection = document.getElementById("winnerSection");
     const winnerText = document.getElementById("winnerText");
     const userInfo = document.getElementById("userInfo");
+    const submitStatus = document.getElementById("submitStatus");
+    const participantsList = document.getElementById("participantsList");
+    const participantsUl = document.getElementById("participantsUl");
+    const logoutBtn = document.getElementById("logoutBtn");
 
     let startTime = null;
     let endTime = null;
     let submitted = false;
 
-    // ✅ Ambil user dari localStorage
     const savedUser = JSON.parse(localStorage.getItem("giveawayUser"));
     const username = savedUser?.username;
 
@@ -47,16 +57,23 @@
       window.location.href = "/login.html";
     } else {
       userInfo.textContent = `👤 Masuk sebagai: ${username}`;
+      logoutBtn.style.display = "inline-block";
     }
+
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("giveawayUser");
+      window.location.href = "/login.html";
+    });
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const number = parseInt(numberInput.value);
-      if (number < 1 || number > 1000 || isNaN(number)) {
-        alert("Angka harus antara 1 dan 1000!");
+      if (isNaN(number) || number < 1 || number > 1000) {
+        submitStatus.textContent = "❌ Masukkan angka 1–1000";
         return;
       }
 
+      submitStatus.textContent = "🔄 Mengirim...";
       try {
         const res = await fetch("/api/data", {
           method: "POST",
@@ -68,18 +85,19 @@
           }),
         });
 
-        const data = await res.json();
-        if (data.success) {
-          alert("✅ Angka berhasil dikirim!");
-          numberInput.value = "";
+        const data = await res.text();
+        if (data === "OK") {
+          submitStatus.textContent = "✅ Angka berhasil dikirim!";
           submitted = true;
-          fetchData(); // refresh tampilan
+          numberInput.value = "";
+          form.style.display = "none";
+          fetchData(); // Refresh data peserta
         } else {
-          alert(data.message || "❌ Gagal submit.");
+          submitStatus.textContent = "⚠️ " + data;
         }
       } catch (err) {
         console.error(err);
-        alert("❌ Terjadi kesalahan saat mengirim.");
+        submitStatus.textContent = "❌ Terjadi kesalahan saat mengirim.";
       }
     });
 
@@ -88,19 +106,12 @@
         const res = await fetch("/api/data");
         const data = await res.json();
 
-        if (data.startTime) {
-          const parsedStart = new Date(data.startTime);
-          if (!isNaN(parsedStart.getTime())) startTime = parsedStart;
-        }
-
-        if (data.endTime) {
-          const parsedEnd = new Date(data.endTime);
-          if (!isNaN(parsedEnd.getTime())) endTime = parsedEnd;
-        }
+        if (data.startTime) startTime = new Date(data.startTime);
+        if (data.endTime) endTime = new Date(data.endTime);
 
         if (data.winner) {
           winnerSection.style.display = "block";
-          winnerText.textContent = data.winner;
+          winnerText.textContent = data.winner.username + " (angka: " + data.winner.number + ")";
         } else {
           winnerSection.style.display = "none";
         }
@@ -112,14 +123,32 @@
           form.style.display = "none";
         } else if (data.status === "open") {
           statusText.textContent = "🎉 Giveaway sedang berlangsung!";
-          form.style.display = submitted ? "none" : "block";
+          if (!submitted && !data.participants.some(p => p.username.toLowerCase() === username.toLowerCase())) {
+            form.style.display = "block";
+          } else {
+            form.style.display = "none";
+            submitted = true;
+            submitStatus.textContent = "✅ Kamu sudah ikut hari ini.";
+          }
         } else if (data.status === "closed") {
           statusText.textContent = "⛔ Giveaway sudah ditutup";
           form.style.display = "none";
         } else {
           statusText.textContent = "❓ Status tidak dikenali dari server.";
           form.style.display = "none";
-          console.warn("Unknown status:", data.status);
+        }
+
+        // 👥 Update daftar peserta
+        participantsUl.innerHTML = "";
+        if (data.participants && data.participants.length > 0) {
+          participantsList.style.display = "block";
+          data.participants.forEach(p => {
+            const li = document.createElement("li");
+            li.textContent = p.username;
+            participantsUl.appendChild(li);
+          });
+        } else {
+          participantsList.style.display = "none";
         }
 
         updateCountdown(now);
