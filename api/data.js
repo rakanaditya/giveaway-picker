@@ -76,15 +76,27 @@ export default async function handler(req, res) {
 
   // === GET Peserta & Winner
   if (req.method === "GET") {
-    try {
-      const response = await fetch(GAS_URL);
-      const json = await response.json();
-      return res.status(200).json(json);
-    } catch (err) {
-      console.error("❌ Gagal ambil data:", err.message);
-      return res.status(500).json({ error: "Gagal ambil data dari GAS" });
+  try {
+    const response = await fetch(GAS_URL);
+    const json = await response.json();
+
+    // Hitung status jika belum disediakan oleh GAS
+    if (!json.status && json.startTime && json.endTime) {
+      const now = new Date();
+      const start = new Date(json.startTime);
+      const end = new Date(json.endTime);
+
+      if (now < start) json.status = "upcoming";
+      else if (now >= start && now <= end) json.status = "open";
+      else json.status = "closed";
     }
+
+    return res.status(200).json(json);
+  } catch (err) {
+    console.error("❌ Gagal ambil data:", err.message);
+    return res.status(500).json({ error: "Gagal ambil data dari GAS" });
   }
+}
 
   return res.status(405).send("Method tidak diizinkan");
 }
