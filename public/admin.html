@@ -12,9 +12,12 @@
     <p>Login sebagai: <strong id="adminUser"></strong></p>
     <button onclick="logout()">🔓 Logout</button>
 
-    <h3>🕒 Atur Deadline Giveaway</h3>
-    <input type="datetime-local" id="deadlineInput" />
-    <button onclick="saveDeadline()">💾 Simpan</button>
+    <h3>🕒 Atur Jadwal Giveaway</h3>
+    <label>Waktu Mulai</label>
+    <input type="datetime-local" id="startTimeInput" />
+    <label>Waktu Selesai</label>
+    <input type="datetime-local" id="endTimeInput" />
+    <button onclick="saveDeadline()">💾 Simpan Jadwal</button>
 
     <h3>🧹 Reset Peserta</h3>
     <button onclick="resetPeserta()">🚨 Reset Giveaway</button>
@@ -29,27 +32,59 @@
       window.location.href = "/login.html";
     }
 
-    const adminUser = document.getElementById("adminUser");
-    adminUser.textContent = user.username;
-
-    const deadlineInput = document.getElementById("deadlineInput");
+    document.getElementById("adminUser").textContent = user.username;
     const statusMsg = document.getElementById("statusMsg");
 
-    // === Load deadline dari localStorage
-    const savedDeadline = localStorage.getItem("giveawayDeadline");
-    if (savedDeadline) {
-      deadlineInput.value = new Date(savedDeadline).toISOString().slice(0, 16);
-    }
+    // === Ambil waktu dari backend
+    fetch("/api/data")
+      .then(res => res.json())
+      .then(data => {
+        if (data.startTime) {
+          document.getElementById("startTimeInput").value =
+            new Date(data.startTime).toISOString().slice(0, 16);
+        }
+        if (data.endTime) {
+          document.getElementById("endTimeInput").value =
+            new Date(data.endTime).toISOString().slice(0, 16);
+        }
+      })
+      .catch(err => {
+        statusMsg.textContent = "⚠️ Gagal mengambil data waktu: " + err.message;
+      });
 
     // === Simpan Deadline
-    function saveDeadline() {
-      const value = deadlineInput.value;
-      if (!value) {
-        statusMsg.textContent = "❌ Masukkan waktu deadline!";
+    async function saveDeadline() {
+      const start = document.getElementById("startTimeInput").value;
+      const end = document.getElementById("endTimeInput").value;
+
+      if (!start || !end) {
+        statusMsg.textContent = "❌ Masukkan waktu mulai dan selesai!";
         return;
       }
-      localStorage.setItem("giveawayDeadline", new Date(value).toISOString());
-      statusMsg.textContent = "✅ Deadline berhasil disimpan!";
+
+      statusMsg.textContent = "⏳ Menyimpan jadwal...";
+
+      try {
+        const res = await fetch("/api/data", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "setDeadline",
+            username: user.username,
+            startTime: new Date(start).toISOString(),
+            endTime: new Date(end).toISOString()
+          })
+        });
+
+        const text = await res.text();
+        if (text === "OK") {
+          statusMsg.textContent = "✅ Jadwal berhasil disimpan!";
+        } else {
+          statusMsg.textContent = "❌ Gagal menyimpan: " + text;
+        }
+      } catch (err) {
+        statusMsg.textContent = "❌ Error: " + err.message;
+      }
     }
 
     // === Reset Peserta
