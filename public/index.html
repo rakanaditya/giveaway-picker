@@ -85,15 +85,30 @@
           }),
         });
 
-        const data = await res.text();
-        if (data === "OK") {
-          submitStatus.textContent = "✅ Angka berhasil dikirim!";
-          submitted = true;
-          numberInput.value = "";
-          form.style.display = "none";
-          fetchData(); // Refresh data peserta
-        } else {
-          submitStatus.textContent = "⚠️ " + data;
+        const text = await res.text();
+
+        try {
+          const json = JSON.parse(text);
+          if (json.success) {
+            submitStatus.textContent = "✅ " + json.message;
+            submitted = true;
+            form.style.display = "none";
+            numberInput.value = "";
+            fetchData();
+          } else {
+            submitStatus.textContent = "⚠️ " + (json.message || "Gagal submit");
+          }
+        } catch {
+          // Handle legacy "OK" plain text
+          if (text === "OK") {
+            submitStatus.textContent = "✅ Angka berhasil dikirim!";
+            submitted = true;
+            form.style.display = "none";
+            numberInput.value = "";
+            fetchData();
+          } else {
+            submitStatus.textContent = "⚠️ " + text;
+          }
         }
       } catch (err) {
         console.error(err);
@@ -109,14 +124,14 @@
         if (data.startTime) startTime = new Date(data.startTime);
         if (data.endTime) endTime = new Date(data.endTime);
 
+        const now = new Date();
+
         if (data.winner) {
           winnerSection.style.display = "block";
-          winnerText.textContent = data.winner.username + " (angka: " + data.winner.number + ")";
+          winnerText.textContent = `${data.winner.username} (angka: ${data.winner.number})`;
         } else {
           winnerSection.style.display = "none";
         }
-
-        const now = new Date();
 
         if (data.status === "upcoming") {
           statusText.textContent = "🔒 Giveaway belum dimulai";
@@ -125,6 +140,7 @@
           statusText.textContent = "🎉 Giveaway sedang berlangsung!";
           if (!submitted && !data.participants.some(p => p.username.toLowerCase() === username.toLowerCase())) {
             form.style.display = "block";
+            submitStatus.textContent = "";
           } else {
             form.style.display = "none";
             submitted = true;
@@ -138,9 +154,9 @@
           form.style.display = "none";
         }
 
-        // 👥 Update daftar peserta
+        // 👥 Daftar peserta
         participantsUl.innerHTML = "";
-        if (data.participants && data.participants.length > 0) {
+        if (data.participants?.length) {
           participantsList.style.display = "block";
           data.participants.forEach(p => {
             const li = document.createElement("li");
