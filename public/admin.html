@@ -53,7 +53,8 @@
       });
 
     // === Simpan Deadline
-   async function saveDeadline() {
+  // === Simpan Deadline
+async function saveDeadline() {
   const startRaw = document.getElementById("startTimeInput").value;
   const endRaw = document.getElementById("endTimeInput").value;
 
@@ -84,11 +85,12 @@
       })
     });
 
-    const text = await res.text();
-    if (text === "OK") {
-      statusMsg.textContent = "✅ Jadwal berhasil disimpan!";
+    const data = await res.json();
+
+    if (data.success) {
+      statusMsg.textContent = "✅ " + data.message;
     } else {
-      statusMsg.textContent = "❌ Gagal menyimpan: " + text;
+      statusMsg.textContent = "❌ Gagal menyimpan: " + (data.message || "Unknown error");
     }
   } catch (err) {
     statusMsg.textContent = "❌ Error: " + err.message;
@@ -96,24 +98,30 @@
 }
 
 
-    // === Reset Peserta
+
     async function resetPeserta() {
-      statusMsg.textContent = "🔄 Mereset peserta...";
-      try {
-        const res = await fetch("/api/data", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "reset",
-            username: user.username
-          })
-        });
-        const text = await res.text();
-        statusMsg.textContent = "✅ " + text;
-      } catch (err) {
-        statusMsg.textContent = "❌ Gagal reset: " + err.message;
-      }
+  statusMsg.textContent = "🔄 Mereset peserta...";
+  try {
+    const res = await fetch("/api/data", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "reset",
+        username: user.username
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      statusMsg.textContent = "✅ " + data.message;
+    } else {
+      statusMsg.textContent = "❌ Gagal reset: " + (data.message || "Unknown error");
     }
+  } catch (err) {
+    statusMsg.textContent = "❌ Gagal reset: " + err.message;
+  }
+}
 
     // === Logout
     function logout() {
