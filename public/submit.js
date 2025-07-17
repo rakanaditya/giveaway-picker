@@ -24,15 +24,16 @@ const res = await fetch("/api/data", {
   body: JSON.stringify({
     action: "submit",
     username: user.username,
-    message: number   // ✅ Ganti dari "message" ke "number"
+    message: number   // ✅
   })
 });
 
 
-  const text = await res.text();
-  if (text === "OK") {
-    statusEl.textContent = "✅ Berhasil ikut giveaway!";
-  } else {
-    statusEl.textContent = "⚠️ " + text;
-  }
+const data = await res.json();
+if (data.success) {
+  statusEl.textContent = "✅ " + data.message;
+} else {
+  statusEl.textContent = "⚠️ " + (data.error || "Gagal submit");
+}
+
 });
