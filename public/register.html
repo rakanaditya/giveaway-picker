@@ -22,64 +22,64 @@
     const form = document.getElementById("registerForm");
     const statusEl = document.getElementById("regStatus");
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
+   form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-      const username = document.getElementById("regUsername").value.trim();
-      const password = document.getElementById("regPassword").value.trim();
+  const username = document.getElementById("regUsername").value.trim();
+  const password = document.getElementById("regPassword").value.trim();
 
-      // Validasi input
-      if (username.length < 3 || password.length < 4) {
-        statusEl.textContent = "❌ Username dan password minimal 4 karakter!";
-        return;
-      }
-      if (/^\d+$/.test(password)) {
-        statusEl.textContent = "❌ Password tidak boleh hanya angka!";
-        return;
-      }
+  // Validasi input
+  if (username.length < 3 || password.length < 4) {
+    statusEl.textContent = "❌ Username dan password minimal 4 karakter!";
+    return;
+  }
+  if (/^\d+$/.test(password)) {
+    statusEl.textContent = "❌ Password tidak boleh hanya angka!";
+    return;
+  }
 
-      statusEl.textContent = "🔄 Mendaftarkan akun...";
+  statusEl.textContent = "🔄 Mendaftarkan akun...";
 
-      try {
-        // Kirim ke backend untuk register
-        const res = await fetch("/api/data", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "register",
-            username,
-            password
-          })
-        });
-
-        const text = await res.text();
-        if (text !== "OK") {
-          statusEl.textContent = "⚠️ Gagal daftar: " + text;
-          return;
-        }
-
-        // Cek apakah akun adalah admin
-        const adminRes = await fetch("/api/admin-auth", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password })
-        });
-
-        const result = await adminRes.json();
-
-        // Simpan sesi user
-        localStorage.setItem("giveawayUser", JSON.stringify({
-          username,
-          isAdmin: result.isAdmin || false
-        }));
-
-        // Redirect ke halaman sesuai role
-        window.location.href = result.isAdmin ? "/admin.html" : "/index.html";
-
-      } catch (err) {
-        statusEl.textContent = "❌ Error saat daftar: " + err.message;
-      }
+  try {
+    const res = await fetch("/api/data", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "register",
+        username,
+        password
+      })
     });
+
+    const data = await res.json();
+    if (!data.success) {
+      statusEl.textContent = "⚠️ Gagal daftar: " + (data.message || "Unknown error");
+      return;
+    }
+
+    // Cek apakah akun adalah admin
+    const adminRes = await fetch("/api/admin-auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    });
+
+    const result = await adminRes.json();
+
+    // Simpan sesi user
+    localStorage.setItem("giveawayUser", JSON.stringify({
+      username,
+      isAdmin: result.isAdmin || false
+    }));
+
+    // Redirect ke halaman sesuai role
+    window.location.href = result.isAdmin ? "/admin.html" : "/index.html";
+
+  } catch (err) {
+    statusEl.textContent = "❌ Error saat daftar: " + err.message;
+  }
+});
+
   </script>
 </body>
 </html>
