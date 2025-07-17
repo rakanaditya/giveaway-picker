@@ -63,8 +63,11 @@ export default async function handler(req, res) {
         return await postToGAS({ action, username, password });
 
       case "submit":
-        if (!username || !message) return res.status(400).json({ error: "Username / angka kosong" });
-        return await postToGAS({ action, username, message });
+  if (!username || typeof body.number === "undefined") {
+    return res.status(400).json({ error: "Username / angka kosong" });
+  }
+  return await postToGAS({ action, username, number: body.number });
+
 
       case "reset":
         if (!username) return res.status(400).json({ error: "Username kosong" });
