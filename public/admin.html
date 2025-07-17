@@ -53,39 +53,48 @@
       });
 
     // === Simpan Deadline
-    async function saveDeadline() {
-      const start = document.getElementById("startTimeInput").value;
-      const end = document.getElementById("endTimeInput").value;
+   async function saveDeadline() {
+  const startRaw = document.getElementById("startTimeInput").value;
+  const endRaw = document.getElementById("endTimeInput").value;
 
-      if (!start || !end) {
-        statusMsg.textContent = "❌ Masukkan waktu mulai dan selesai!";
-        return;
-      }
+  if (!startRaw || !endRaw) {
+    statusMsg.textContent = "❌ Masukkan waktu mulai dan selesai!";
+    return;
+  }
 
-      statusMsg.textContent = "⏳ Menyimpan jadwal...";
+  const start = new Date(startRaw);
+  const end = new Date(endRaw);
 
-      try {
-        const res = await fetch("/api/data", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "setDeadline",
-            username: user.username,
-            startTime: new Date(start).toISOString(),
-            endTime: new Date(end).toISOString()
-          })
-        });
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    statusMsg.textContent = "❌ Format tanggal tidak valid!";
+    return;
+  }
 
-        const text = await res.text();
-        if (text === "OK") {
-          statusMsg.textContent = "✅ Jadwal berhasil disimpan!";
-        } else {
-          statusMsg.textContent = "❌ Gagal menyimpan: " + text;
-        }
-      } catch (err) {
-        statusMsg.textContent = "❌ Error: " + err.message;
-      }
+  statusMsg.textContent = "⏳ Menyimpan jadwal...";
+
+  try {
+    const res = await fetch("/api/data", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "setDeadline",
+        username: user.username,
+        startTime: start.toISOString(),
+        endTime: end.toISOString()
+      })
+    });
+
+    const text = await res.text();
+    if (text === "OK") {
+      statusMsg.textContent = "✅ Jadwal berhasil disimpan!";
+    } else {
+      statusMsg.textContent = "❌ Gagal menyimpan: " + text;
     }
+  } catch (err) {
+    statusMsg.textContent = "❌ Error: " + err.message;
+  }
+}
+
 
     // === Reset Peserta
     async function resetPeserta() {
