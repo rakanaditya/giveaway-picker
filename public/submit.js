@@ -1,67 +1,199 @@
-const form = document.getElementById("submitForm");
-const statusEl = document.getElementById("submitStatus");
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎉 Giveaway Picker</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>🎁 Discord Giveaway</h1>
 
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+    <div id="statusText">⏳ Memuat status...</div>
+    <div id="countdown"></div>
+    <div id="submitStatus" style="margin-top:10px;"></div>
 
-  // Ambil data user dari localStorage
-  let userRaw = localStorage.getItem("giveawayUser");
-  if (!userRaw) {
-    statusEl.textContent = "⛔ Harap login terlebih dahulu!";
-    return;
-  }
+    <form id="numberForm" style="display:none">
+      <input type="number" id="numberInput" placeholder="Tebak angka (1–1000)" required min="1" max="1000" />
+      <button type="submit">Kirim</button>
+    </form>
 
-  let user;
-  try {
-    user = JSON.parse(userRaw);
-  } catch (err) {
-    statusEl.textContent = "⛔ Data login rusak, silakan login ulang.";
-    localStorage.removeItem("giveawayUser");
-    return;
-  }
+    <div id="winnerSection" style="display:none">
+      <h3>🎉 Pemenang:</h3>
+      <div id="winnerText">Belum ada</div>
+    </div>
 
-  if (!user || !user.username || user.username.trim() === "") {
-    statusEl.textContent = "⛔ Harap login kembali!";
-    return;
-  }
+    <div id="participantsList" style="margin-top:20px; display:none;">
+      <h3>👥 Peserta Saat Ini:</h3>
+      <ul id="participantsUl"></ul>
+    </div>
 
-  // Ambil angka dari input
-  const numberInput = document.getElementById("numberInput").value.trim();
-  const number = parseInt(numberInput, 10);
+    <div id="userInfo" style="margin-top:20px;"></div>
+    <button id="logoutBtn" style="display:none; margin-top:10px;">🔓 Logout</button>
+  </div>
 
-  if (!numberInput || isNaN(number) || number < 1 || number > 1000) {
-    statusEl.textContent = "❌ Masukkan angka 1–1000";
-    return;
-  }
+  <script>
+    const form = document.getElementById("numberForm");
+    const numberInput = document.getElementById("numberInput");
+    const statusText = document.getElementById("statusText");
+    const countdown = document.getElementById("countdown");
+    const winnerSection = document.getElementById("winnerSection");
+    const winnerText = document.getElementById("winnerText");
+    const userInfo = document.getElementById("userInfo");
+    const submitStatus = document.getElementById("submitStatus");
+    const participantsList = document.getElementById("participantsList");
+    const participantsUl = document.getElementById("participantsUl");
+    const logoutBtn = document.getElementById("logoutBtn");
 
-  // Tampilkan status loading
-  statusEl.textContent = "🔄 Mengirim...";
+    let startTime = null;
+    let endTime = null;
+    let submitted = false;
 
-  try {
-    const res = await fetch("/api/data", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "submit",
-        username: user.username.trim(),
-        number: number,
-      }),
+    const savedUser = JSON.parse(localStorage.getItem("giveawayUser"));
+    const username = savedUser?.username;
+
+    if (!username) {
+      window.location.href = "/login.html";
+    } else {
+      userInfo.textContent = `👤 Masuk sebagai: ${username}`;
+      logoutBtn.style.display = "inline-block";
+    }
+
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("giveawayUser");
+      window.location.href = "/login.html";
     });
 
-    if (!res.ok) {
-      statusEl.textContent = `⚠️ Gagal submit (Kode ${res.status})`;
-      return;
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const number = parseInt(numberInput.value);
+      if (isNaN(number) || number < 1 || number > 1000) {
+        submitStatus.textContent = "❌ Masukkan angka 1–1000";
+        return;
+      }
+
+      submitStatus.textContent = "🔄 Mengirim...";
+      try {
+        const res = await fetch("/api/data", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "submit",
+            username: username,
+            number: number,
+          }),
+        });
+
+        const text = await res.text();
+
+        try {
+          const json = JSON.parse(text);
+          if (json.success) {
+            submitStatus.textContent = "✅ " + json.message;
+            submitted = true;
+            form.style.display = "none";
+            numberInput.value = "";
+            fetchData();
+          } else {
+            submitStatus.textContent = "⚠️ " + (json.message || "Gagal submit");
+          }
+        } catch {
+          // Handle legacy "OK" plain text
+          if (text === "OK") {
+            submitStatus.textContent = "✅ Angka berhasil dikirim!";
+            submitted = true;
+            form.style.display = "none";
+            numberInput.value = "";
+            fetchData();
+          } else {
+            submitStatus.textContent = "⚠️ " + text;
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        submitStatus.textContent = "❌ Terjadi kesalahan saat mengirim.";
+      }
+    });
+
+    async function fetchData() {
+      try {
+        const res = await fetch("/api/data");
+        const data = await res.json();
+
+        if (data.startTime) startTime = new Date(data.startTime);
+        if (data.endTime) endTime = new Date(data.endTime);
+
+        const now = new Date();
+
+        if (data.winner) {
+          winnerSection.style.display = "block";
+          winnerText.textContent = `${data.winner.username} (angka: ${data.winner.number})`;
+        } else {
+          winnerSection.style.display = "none";
+        }
+
+        if (data.status === "upcoming") {
+          statusText.textContent = "🔒 Giveaway belum dimulai";
+          form.style.display = "none";
+        } else if (data.status === "open") {
+          statusText.textContent = "🎉 Giveaway sedang berlangsung!";
+          if (!submitted && !data.participants.some(p => p.username.toLowerCase() === username.toLowerCase())) {
+            form.style.display = "block";
+            submitStatus.textContent = "";
+          } else {
+            form.style.display = "none";
+            submitted = true;
+            submitStatus.textContent = "✅ Kamu sudah ikut hari ini.";
+          }
+        } else if (data.status === "closed") {
+          statusText.textContent = "⛔ Giveaway sudah ditutup";
+          form.style.display = "none";
+        } else {
+          statusText.textContent = "❓ Status tidak dikenali dari server.";
+          form.style.display = "none";
+        }
+
+        // 👥 Daftar peserta
+        participantsUl.innerHTML = "";
+        if (data.participants?.length) {
+          participantsList.style.display = "block";
+          data.participants.forEach(p => {
+            const li = document.createElement("li");
+            li.textContent = p.username;
+            participantsUl.appendChild(li);
+          });
+        } else {
+          participantsList.style.display = "none";
+        }
+
+        updateCountdown(now);
+      } catch (err) {
+        console.error("❌ Gagal memuat data:", err);
+        statusText.textContent = "❌ Gagal memuat status giveaway.";
+      }
     }
 
-    const data = await res.json();
-
-    if (data.success) {
-      statusEl.textContent = "✅ " + data.message;
-    } else {
-      statusEl.textContent = "⚠️ " + (data.error || "Gagal submit");
+    function updateCountdown(now) {
+      if (startTime && now < startTime) {
+        const diff = Math.floor((startTime - now) / 1000);
+        countdown.textContent = `⌛ Dimulai dalam ${formatTime(diff)}`;
+      } else if (endTime && now < endTime) {
+        const diff = Math.floor((endTime - now) / 1000);
+        countdown.textContent = `🕒 Sisa waktu: ${formatTime(diff)}`;
+      } else {
+        countdown.textContent = "🎉 Giveaway telah berakhir";
+      }
     }
-  } catch (err) {
-    console.error("Submit error:", err);
-    statusEl.textContent = "🚫 Gagal koneksi ke server!";
-  }
-});
+
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return `${m}m ${s}s`;
+    }
+
+    fetchData();
+    setInterval(fetchData, 10000);
+  </script>
+</body>
+</html>
