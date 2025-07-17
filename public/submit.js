@@ -24,7 +24,7 @@ const res = await fetch("/api/data", {
   body: JSON.stringify({
     action: "submit",
     username: user.username,
-    message: number   // ✅
+    number: number   // ✅
   })
 });
 
