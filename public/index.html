@@ -134,11 +134,33 @@
       }
     }
 
-    function formatTime(seconds) {
-      const m = Math.floor(seconds / 60);
-      const s = seconds % 60;
-      return `${m}m ${s}s`;
-    }
+   function formatTime(seconds) {
+  const years = Math.floor(seconds / (3600 * 24 * 365));
+  seconds %= 3600 * 24 * 365;
+
+  const weeks = Math.floor(seconds / (3600 * 24 * 7));
+  seconds %= 3600 * 24 * 7;
+
+  const days = Math.floor(seconds / (3600 * 24));
+  seconds %= 3600 * 24;
+
+  const hours = Math.floor(seconds / 3600);
+  seconds %= 3600;
+
+  const minutes = Math.floor(seconds / 60);
+  seconds %= 60;
+
+  const parts = [];
+  if (years) parts.push(`${years} year${years > 1 ? "s" : ""}`);
+  if (weeks) parts.push(`${weeks} week${weeks > 1 ? "s" : ""}`);
+  if (days) parts.push(`${days} day${days > 1 ? "s" : ""}`);
+  if (hours) parts.push(`${hours} hour${hours > 1 ? "s" : ""}`);
+  if (minutes) parts.push(`${minutes} minute${minutes > 1 ? "s" : ""}`);
+  if (seconds || parts.length === 0) parts.push(`${seconds} second${seconds > 1 ? "s" : ""}`);
+
+  return parts.join(" ");
+}
+
 
     fetchData();
     setInterval(fetchData, 10000);
