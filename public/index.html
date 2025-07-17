@@ -47,6 +47,9 @@
   const winnerEl = document.getElementById("winner");
   const partList = document.getElementById("participants");
 
+  let giveawayDeadline = localStorage.getItem("giveawayDeadline");
+  giveawayDeadline = giveawayDeadline ? new Date(giveawayDeadline) : new Date("2025-07-10T22:00:00+07:00");
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const number = parseInt(numberInput.value);
@@ -92,24 +95,22 @@
       const res = await fetch("/api/data");
       const data = await res.json();
 
-      if (data.winner) {
+      if (data.winner && data.winner.username) {
         winnerEl.textContent = `🏆 Pemenang: ${data.winner.username} (${data.winner.number})`;
       } else {
-        winnerEl.textContent = "Belum ada peserta.";
+        winnerEl.textContent = "Belum ada pemenang.";
       }
 
-      partList.innerHTML = data.participants.map(p =>
-        `<div class="participant">👤 ${p.username} — 🎯 ${p.number}</div>`
-      ).join('');
+      partList.innerHTML = data.participants?.length > 0
+        ? data.participants.map(p =>
+            `<div class="participant">👤 ${p.username} — 🎯 ${p.number}</div>`
+          ).join('')
+        : "Belum ada peserta.";
     } catch (err) {
       winnerEl.textContent = "❌ Gagal memuat data";
       partList.textContent = "🚫 Tidak bisa mengambil data";
     }
   }
-
-  // === Countdown Giveaway
-  const deadlineStr = localStorage.getItem("giveawayDeadline");
-  const giveawayDeadline = deadlineStr ? new Date(deadlineStr) : new Date("2025-07-10T22:00:00+07:00");
 
   function updateCountdown() {
     const now = new Date();
@@ -127,7 +128,7 @@
     const minutes = Math.floor((diff / 1000 / 60) % 60);
     const seconds = Math.floor((diff / 1000) % 60);
 
-    let parts = [];
+    const parts = [];
     if (days > 0) parts.push(`${days}d`);
     if (hours > 0 || days > 0) parts.push(`${hours}h`);
     if (minutes > 0 || hours > 0 || days > 0) parts.push(`${minutes}m`);
@@ -141,5 +142,6 @@
   setInterval(fetchData, 5000);
   setInterval(updateCountdown, 1000);
 </script>
+
 </body>
 </html>
