@@ -155,13 +155,25 @@
 }
 
 
-    function startRolling(participants) {
-      if (!participants || !participants.length || rollingInterval) return;
-      rollingInterval = setInterval(() => {
-        const rand = participants[Math.floor(Math.random() * participants.length)];
-        rollingText.textContent = `🎲 ${rand.username}`;
-      }, 150);
+   function startRolling(participants, duration = 60000) {
+  if (!participants || !participants.length || rollingInterval) return;
+
+  const start = Date.now();
+  rollingInterval = setInterval(() => {
+    const rand = participants[Math.floor(Math.random() * participants.length)];
+    rollingText.textContent = `🎲 ${rand.username}`;
+
+    // Jika sudah lebih dari durasi, stop
+    if (Date.now() - start >= duration) {
+      clearInterval(rollingInterval);
+      rollingInterval = null;
+
+      // Tampilkan nama pemenang secara permanen
+      const winner = rand;
+      rollingText.textContent = `🏆 Pemenang: ${winner.username}`;
     }
+  }, 150); // tetap gunakan 150ms untuk animasi cepat
+}
 
     function stopRolling() {
       clearInterval(rollingInterval);
