@@ -18,64 +18,66 @@
     <p>Belum punya akun? <a href="/register.html">Daftar di sini</a></p>
   </div>
 
-  <script>
-    const form = document.getElementById("loginForm");
-    const statusEl = document.getElementById("loginStatus");
+ <script>
+  const form = document.getElementById("loginForm");
+  const statusEl = document.getElementById("loginStatus");
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      statusEl.textContent = "🔄 Sedang memproses...";
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    statusEl.textContent = "🔄 Sedang memproses...";
 
-      const username = document.getElementById("loginUsername").value.trim();
-      const password = document.getElementById("loginPassword").value.trim();
+    const username = document.getElementById("loginUsername").value.trim();
+    const password = document.getElementById("loginPassword").value.trim();
 
+    if (username.length < 3 || password.length < 4) {
+      statusEl.textContent = "❌ Username/password tidak valid!";
+      return;
+    }
 
-      // Validasi input
-      if (username.length < 3 || password.length < 4) {
-        statusEl.textContent = "❌ Username/password tidak valid!";
+    try {
+      // Kirim login
+      const loginRes = await fetch("/api/data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "login",
+          username,
+          password
+        })
+      });
+
+      const loginData = await loginRes.json();
+
+      if (!loginData.success) {
+        statusEl.textContent = "❌ " + (loginData.message || "Gagal login");
         return;
       }
-      try {
-        // Kirim ke GAS via /api/data (login)
-        const loginRes = await fetch("/api/data", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "login",
-            username,
-            password
-          })
-        });
 
-        const loginText = await loginRes.text();
+      statusEl.textContent = "✅ " + loginData.message;
 
-        if (loginText !== "OK") {
-          statusEl.textContent = "❌ " + loginText;
-          return;
-        }
+      // Cek admin
+      const adminRes = await fetch("/api/admin-auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
 
-        // Cek apakah admin
-        const adminRes = await fetch("/api/admin-auth", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password })
-        });
+      const result = await adminRes.json();
 
-        const result = await adminRes.json();
+      // Simpan session
+      localStorage.setItem("giveawayUser", JSON.stringify({
+        username,
+        isAdmin: result.isAdmin || false
+      }));
 
-        // Simpan login
-        localStorage.setItem("giveawayUser", JSON.stringify({
-          username,
-          isAdmin: result.isAdmin || false
-        }));
+      // Redirect sesuai role
+      window.location.href = result.isAdmin ? "/admin.html" : "/index.html";
 
-        // Redirect ke halaman sesuai role
-        window.location.href = result.isAdmin ? "/admin.html" : "/index.html";
+    } catch (err) {
+      statusEl.textContent = "❌ Gagal login: " + err.message;
+    }
+  });
+</script>
 
-      } catch (err) {
-        statusEl.textContent = "❌ Gagal login: " + err.message;
-      }
-    });
-  </script>
 </body>
 </html>
