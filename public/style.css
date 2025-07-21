@@ -2,7 +2,7 @@
 body {
   margin: 0;
   padding: 20px;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Poppins', sans-serif;
   background: url('/gradient-abstract-background_23-2149101392.png') no-repeat center center fixed;
   background-size: cover;
   background-color: #f0f2f5;
@@ -108,4 +108,89 @@ a:hover {
   padding: 10px;
   border-radius: 6px;
   border: 1px solid #d0e7ff;
+}
+
+/* === GIVEAWAY MODERN === */
+.giveaway-box {
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  animation: fadeInUp 0.6s ease;
+}
+
+.giveaway-box h1 {
+  font-size: 26px;
+  color: #4a00e0;
+  background: linear-gradient(to right, #8e2de2, #4a00e0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 20px;
+}
+
+#statusText {
+  font-size: 16px;
+  font-weight: 500;
+  color: #222;
+}
+
+#countdown {
+  font-size: 15px;
+  margin: 8px 0 10px;
+  color: #555;
+}
+
+#submitStatus {
+  font-weight: 500;
+  color: green;
+}
+
+#winnerText {
+  font-size: 20px;
+  font-weight: bold;
+  color: #ff9800;
+}
+
+ul#participantsUl {
+  list-style: none;
+  padding: 0;
+  margin-top: 10px;
+}
+
+ul#participantsUl li {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin-bottom: 5px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+iframe {
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+#logoutBtn {
+  width: 100%;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#logoutBtn:hover {
+  background-color: #d32f2f;
 }
