@@ -1,0 +1,88 @@
+/* === GLOBAL ADMIN === */
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: url('/gradient-abstract-background_23-2149101392.png') no-repeat center center fixed;
+  background-size: cover;
+  background-color: #f0f2f5;
+  text-align: center;
+  color: #333;
+}
+
+/* === CONTAINER CARD === */
+.container {
+  max-width: 500px;
+  margin: auto;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 30px 40px;
+  border-radius: 16px;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
+}
+
+/* === TITLE === */
+h1, h2, h3 {
+  color: #1877f2;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* === FORM INPUTS === */
+input[type="text"],
+input[type="number"],
+input[type="password"],
+input[type="datetime-local"] {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  font-size: 16px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+input:focus {
+  border-color: #1877f2;
+  outline: none;
+}
+
+/* === BUTTON === */
+button {
+  width: 100%;
+  background: #1877f2;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background: #165ec9;
+}
+
+/* === STATUS / ERROR MESSAGES === */
+.status-message {
+  margin-top: 15px;
+  font-weight: bold;
+  color: red;
+  font-size: 14px;
+}
+
+/* === LINKS & PARAGRAPH === */
+p {
+  margin-top: 20px;
+  font-size: 15px;
+}
+
+a {
+  color: #1877f2;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
