@@ -175,6 +175,26 @@ ul#participantsUl li {
 }
 
 
+.discord-button {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #5865F2; /* Discord Blue */
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: background 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.discord-button:hover {
+  background-color: #4752c4;
+}
+
+
+
 #logoutBtn {
   width: 100%;
   background-color: #f44336;
