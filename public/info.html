@@ -72,13 +72,18 @@
     }
 
     .carousel img {
-      height: 250px;
-      border-radius: 10px;
-      flex-shrink: 0;
-      scroll-snap-align: center;
-      cursor: pointer;
-      transition: transform 0.3s;
-    }
+  max-height: 300px;      /* Batasi tinggi maksimal */
+  max-width: 100%;        /* Jangan melebihi lebar kontainer */
+  height: auto;           /* Tinggi mengikuti rasio gambar */
+  width: auto;            /* Lebar menyesuaikan proporsi */
+  border-radius: 10px;
+  flex-shrink: 0;
+  scroll-snap-align: center;
+  cursor: pointer;
+  transition: transform 0.3s;
+  object-fit: contain;    /* Hindari croping gambar */
+}
+
 
     .carousel img:hover {
       transform: scale(1.05);
