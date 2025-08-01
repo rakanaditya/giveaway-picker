@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tentang Website</title>
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      background-color: #f9f9f9;
+    }
+
+    .navbar {
+      background-color: #2c3e50;
+      color: white;
+      padding: 15px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar .nav-links a {
+      color: white;
+      margin-left: 20px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 25px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      color: #333;
+    }
+
+    .carousel {
+      display: flex;
+      overflow-x: auto;
+      gap: 10px;
+      scroll-snap-type: x mandatory;
+      margin-top: 20px;
+    }
+
+    .carousel img {
+      height: 180px;
+      border-radius: 10px;
+      scroll-snap-align: center;
+      flex-shrink: 0;
+    }
+
+    p {
+      font-size: 16px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="navbar">
+    <div><strong>🎁 Giveaway</strong></div>
+    <div class="nav-links">
+      <a href="/">Beranda</a>
+      <a href="/about.html">Tentang</a>
+      <a href="/login.html">Login</a>
+      <a href="/register.html">Register</a>
+      <a href="/info.html">Tentang Website</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>ℹ️ Tentang Website Giveaway Picker</h2>
+    <p>
+      Website ini dibangun menggunakan HTML, CSS, dan JavaScript sebagai frontend, serta Google Apps Script dan Google Sheets sebagai backend. Semua sistem seperti validasi peserta, pengambilan pemenang, dan integrasi Discord dilakukan secara otomatis.
+    </p>
+
+    <p>Berikut adalah beberapa preview tampilan sistem:</p>
+
+    <!-- 🔹 Gambar Support -->
+    <div class="carousel">
+      <img src="https://i.imgur.com/FV1H7Hk.jpeg" alt="support1" />
+      <img src="https://i.imgur.com/e7Vkux9.jpeg" alt="support2" />
+      <img src="https://i.imgur.com/WL3fIUC.jpeg" alt="support3" />
+      <img src="https://i.imgur.com/SL3IWU8.jpeg" alt="support4" />
+      <img src="https://i.imgur.com/dsSC0ZH.jpeg" alt="support5" />
+      <img src="https://i.imgur.com/TF9mV1A.jpeg" alt="support6" />
+      <img src="https://i.imgur.com/8iV2rms.jpeg" alt="support7" />
+      <img src="https://i.imgur.com/lReTTod.jpeg" alt="support8" />
+    </div>
+
+    <p style="margin-top: 25px;">
+      Jika kamu menemukan bug atau ingin menyarankan fitur baru, silakan hubungi kami lewat Discord.
+    </p>
+  </div>
+</body>
+</html>
