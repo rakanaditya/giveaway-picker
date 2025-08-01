@@ -5,11 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Tentang Website</title>
   <link rel="stylesheet" href="/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Poppins', sans-serif;
       margin: 0;
-      background-color: #f9f9f9;
+      background-color: #f4f4f4;
+      color: #333;
     }
 
     .navbar {
@@ -26,43 +32,59 @@
       margin-left: 20px;
       text-decoration: none;
       font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .navbar .nav-links a:hover {
+      color: #f39c12;
     }
 
     .container {
-      max-width: 900px;
-      margin: 20px auto;
-      padding: 25px;
+      max-width: 960px;
+      margin: 30px auto;
+      padding: 30px;
       background: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
     h2 {
-      color: #333;
+      color: #2c3e50;
+      font-size: 26px;
+      margin-bottom: 15px;
     }
 
+    p {
+      font-size: 16px;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    /* Carousel */
     .carousel {
       display: flex;
       overflow-x: auto;
+      scroll-behavior: smooth;
       gap: 10px;
-      scroll-snap-type: x mandatory;
       margin-top: 20px;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 10px;
     }
 
     .carousel img {
-      height: 260px;
+      height: 250px;
       border-radius: 10px;
-      scroll-snap-align: center;
       flex-shrink: 0;
+      scroll-snap-align: center;
       cursor: pointer;
-      transition: transform 0.2s;
+      transition: transform 0.3s;
     }
 
     .carousel img:hover {
-      transform: scale(1.02);
+      transform: scale(1.05);
     }
 
-    /* Modal overlay */
+    /* Modal */
     .modal {
       display: none;
       position: fixed;
@@ -72,7 +94,7 @@
       width: 100%;
       height: 100%;
       overflow: auto;
-      background-color: rgba(0,0,0,0.8);
+      background-color: rgba(0,0,0,0.85);
       align-items: center;
       justify-content: center;
     }
@@ -80,30 +102,39 @@
     .modal-content {
       max-width: 90%;
       max-height: 90%;
-      border-radius: 10px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(255,255,255,0.2);
     }
 
     .close-btn {
       position: absolute;
-      top: 30px;
-      right: 40px;
-      font-size: 30px;
+      top: 25px;
+      right: 35px;
+      font-size: 32px;
       color: white;
-      font-weight: bold;
       cursor: pointer;
+      font-weight: bold;
       z-index: 1000;
     }
 
     @media (max-width: 600px) {
-      .modal-content {
-        width: 95%;
-        height: auto;
+      .container {
+        margin: 10px;
+        padding: 20px;
+      }
+
+      h2 {
+        font-size: 22px;
+      }
+
+      .carousel img {
+        height: 180px;
       }
 
       .close-btn {
-        top: 20px;
+        top: 15px;
         right: 20px;
-        font-size: 26px;
+        font-size: 28px;
       }
     }
   </style>
@@ -124,25 +155,26 @@
   <div class="container">
     <h2>ℹ️ Tentang Website Giveaway Picker</h2>
     <p>
-      Website ini dibangun menggunakan HTML, CSS, dan JavaScript sebagai frontend, serta Google Apps Script dan Google Sheets sebagai backend. Semua sistem seperti validasi peserta, pengambilan pemenang, dan integrasi Discord dilakukan secara otomatis.
+      Website ini dibangun menggunakan HTML, CSS, dan JavaScript sebagai frontend, serta Google Apps Script dan Google Sheets sebagai backend.
+      Semua sistem seperti validasi peserta, pengambilan pemenang, dan integrasi Discord dilakukan secara otomatis.
     </p>
 
-    <p>Berikut adalah beberapa bukti Dapet Giveaway dari server Discord Rakan Aditya Community ini</p>
+    <p>Berikut adalah beberapa bukti bahwa server Discord <strong>Rakan Aditya Community</strong> benar-benar memberikan hadiah giveaway!</p>
 
-    <!-- 🔹 Gambar Support -->
-    <div class="carousel">
-      <img src="https://i.imgur.com/xyq3S9A.jpeg" alt="support0" />
-      <img src="https://i.imgur.com/ZoMCLdP.jpeg" alt="support1" />
-      <img src="https://i.imgur.com/sInniAs.jpeg" alt="support2" />
-      <img src="https://i.imgur.com/oI7nR6N.jpeg" alt="support3" />
-      <img src="https://i.imgur.com/8Erz9g1.jpeg" alt="support4" />
-      <img src="https://i.imgur.com/B8gboUY.jpeg" alt="support5" />
-      <img src="https://i.imgur.com/DaaNYgS.jpeg" alt="support6" />
-      <img src="https://i.imgur.com/mqo9IoH.jpeg" alt="support7" />
+    <!-- 🔹 Gambar Bukti -->
+    <div class="carousel" id="carousel">
+      <img src="https://i.imgur.com/xyq3S9A.jpeg" alt="bukti1" />
+      <img src="https://i.imgur.com/ZoMCLdP.jpeg" alt="bukti2" />
+      <img src="https://i.imgur.com/sInniAs.jpeg" alt="bukti3" />
+      <img src="https://i.imgur.com/oI7nR6N.jpeg" alt="bukti4" />
+      <img src="https://i.imgur.com/8Erz9g1.jpeg" alt="bukti5" />
+      <img src="https://i.imgur.com/B8gboUY.jpeg" alt="bukti6" />
+      <img src="https://i.imgur.com/DaaNYgS.jpeg" alt="bukti7" />
+      <img src="https://i.imgur.com/mqo9IoH.jpeg" alt="bukti8" />
     </div>
 
-    <p style="margin-top: 50px;">
-      Jika kamu menemukan bug atau ingin menyarankan fitur baru, silakan hubungi kami lewat Discord.
+    <p style="margin-top: 40px;">
+      Jika kamu menemukan bug atau ingin menyarankan fitur baru, silakan hubungi kami lewat server Discord kami yang aktif dan ramah 😊
     </p>
   </div>
 
@@ -153,6 +185,7 @@
   </div>
 
   <script>
+    // Zoom gambar saat diklik
     const modal = document.getElementById("imgModal");
     const modalImg = document.getElementById("modalImg");
 
@@ -169,19 +202,24 @@
       modalImg.src = "";
     }
 
-    // Tutup modal jika klik di luar gambar
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) {
-        closeModal();
-      }
+    modal.addEventListener("click", e => {
+      if (e.target === modal) closeModal();
     });
 
-    // Tutup modal dengan tombol Esc
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
-        closeModal();
-      }
+    window.addEventListener("keydown", e => {
+      if (e.key === "Escape") closeModal();
     });
+
+    // Autoplay carousel scroll
+    const carousel = document.getElementById("carousel");
+    let autoScroll = setInterval(() => {
+      if (carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth) {
+        carousel.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        carousel.scrollBy({ left: 300, behavior: "smooth" });
+      }
+    }, 3000);
   </script>
+
 </body>
 </html>
