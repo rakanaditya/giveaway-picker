@@ -76,7 +76,8 @@
   max-height: 300px;      /* Batasi tinggi maksimal */
   max-width: 100%;        /* Jangan melebihi lebar kontainer */
   height: auto;           /* Tinggi mengikuti rasio gambar */
-  width: auto;            /* Lebar menyesuaikan proporsi */
+  width: auto;
+  min-width: 280px;            /* Lebar menyesuaikan proporsi */
   border-radius: 10px;
   flex-shrink: 0;
   scroll-snap-align: center;
@@ -218,13 +219,15 @@
 
     // Autoplay carousel scroll
     const carousel = document.getElementById("carousel");
-    let autoScroll = setInterval(() => {
-      if (carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth) {
-        carousel.scrollTo({ left: 0, behavior: "smooth" });
-      } else {
-        carousel.scrollBy({ left: 300, behavior: "smooth" });
-      }
-    }, 3000);
+   let autoScroll = setInterval(() => {
+  const atEnd = carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 10;
+  if (atEnd) {
+    carousel.scrollTo({ left: 0, behavior: "smooth" });
+  } else {
+    carousel.scrollBy({ left: 300, behavior: "smooth" });
+  }
+}, 3000);
+
   </script>
 
 </body>
