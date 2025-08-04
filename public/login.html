@@ -84,6 +84,42 @@ ul {
   }
 }
 
+.primary-button {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: white;
+  color: #0f0f1a;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.3s;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.primary-button:hover {
+  background-color: #e0e0e0;
+}
+
+.secondary-button {
+  display: inline-block;
+  margin: 5px;
+  padding: 8px 16px;
+  background-color: rgba(0, 247, 255, 0.1);
+  color: #00f7ff;
+  border: 1px solid #00f7ff;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.secondary-button:hover {
+  background-color: #00f7ff;
+  color: #0f0f1a;
+}
+
+
   </style>
 </head>
 <body>
@@ -113,21 +149,23 @@ ul {
 
 <div id="userInfo" style="margin-top:20px;"></div>
 
-<a href="https://dyno.gg/form/e462024a" target="_blank"
-   style="display:block; color:#1e88e5; text-decoration:underline; margin-top:5px;">
-  🔑 Lupa password?
-</a>
-
-<a href="https://discord.gg/4vNhCF5EHw" target="_blank"
-   style="display:block; color:#1e88e5; text-decoration:underline; margin-top:3px;">
-  💬 Hubungi admin via Discord
-</a>
+<div style="margin-top: 15px;">
+  <a href="https://dyno.gg/form/e462024a" target="_blank" class="secondary-button">
+    🔑 Lupa Password
+  </a>
+  <a href="https://discord.gg/4vNhCF5EHw" target="_blank" class="secondary-button">
+    💬 Hubungi Admin via Discord
+  </a>
+</div>
 
 <button id="logoutBtn" style="display:none; margin-top:10px;">🔓 Logout</button>
 
 
-    <p>Belum punya akun? <a href="/register.html">Daftar di sini</a></p>
-  </div>
+    <div style="margin-top: 20px;">
+  <a href="/register.html" class="primary-button">
+    ✍️ Daftar Sekarang
+  </a>
+</div>
 
  <script>
   const form = document.getElementById("loginForm");
