@@ -158,13 +158,30 @@ ul#participantsUl {
 }
 
 ul#participantsUl li {
-  background: #f9f9f9;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 6px auto;
+  padding: 10px;
+  width: 80%;
+  max-width: 300px;
   border-radius: 8px;
-  padding: 6px 10px;
-  margin-bottom: 5px;
-  font-size: 14px;
+  font-weight: 600;
+  color: #00f7ff;
+  text-shadow: 0 0 5px #00f7ff;
+  transition: transform 0.2s, background-color 0.2s;
   border: 1px solid #ddd;
 }
+
+#participantsUl li:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  transform: scale(1.02);
+}
+
+.highlight-user {
+  color: #00f7ff;
+  font-weight: 700;
+  text-shadow: 0 0 6px #00f7ff;
+}
+
 
 @keyframes fadeInUp {
   from {
