@@ -206,7 +206,7 @@ ul {
     if (!username) {
       window.location.href = "/login.html";
     } else {
-      userInfo.textContent = `👤 Masuk sebagai: ${username}`;
+      userInfo.innerHTML = `👤 Masuk sebagai: <span class="highlight-user">${username}</span>`;
       logoutBtn.style.display = "inline-block";
     }
 
