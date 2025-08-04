@@ -7,21 +7,18 @@
   <link rel="stylesheet" href="/style.css" />
 
 <style>
-    * {
-    box-sizing: border-box;
-  }
-
-  body {
-  margin: 0;
-  padding: 0px;
-  font-family: 'Poppins', sans-serif;
-  background-size: cover;
-  background-color: #f0f2f5;
-  text-align: center;
-   color: #e0e0e0;
+     * {
+  box-sizing: border-box;
 }
 
-    .navbar {
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  background: linear-gradient(135deg, #1f1c2c, #928dab);
+  color: #e0e0e0;
+}
+
+.navbar {
   background-color: #0f0f1a;
   color: white;
   padding: 15px 25px;
@@ -31,20 +28,20 @@
   box-shadow: 0 4px 10px rgba(0,0,0,0.4);
 }
 
-    .navbar .nav-links a {
-    color: white;
-    margin-left: 20px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: color 0.2s;
-  }
+.navbar .nav-links a {
+  color: white;
+  margin-left: 20px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+}
 
- .navbar .nav-links a:hover {
+.navbar .nav-links a:hover {
   color: #00f7ff;
   text-shadow: 0 0 5px #00f7ff;
 }
 
-    .container {
+.container {
   max-width: 1080px;
   margin: 30px auto;
   padding: 30px;
@@ -62,7 +59,7 @@ h2 {
   text-shadow: 0 0 10px #00f7ff;
 }
 
- p, li {
+p, li {
   font-size: 16px;
   line-height: 1.7;
   margin-bottom: 20px;
@@ -71,17 +68,6 @@ h2 {
 
 ul {
   padding-left: 20px;
-}
-
-  @media (max-width: 600px) {
-  .container {
-    margin: 10px;
-    padding: 20px;
-  }
-
-  h2 {
-    font-size: 22px;
-  }
 }
 
 @media (max-width: 600px) {
