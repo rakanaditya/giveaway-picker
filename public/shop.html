@@ -191,6 +191,14 @@ ul {
         font-size: 22px;
       }
     }
+
+footer {
+  backdrop-filter: blur(8px);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+  font-size: 14px;
+  z-index: 999;
+}
+
   </style>
 </head>
 <body>
@@ -251,9 +259,13 @@ ul {
      <footer class="py-8 border-t border-gray-800 mt-12">
         <div class="container mx-auto px-4 text-center">
             <p class="text-lg neon-purple">Thanks for shopping with us! <span class="neon-green">🎮</span></p>
-            <p class="text-gray-500 mt-2">© 2025 Giveaways Picker</p>
         </div>
     </footer>
+
+<footer style="position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; padding: 10px; background: rgba(0,0,0,0.2); color: white; font-weight: 500;">
+  © 2025 Giveaways Picker
+</footer>
+
 
   </div>
 
