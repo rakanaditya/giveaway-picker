@@ -158,7 +158,7 @@ ul#participantsUl {
 }
 
 ul#participantsUl li {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 5);
   margin: 6px auto;
   padding: 10px;
   width: 80%;
