@@ -1,250 +1,275 @@
 <!doctype html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Autoplay Music</title>
-  <meta name="description" content="Halaman pemutar musik yang mencoba autoplay sesuai kebijakan browser modern, dengan fallback tombol sekali sentuh." />
-  <style>
-    :root { --bg1:#0f1020; --bg2:#1b1c3a; --fg:#e8e8f0; --muted:#a0a3b1; --accent:#7c6cff; }
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body {
-      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      color: var(--fg);
-      background: radial-gradient(1200px 800px at 20% 10%, #22234a 0%, transparent 60%),
-                  radial-gradient(900px 600px at 80% 90%, #3b2f68 0%, transparent 60%),
-                  linear-gradient(160deg, var(--bg1), var(--bg2));
-      display: grid; place-items: center; padding: 24px;
-    }
-    .card {
-      width: min(720px, 96vw); border-radius: 20px; padding: 20px; backdrop-filter: blur(8px);
-      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
-      box-shadow: 0 10px 40px rgba(0,0,0,.35);
-    }
-    h1 { font-size: clamp(1.1rem, 1rem + 1.2vw, 1.6rem); margin: 0 0 12px; letter-spacing: 0.2px; }
-    p { color: var(--muted); margin: 0 0 16px; }
-    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-    .btn {
-      appearance: none; border: 0; border-radius: 14px; padding: 12px 16px; cursor: pointer; font-weight: 600;
-      background: var(--accent); color: white; box-shadow: 0 6px 24px rgba(124,108,255,.35);
-      transition: filter .2s ease, transform .03s ease;
-    }
-    .btn:active { transform: translateY(1px); }
-    .btn.ghost { background: rgba(255,255,255,0.06); color: var(--fg); box-shadow: none; border: 1px solid rgba(255,255,255,.1); }
-    .btn[disabled] { opacity: .5; cursor: not-allowed; }
-
-    .controls { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; }
-    .slider { width: 100%; }
-    input[type="range"] { width: 100%; }
-    .pill { font-size: 12px; padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,.08); color: var(--fg); }
-
-    .overlay {
-      position: fixed; inset: 0; display: grid; place-items: center; background: rgba(6,7,14,.7);
-      backdrop-filter: blur(6px); z-index: 10; transition: opacity .25s ease; opacity: 0; pointer-events: none;
-    }
-    .overlay.visible { opacity: 1; pointer-events: all; }
-    .overlay .sheet {
-      text-align: center; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
-      border-radius: 16px; padding: 22px; width: min(440px, 92vw);
-      box-shadow: 0 8px 32px rgba(0,0,0,.4);
-    }
-    .dropzone {
-      border: 2px dashed rgba(255,255,255,.18); border-radius: 16px; padding: 18px; text-align: center; color: var(--muted);
-    }
-    .dropzone.dragover { border-color: var(--accent); color: #fff; background: rgba(124,108,255,.12); }
-    small a { color: #c9c4ff; text-decoration: none; }
-    small a:hover { text-decoration: underline; }
-    .time { min-width: 120px; text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title> Neon Music Visualizer</title>
+<style>
+  body {
+    margin:0;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    gap:12px;
+    font-family:sans-serif;
+    color:#fff;
+    padding:20px;
+    background: radial-gradient(circle at center, #000, #050505);
+    overflow:hidden;
+  }
+  button {
+    background:#ff00ff;
+    color:white;
+    padding:10px 16px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+    box-shadow:0 0 10px #ff00ff;
+  }
+  button:hover { filter:brightness(1.1); }
+  input[type="file"] { color:white; }
+  #dropZone {
+    border:2px dashed #555;
+    padding:20px;
+    width:80%;
+    text-align:center;
+    border-radius:10px;
+    transition:0.3s;
+    color:#aaa;
+    z-index:5;
+    background:rgba(0,0,0,0.3);
+  }
+  #dropZone.dragover {
+    border-color:#0ff;
+    box-shadow:0 0 20px #0ff;
+    background:rgba(0,0,0,0.5);
+  }
+  canvas {
+    display:block;
+    width:100%;
+    height:100%;
+    position:fixed;
+    top:0;
+    left:0;
+    z-index:0;
+  }
+</style>
 </head>
 <body>
-  <div class="card">
-    <h1>🎵 Autoplay Music</h1>
-    <p>
-      Halaman ini <strong>mencoba autoplay</strong> sesuai kebijakan browser modern.
-      Biasanya audio akan dimulai <em>dengan kondisi mute</em> dan akan aktif suara setelah 1x sentuhan/klik.
-      Taruh file <code>music.mp3</code> di folder yang sama dengan halaman ini <em>atau</em> pilih file sendiri.
-    </p>
 
-    <div class="row" style="margin-bottom:12px">
-      <button id="playPause" class="btn">▶︎ Putar</button>
-      <button id="muteBtn" class="btn ghost">🔇 Mute</button>
-      <button id="loopBtn" class="btn ghost">🔁 Loop: On</button>
-      <span id="status" class="pill">Memuat…</span>
-    </div>
+<h1 style="z-index:5">🎵 Neon Music Visualizer</h1>
+<p id="status" style="z-index:5">Memuat...</p>
+<button id="playBtn" style="display:none; z-index:5">▶️ Putar Musik</button>
+<input type="file" id="filePicker" accept="audio/*" style="z-index:5" />
+<div id="dropZone">Tarik & letakkan file musik di sini</div>
 
-    <div class="controls" style="margin-bottom:12px">
-      <input id="seek" class="slider" type="range" min="0" max="100" value="0" step="0.1" />
-      <span id="currentTime" class="time">00:00 / 00:00</span>
-      <label class="row" style="gap:6px">
-        🔉<input id="volume" type="range" min="0" max="1" value="1" step="0.01" />
-      </label>
-    </div>
+<canvas id="visualizer" width="1200" height="800"></canvas>
 
-    <div class="dropzone" id="dropzone">
-      <div style="margin-bottom:8px">⬇️ Seret & lepas file musik ke sini</div>
-      <div style="margin-bottom:8px">atau</div>
-      <input id="filePicker" type="file" accept="audio/*" />
-      <div style="margin-top:8px"><small>Tip: Bisa juga set URL via query: <code>?src=https://example.com/lagu.mp3</code></small></div>
-    </div>
+<audio id="player" preload="auto" loop></audio>
 
-    <p style="margin-top:14px"><small>Sumber default: <code>music.mp3</code> (jika ada). Autoplay patuh kebijakan Chrome/Safari/Firefox. <a href="https://developer.chrome.com/blog/autoplay/" target="_blank" rel="noreferrer">Pelajari kebijakan autoplay</a>.</small></p>
-  </div>
+<script>
+const player = document.getElementById('player');
+const playBtn = document.getElementById('playBtn');
+const status = document.getElementById('status');
+const filePicker = document.getElementById('filePicker');
+const dropZone = document.getElementById('dropZone');
+const canvas = document.getElementById('visualizer');
+const ctx = canvas.getContext('2d');
 
-  <!-- Audio element hidden -->
-  <audio id="player" preload="auto" playsinline loop muted></audio>
+let audioCtx, analyser, source, dataArray;
+let rotation = 0;
+let particles = [];
 
-  <!-- Overlay ask-to-unmute -->
-  <div id="overlay" class="overlay">
-    <div class="sheet">
-      <h2>🔊 Aktifkan Suara</h2>
-      <p>Browser memblokir autoplay dengan suara. Klik tombol di bawah agar musik terdengar.</p>
-      <button id="enableSound" class="btn">Aktifkan & Putar</button>
-    </div>
-  </div>
+// Setup visualizer
+function setupVisualizer() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    source = audioCtx.createMediaElementSource(player);
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    analyser.fftSize = 256;
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
+  }
+  drawVisualizer();
+}
 
-  <script>
-    const $ = sel => document.querySelector(sel);
-    const player = $('#player');
-    const playPause = $('#playPause');
-    const muteBtn = $('#muteBtn');
-    const loopBtn = $('#loopBtn');
-    const volume = $('#volume');
-    const seek = $('#seek');
-    const status = $('#status');
-    const overlay = $('#overlay');
-    const enableSound = $('#enableSound');
-    const filePicker = $('#filePicker');
-    const dropzone = $('#dropzone');
-    const currentTimeEl = $('#currentTime');
+// Particle class
+class Particle {
+  constructor(x, y, color) {
+    this.x = x;
+    this.y = y;
+    this.color = color;
+    this.size = Math.random() * 3 + 1;
+    this.speedX = (Math.random() - 0.5) * 2;
+    this.speedY = (Math.random() - 0.5) * 2;
+    this.alpha = 1;
+  }
+  update() {
+    this.x += this.speedX;
+    this.y += this.speedY;
+    this.alpha -= 0.02;
+  }
+  draw() {
+    ctx.globalAlpha = this.alpha;
+    ctx.fillStyle = this.color;
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
 
-    // --- Helpers
-    const fmt = s => {
-      s = Math.max(0, s|0); const m = (s/60)|0; const sec = (s%60)|0; return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+function drawVisualizer() {
+  requestAnimationFrame(drawVisualizer);
+  analyser.getByteFrequencyData(dataArray);
+
+  // Animated background
+  const avg = dataArray.reduce((a, b) => a + b) / dataArray.length;
+  const hueBG = (avg * 2) % 360;
+  ctx.fillStyle = `hsl(${hueBG}, 50%, 5%)`;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+  const radius = 100;
+  const bars = dataArray.length;
+  const step = (Math.PI * 2) / bars;
+
+  ctx.save();
+  ctx.translate(centerX, centerY);
+  ctx.rotate(rotation);
+  rotation += 0.002; // pelan
+
+  for (let i = 0; i < bars; i++) {
+    const value = dataArray[i];
+    const barLength = value / 1.5;
+    const angle = i * step;
+
+    const x1 = Math.cos(angle) * radius;
+    const y1 = Math.sin(angle) * radius;
+    const x2 = Math.cos(angle) * (radius + barLength);
+    const y2 = Math.sin(angle) * (radius + barLength);
+
+    const hue = (i / bars) * 360;
+    const color = `hsl(${hue}, 100%, 50%)`;
+
+    ctx.strokeStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 15;
+    ctx.lineWidth = 2;
+
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+
+    // Tambah partikel dari ujung batang
+    if (Math.random() < 0.3) {
+      particles.push(new Particle(x2 + centerX, y2 + centerY, color));
     }
-    function setStatus(t){ status.textContent = t; }
-    function setButtons(){
-      playPause.textContent = player.paused ? '▶︎ Putar' : '⏸ Jeda';
-      muteBtn.textContent = player.muted ? '🔇 Muted' : '🔊 Suara On';
-      loopBtn.textContent = `🔁 Loop: ${player.loop ? 'On' : 'Off'}`;
+  }
+
+  // Lingkaran pusat neon
+  ctx.beginPath();
+  ctx.arc(0, 0, radius - 10, 0, Math.PI * 2);
+  ctx.strokeStyle = '#0ff';
+  ctx.shadowColor = '#0ff';
+  ctx.shadowBlur = 20;
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  ctx.restore();
+
+  // Update & draw particles
+  for (let i = particles.length - 1; i >= 0; i--) {
+    particles[i].update();
+    particles[i].draw();
+    if (particles[i].alpha <= 0) particles.splice(i, 1);
+  }
+}
+
+// Init source
+function initSource() {
+  const urlParams = new URLSearchParams(location.search);
+  const src = urlParams.get('src');
+  if (src) {
+    player.src = src;
+    status.textContent = "Memuat dari URL query...";
+  } else {
+    player.src = "music.mp3";
+    status.textContent = "Memuat dari file default...";
+  }
+}
+
+// Autoplay
+async function tryAutoplay() {
+  try {
+    await player.play();
+    setupVisualizer();
+    status.textContent = "Autoplay berhasil 🎶";
+  } catch (e) {
+    status.textContent = "Autoplay diblokir — klik tombol untuk memutar musik";
+    playBtn.style.display = "inline-block";
+  }
+}
+
+playBtn.addEventListener('click', async () => {
+  try {
+    await player.play();
+    if (audioCtx && audioCtx.state === 'suspended') {
+      await audioCtx.resume();
     }
+    setupVisualizer();
+    status.textContent = "Musik diputar 🎶";
+    playBtn.style.display = "none";
+  } catch (e) {
+    status.textContent = "Gagal memutar musik: " + e.message;
+  }
+});
 
-    // --- Source selection: query ?src=, fallback to ./music.mp3 if exists
-    function initSource(){
-      const url = new URL(location.href);
-      const qsrc = url.searchParams.get('src');
-      if(qsrc){
-        player.src = qsrc;
-      } else {
-        // Try local music.mp3 (will 404 silently if not found)
-        player.src = 'music.mp3';
-      }
-    }
+// File picker
+filePicker.addEventListener('change', () => {
+  const file = filePicker.files[0];
+  if (file) playFile(file);
+});
 
-    // --- Autoplay strategy: start muted, then unmute on first gesture
-    async function tryAutoplay(){
-      try {
-        await player.play();
-        setStatus('Autoplay (mute) berjalan');
-        // If user previously enabled sound, unmute immediately
-        if(localStorage.getItem('autoplay_unmuted') === '1'){
-          await unmuteAndPlay();
-        } else {
-          overlay.classList.add('visible');
-        }
-      } catch(err){
-        setStatus('Autoplay gagal — perlu interaksi');
-        overlay.classList.add('visible');
-      }
-      setButtons();
-    }
+// Drag & drop
+dropZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  dropZone.classList.add('dragover');
+});
+dropZone.addEventListener('dragleave', () => {
+  dropZone.classList.remove('dragover');
+});
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) playFile(file);
+});
 
-    async function unmuteAndPlay(){
-      try {
-        player.muted = false; await player.play();
-        overlay.classList.remove('visible');
-        localStorage.setItem('autoplay_unmuted','1');
-        setStatus('Memutar dengan suara');
-      } catch (e) {
-        console.warn('Enable sound failed:', e);
-        setStatus('Gagal aktifkan suara. Coba lagi.');
-      }
-      setButtons();
-    }
+function playFile(file) {
+  const url = URL.createObjectURL(file);
+  player.src = url;
+  player.play().then(() => {
+    setupVisualizer();
+    status.textContent = "Memutar: " + file.name;
+    playBtn.style.display = "none";
+  }).catch(err => {
+    status.textContent = "Gagal memutar: " + err.message;
+    playBtn.style.display = "inline-block";
+  });
+}
 
-    // --- Event wiring
-    document.addEventListener('visibilitychange', () => {
-      if(document.visibilityState === 'visible' && player.paused){ player.play().catch(()=>{}); }
-    });
+initSource();
+tryAutoplay();
+</script>
 
-    playPause.addEventListener('click', async () => {
-      if(player.paused){ await player.play().catch(()=>{}); } else { player.pause(); }
-      setButtons();
-    });
-
-    muteBtn.addEventListener('click', async () => {
-      player.muted = !player.muted;
-      if(!player.muted){
-        localStorage.setItem('autoplay_unmuted','1');
-        await player.play().catch(()=>{});
-        overlay.classList.remove('visible');
-      }
-      setButtons();
-    });
-
-    loopBtn.addEventListener('click', () => { player.loop = !player.loop; setButtons(); });
-
-    volume.addEventListener('input', () => { player.volume = parseFloat(volume.value); });
-
-    seek.addEventListener('input', () => {
-      if(player.duration) player.currentTime = (seek.value/100) * player.duration;
-    });
-
-    player.addEventListener('timeupdate', () => {
-      if(player.duration){ seek.value = (player.currentTime / player.duration) * 100; }
-      currentTimeEl.textContent = `${fmt(player.currentTime)} / ${fmt(player.duration||0)}`;
-    });
-
-    enableSound.addEventListener('click', unmuteAndPlay);
-
-    // --- File picker & drag-drop
-    filePicker.addEventListener('change', (e) => {
-      const file = e.target.files?.[0]; if(!file) return;
-      const url = URL.createObjectURL(file);
-      player.src = url; player.load(); player.play().catch(()=>{});
-      setStatus(`Memutar: ${file.name}`);
-      if('mediaSession' in navigator){
-        navigator.mediaSession.metadata = new MediaMetadata({title: file.name});
-      }
-    });
-
-    ;['dragenter','dragover'].forEach(ev=>dropzone.addEventListener(ev, (e)=>{ e.preventDefault(); e.stopPropagation(); dropzone.classList.add('dragover'); }));
-    ;['dragleave','drop'].forEach(ev=>dropzone.addEventListener(ev, (e)=>{ e.preventDefault(); e.stopPropagation(); dropzone.classList.remove('dragover'); }));
-    dropzone.addEventListener('drop', (e) => {
-      const file = e.dataTransfer.files?.[0]; if(!file) return;
-      const url = URL.createObjectURL(file);
-      player.src = url; player.load(); player.play().catch(()=>{});
-      setStatus(`Memutar: ${file.name}`);
-      if('mediaSession' in navigator){
-        navigator.mediaSession.metadata = new MediaMetadata({title: file.name});
-      }
-    });
-
-    // --- Media Session (hardware keys)
-    if('mediaSession' in navigator){
-      navigator.mediaSession.setActionHandler('play', () => player.play());
-      navigator.mediaSession.setActionHandler('pause', () => player.pause());
-      navigator.mediaSession.setActionHandler('seekbackward', (d) => { player.currentTime = Math.max(0, player.currentTime - (d.seekOffset||10)); });
-      navigator.mediaSession.setActionHandler('seekforward',  (d) => { player.currentTime = Math.min(player.duration||player.currentTime+10, player.currentTime + (d.seekOffset||10)); });
-      navigator.mediaSession.setActionHandler('stop', () => { player.pause(); player.currentTime = 0; });
-    }
-
-    // --- Boot
-    initSource();
-    player.addEventListener('loadeddata', () => setStatus('Siap diputar'));
-    player.addEventListener('error', () => setStatus('Gagal memuat sumber audio'));
-    tryAutoplay();
-  </script>
 </body>
 </html>
