@@ -1,8 +1,9 @@
 {
-  "name": "giveaway-picker",
+  "name": "neon-music-visualizer",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "start": "node server.js",
     "vercel-build": "echo Build successful"
   },
   "engines": {
