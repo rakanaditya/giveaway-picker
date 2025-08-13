@@ -1,32 +1,37 @@
-// server.js
-const express = require("express");
-const ytdl = require("ytdl-core");
-const path = require("path");
+import express from "express";
+import ytdl from "ytdl-core";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const app = express();
-const PORT = 3000;
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Serve file statis (HTML, CSS, JS)
+// Serve frontend files
 app.use(express.static(path.join(__dirname, "public")));
 
-// Endpoint download audio dari YouTube
-app.get("/youtube", async (req, res) => {
+// API endpoint untuk ambil audio dari YouTube
+app.get("/api/ytaudio", async (req, res) => {
   const videoURL = req.query.url;
   if (!videoURL || !ytdl.validateURL(videoURL)) {
-    return res.status(400).send("URL YouTube tidak valid.");
+    return res.status(400).json({ error: "URL YouTube tidak valid" });
   }
-
-  res.header("Content-Disposition", 'attachment; filename="audio.mp3"');
-  res.header("Content-Type", "audio/mpeg");
 
   try {
-    ytdl(videoURL, { filter: "audioonly", quality: "highestaudio" })
-      .pipe(res);
+    const info = await ytdl.getInfo(videoURL);
+    const title = info.videoDetails.title.replace(/[^\w\s]/gi, "_");
+
+    res.setHeader("Content-Disposition", `attachment; filename="${title}.mp3"`);
+    res.setHeader("Content-Type", "audio/mpeg");
+
+    ytdl(videoURL, {
+      filter: "audioonly",
+      quality: "highestaudio"
+    }).pipe(res);
   } catch (err) {
-    res.status(500).send("Gagal mengambil audio: " + err.message);
+    res.status(500).json({ error: "Gagal mengambil audio: " + err.message });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server berjalan di http://localhost:${PORT}`);
-});
+// Jalankan server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server berjalan di http://localhost:${PORT}`));
