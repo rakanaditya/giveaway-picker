@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title> Neon Music Visualizer</title>
+<title>🎵 Neon Music Visualizer</title>
 <style>
   body {
     margin:0;
@@ -30,7 +30,7 @@
     box-shadow:0 0 10px #ff00ff;
   }
   button:hover { filter:brightness(1.1); }
-  input[type="file"] { color:white; }
+  input[type="file"], input[type="text"] { color:white; padding:6px; background:#222; border:none; border-radius:6px; }
   #dropZone {
     border:2px dashed #555;
     padding:20px;
@@ -62,12 +62,17 @@
 
 <h1 style="z-index:5">🎵 Neon Music Visualizer</h1>
 <p id="status" style="z-index:5">Memuat...</p>
+
+<div style="z-index:5; display:flex; gap:8px;">
+  <input type="text" id="youtubeLink" placeholder="Masukkan link YouTube" size="40">
+  <button id="ytBtn">🎧 Ambil Audio</button>
+</div>
+
 <button id="playBtn" style="display:none; z-index:5">▶️ Putar Musik</button>
 <input type="file" id="filePicker" accept="audio/*" style="z-index:5" />
 <div id="dropZone">Tarik & letakkan file musik di sini</div>
 
 <canvas id="visualizer" width="1200" height="800"></canvas>
-
 <audio id="player" preload="auto" loop></audio>
 
 <script>
@@ -83,7 +88,6 @@ let audioCtx, analyser, source, dataArray;
 let rotation = 0;
 let particles = [];
 
-// Setup visualizer
 function setupVisualizer() {
   if (!audioCtx) {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -97,7 +101,6 @@ function setupVisualizer() {
   drawVisualizer();
 }
 
-// Particle class
 class Particle {
   constructor(x, y, color) {
     this.x = x;
@@ -128,8 +131,6 @@ class Particle {
 function drawVisualizer() {
   requestAnimationFrame(drawVisualizer);
   analyser.getByteFrequencyData(dataArray);
-
-  // Animated background
   const avg = dataArray.reduce((a, b) => a + b) / dataArray.length;
   const hueBG = (avg * 2) % 360;
   ctx.fillStyle = `hsl(${hueBG}, 50%, 5%)`;
@@ -144,18 +145,16 @@ function drawVisualizer() {
   ctx.save();
   ctx.translate(centerX, centerY);
   ctx.rotate(rotation);
-  rotation += 0.002; // pelan
+  rotation += 0.002;
 
   for (let i = 0; i < bars; i++) {
     const value = dataArray[i];
     const barLength = value / 1.5;
     const angle = i * step;
-
     const x1 = Math.cos(angle) * radius;
     const y1 = Math.sin(angle) * radius;
     const x2 = Math.cos(angle) * (radius + barLength);
     const y2 = Math.sin(angle) * (radius + barLength);
-
     const hue = (i / bars) * 360;
     const color = `hsl(${hue}, 100%, 50%)`;
 
@@ -163,19 +162,15 @@ function drawVisualizer() {
     ctx.shadowColor = color;
     ctx.shadowBlur = 15;
     ctx.lineWidth = 2;
-
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
     ctx.stroke();
 
-    // Tambah partikel dari ujung batang
     if (Math.random() < 0.3) {
       particles.push(new Particle(x2 + centerX, y2 + centerY, color));
     }
   }
-
-  // Lingkaran pusat neon
   ctx.beginPath();
   ctx.arc(0, 0, radius - 10, 0, Math.PI * 2);
   ctx.strokeStyle = '#0ff';
@@ -183,10 +178,8 @@ function drawVisualizer() {
   ctx.shadowBlur = 20;
   ctx.lineWidth = 3;
   ctx.stroke();
-
   ctx.restore();
 
-  // Update & draw particles
   for (let i = particles.length - 1; i >= 0; i--) {
     particles[i].update();
     particles[i].draw();
@@ -194,30 +187,37 @@ function drawVisualizer() {
   }
 }
 
-// Init source
-function initSource() {
-  const urlParams = new URLSearchParams(location.search);
-  const src = urlParams.get('src');
-  if (src) {
-    player.src = src;
-    status.textContent = "Memuat dari URL query...";
-  } else {
-    player.src = "music.mp3";
-    status.textContent = "Memuat dari file default...";
-  }
+function playFile(file) {
+  const url = URL.createObjectURL(file);
+  player.src = url;
+  player.play().then(() => {
+    setupVisualizer();
+    status.textContent = "Memutar: " + file.name;
+    playBtn.style.display = "none";
+  }).catch(err => {
+    status.textContent = "Gagal memutar: " + err.message;
+    playBtn.style.display = "inline-block";
+  });
 }
 
-// Autoplay
-async function tryAutoplay() {
-  try {
-    await player.play();
-    setupVisualizer();
-    status.textContent = "Autoplay berhasil 🎶";
-  } catch (e) {
-    status.textContent = "Autoplay diblokir — klik tombol untuk memutar musik";
-    playBtn.style.display = "inline-block";
-  }
-}
+filePicker.addEventListener('change', () => {
+  const file = filePicker.files[0];
+  if (file) playFile(file);
+});
+
+dropZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  dropZone.classList.add('dragover');
+});
+dropZone.addEventListener('dragleave', () => {
+  dropZone.classList.remove('dragover');
+});
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) playFile(file);
+});
 
 playBtn.addEventListener('click', async () => {
   try {
@@ -233,42 +233,19 @@ playBtn.addEventListener('click', async () => {
   }
 });
 
-// File picker
-filePicker.addEventListener('change', () => {
-  const file = filePicker.files[0];
-  if (file) playFile(file);
-});
-
-// Drag & drop
-dropZone.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  dropZone.classList.add('dragover');
-});
-dropZone.addEventListener('dragleave', () => {
-  dropZone.classList.remove('dragover');
-});
-dropZone.addEventListener('drop', (e) => {
-  e.preventDefault();
-  dropZone.classList.remove('dragover');
-  const file = e.dataTransfer.files[0];
-  if (file) playFile(file);
-});
-
-function playFile(file) {
-  const url = URL.createObjectURL(file);
-  player.src = url;
-  player.play().then(() => {
+document.getElementById('ytBtn').addEventListener('click', async () => {
+  const link = document.getElementById('youtubeLink').value;
+  if (!link) return alert("Masukkan link YouTube!");
+  status.textContent = "Mengambil audio dari YouTube...";
+  player.src = `/youtube?url=${encodeURIComponent(link)}`;
+  try {
+    await player.play();
     setupVisualizer();
-    status.textContent = "Memutar: " + file.name;
-    playBtn.style.display = "none";
-  }).catch(err => {
+    status.textContent = "Memutar audio YouTube 🎶";
+  } catch (err) {
     status.textContent = "Gagal memutar: " + err.message;
-    playBtn.style.display = "inline-block";
-  });
-}
-
-initSource();
-tryAutoplay();
+  }
+});
 </script>
 
 </body>
