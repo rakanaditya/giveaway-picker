@@ -67,9 +67,6 @@
 <input type="file" id="filePicker" accept="audio/*" style="z-index:5" />
 <div id="dropZone">Tarik & letakkan file musik di sini</div>
 
-<hr style="z-index:5; width:80%;">
-<input type="text" id="ytLink" placeholder="Masukkan link YouTube" />
-<button id="ytPlay">🎬 Play dari YouTube</button>
 
 <canvas id="visualizer" width="1200" height="800"></canvas>
 <audio id="player" preload="auto" loop></audio>
@@ -230,25 +227,6 @@ playBtn.addEventListener('click', async () => {
   } catch (e) {
     status.textContent = "Gagal memutar musik: " + e.message;
   }
-});
-
-// YouTube Play
-document.getElementById('ytPlay').addEventListener('click', async () => {
-  const link = document.getElementById('ytLink').value.trim();
-  if (!link) {
-    alert('Masukkan link YouTube dulu');
-    return;
-  }
-  const audioURL = `/api/ytaudio?url=${encodeURIComponent(link)}`;
-  player.src = audioURL;
-  player.play().then(() => {
-    setupVisualizer();
-    status.textContent = "Memutar audio dari YouTube 🎶";
-    playBtn.style.display = "none";
-  }).catch(err => {
-    status.textContent = "Gagal memutar: " + err.message;
-    playBtn.style.display = "inline-block";
-  });
 });
 </script>
 
