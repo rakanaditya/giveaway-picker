@@ -1,28 +1,114 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🎛️ Admin Panel Giveaway</title>
-  <link rel="stylesheet" href="/admin.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: url('/gradient-abstract-background_23-2149101392.png') no-repeat center center fixed;
+      background-size: cover;
+      color: #e0e0e0;
+    }
+
+    .card {
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .form-control,
+    .form-control:focus {
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+    }
+
+    .form-control:focus {
+      border-color: #ff8c00;
+      box-shadow: 0 0 0 0.25rem rgba(255, 140, 0, 0.25);
+    }
+
+    .form-label {
+      text-align: left;
+      width: 100%;
+    }
+
+    .btn-save {
+      background-color: #ff8c00;
+      border-color: #ff8c00;
+      color: white;
+    }
+
+    .btn-save:hover {
+      background-color: #e67e00;
+      border-color: #e67e00;
+    }
+
+    .btn-reset {
+      background-color: #dc3545;
+      border-color: #dc3545;
+    }
+
+    .btn-reset:hover {
+      background-color: #c82333;
+      border-color: #bd2130;
+    }
+
+    .status-message {
+      margin-top: 15px;
+      font-weight: bold;
+      color: #ffc107;
+      min-height: 22px;
+    }
+  </style>
 </head>
-<body>
-  <div class="container">
-    <h1>🎛️ Admin Panel</h1>
-    <p>Login sebagai: <strong id="adminUser"></strong></p>
-    <button onclick="logout()">🔓 Logout</button>
 
-    <h3>🕒 Atur Jadwal Giveaway</h3>
-    <label>Waktu Mulai</label>
-    <input type="datetime-local" id="startTimeInput" />
-    <label>Waktu Selesai</label>
-    <input type="datetime-local" id="endTimeInput" />
-    <button onclick="saveDeadline()">💾 Simpan Jadwal</button>
+<body class="text-white">
 
-    <h3>🧹 Reset Peserta</h3>
-    <button onclick="resetPeserta()">🚨 Reset Giveaway</button>
+  <div class="container my-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 col-xl-7">
+        <div class="card">
+          <div class="card-body p-4 p-md-5 text-center">
+            <h1 class="fw-bold mb-3 text-white">🎛️ Admin Panel</h1>
+            <p>Login sebagai: <strong id="adminUser" class="text-warning"></strong></p>
+            <div class="d-grid gap-2">
+              <button onclick="logout()" class="btn btn-secondary">🔓 Logout</button>
+            </div>
 
-    <div id="statusMsg" class="status-message"></div>
+            <hr class="my-4 border-secondary">
+
+            <h3 class="fw-bold text-white">🕒 Atur Jadwal Giveaway</h3>
+            <div class="mb-3">
+              <label for="startTimeInput" class="form-label">Waktu Mulai</label>
+              <input type="datetime-local" id="startTimeInput" class="form-control" />
+            </div>
+            <div class="mb-3">
+              <label for="endTimeInput" class="form-label">Waktu Selesai</label>
+              <input type="datetime-local" id="endTimeInput" class="form-control" />
+            </div>
+            <div class="d-grid gap-2">
+              <button onclick="saveDeadline()" class="btn btn-save">💾 Simpan Jadwal</button>
+            </div>
+
+            <hr class="my-4 border-secondary">
+
+            <h3 class="fw-bold text-white">🧹 Reset Peserta</h3>
+            <div class="d-grid gap-2">
+              <button onclick="resetPeserta()" class="btn btn-reset">🚨 Reset Giveaway</button>
+            </div>
+
+            <div id="statusMsg" class="status-message"></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -53,75 +139,75 @@
       });
 
     // === Simpan Deadline
-  // === Simpan Deadline
-async function saveDeadline() {
-  const startRaw = document.getElementById("startTimeInput").value;
-  const endRaw = document.getElementById("endTimeInput").value;
+    // === Simpan Deadline
+    async function saveDeadline() {
+      const startRaw = document.getElementById("startTimeInput").value;
+      const endRaw = document.getElementById("endTimeInput").value;
 
-  if (!startRaw || !endRaw) {
-    statusMsg.textContent = "❌ Masukkan waktu mulai dan selesai!";
-    return;
-  }
+      if (!startRaw || !endRaw) {
+        statusMsg.textContent = "❌ Masukkan waktu mulai dan selesai!";
+        return;
+      }
 
-  const start = new Date(startRaw);
-  const end = new Date(endRaw);
+      const start = new Date(startRaw);
+      const end = new Date(endRaw);
 
-  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-    statusMsg.textContent = "❌ Format tanggal tidak valid!";
-    return;
-  }
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        statusMsg.textContent = "❌ Format tanggal tidak valid!";
+        return;
+      }
 
-  statusMsg.textContent = "⏳ Menyimpan jadwal...";
+      statusMsg.textContent = "⏳ Menyimpan jadwal...";
 
-  try {
-    const res = await fetch("/api/data", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "setDeadline",
-        username: user.username,
-        startTime: start.toISOString(),
-        endTime: end.toISOString()
-      })
-    });
+      try {
+        const res = await fetch("/api/data", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "setDeadline",
+            username: user.username,
+            startTime: start.toISOString(),
+            endTime: end.toISOString()
+          })
+        });
 
-    const data = await res.json();
+        const data = await res.json();
 
-    if (data.success) {
-      statusMsg.textContent = "✅ " + data.message;
-    } else {
-      statusMsg.textContent = "❌ Gagal menyimpan: " + (data.message || "Unknown error");
+        if (data.success) {
+          statusMsg.textContent = "✅ " + data.message;
+        } else {
+          statusMsg.textContent = "❌ Gagal menyimpan: " + (data.message || "Unknown error");
+        }
+      } catch (err) {
+        statusMsg.textContent = "❌ Error: " + err.message;
+      }
     }
-  } catch (err) {
-    statusMsg.textContent = "❌ Error: " + err.message;
-  }
-}
 
 
 
     async function resetPeserta() {
-  statusMsg.textContent = "🔄 Mereset peserta...";
-  try {
-    const res = await fetch("/api/data", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "reset",
-        username: user.username
-      })
-    });
+      statusMsg.textContent = "🔄 Mereset peserta...";
+      try {
+        const res = await fetch("/api/data", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "reset",
+            username: user.username
+          })
+        });
 
-    const data = await res.json();
+        const data = await res.json();
 
-    if (data.success) {
-      statusMsg.textContent = "✅ " + data.message;
-    } else {
-      statusMsg.textContent = "❌ Gagal reset: " + (data.message || "Unknown error");
+        if (data.success) {
+          statusMsg.textContent = "✅ " + data.message;
+        } else {
+          statusMsg.textContent = "❌ Gagal reset: " + (data.message || "Unknown error");
+        }
+      } catch (err) {
+        statusMsg.textContent = "❌ Gagal reset: " + err.message;
+      }
     }
-  } catch (err) {
-    statusMsg.textContent = "❌ Gagal reset: " + err.message;
-  }
-}
 
     // === Logout
     function logout() {
@@ -129,5 +215,9 @@ async function saveDeadline() {
       window.location.href = "/login.html";
     }
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
 </body>
+
 </html>
