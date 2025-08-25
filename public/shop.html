@@ -12,12 +12,15 @@
     padding: 0;
   }
 
-  body {
-    font-family: 'Poppins', sans-serif;
-    background: radial-gradient(circle at top, #0f0f1a, #1a0033, #000000);
-    color: #e0e0e0;
-    min-height: 100vh;
-  }
+body {
+  background: radial-gradient(circle at top, #0f0f1a, #1a0033, #000);
+  animation: bgmove 10s infinite alternate;
+}
+@keyframes bgmove {
+  0% { background-position: top left; }
+  100% { background-position: bottom right; }
+}
+
 
   /* NAVBAR */
   .navbar {
@@ -211,11 +214,31 @@
     margin-top: 50px;
   }
 
+.detail-text {
+  font-size: 15px;
+  color: #fff; /* jadi lebih jelas */
+  text-align: center;
+  text-shadow: 0 0 5px #00f7ff, 0 0 10px #ff00ff; /* efek neon glow */
+  margin: 5px 5;
+  line-height: 1.5;
+}
+
+
+
   @media (max-width: 600px) {
     h2 { font-size: 22px; }
     .grid-item { padding: 15px; }
     .navbar strong { font-size: 16px; }
   }
+
+@keyframes glow {
+  0%, 100% { text-shadow: 0 0 5px #ff00ff, 0 0 10px #00f7ff; }
+  50% { text-shadow: 0 0 20px #ff00ff, 0 0 40px #00f7ff; }
+}
+.glow-text {
+  animation: glow 2s infinite;
+}
+
   </style>
 </head>
 <body>
@@ -266,7 +289,7 @@
     <div class="item-name">ISI ROBUX PENDING</div>
     <img src="https://i.imgur.com/vP13rWk.png" alt="Isi ROBUX Pending" />
     <div class="item-price">Estimasi 7 HARI</div>
-    <p style="font-size:14px; color:#333; text-align:left;">
+   <p class="detail-text">
       Pending 2 HARI setelah order <br><br>
       100 ROBUX = 14.000 <br>
       200 ROBUX = 28.000 <br>
@@ -298,7 +321,7 @@
     <div class="item-name">ROBUX INSTANT</div>
     <img src="https://i.imgur.com/vP13rWk.png" alt="ROBUX Instant" />
     <div class="item-price">Langsung Masuk</div>
-    <p style="font-size:14px; color:#333; text-align:left;">
+    <p class="detail-text">
       80 ROBUX = 28.000 <br>
       160 ROBUX = 54.000 <br>
       500 ROBUX = 105.000 <br>
@@ -312,9 +335,9 @@
     <div class="item-name">ISI ROBUX PENDING</div>
     <img src="https://i.imgur.com/vP13rWk.png" alt="ROBUX Pending 5 Hari" />
     <div class="item-price">Instant proses 5 HARI</div>
-    <p style="font-size:14px; color:#333; text-align:left;">
-      100 ROBUX = 16.000
-    </p>
+    <p class="detail-text">
+  100 ROBUX = 16.000
+</p>
     <a href="https://discord.gg/invite/4vNhCF5EHw">Beli Sekarang</a>
   </div>
 
@@ -323,7 +346,7 @@
     <div class="item-name">Stock ROBUX </div>
     <img src="https://i.imgur.com/96BIpch.png" alt="Stock Robux" />
     <div class="item-price">83.000 ROBUX</div>
-    <p style="font-size:14px; color:#333; text-align:center;">STATUS: OPENED ✅</p>
+   <p class="detail-text">STATUS: OPENED ✅</p>
     <a href="https://discord.com/invite/5vHNQSFCby">Hubungi Admin</a>
   </div>
 </div>
