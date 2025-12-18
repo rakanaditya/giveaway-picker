@@ -2,187 +2,259 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title>🎵 Neon Spectrum Visualizer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🎵 Neon Spectrum Player</title>
 
 <style>
-html, body {
+html,body{
   margin:0;
-  padding:0;
   height:100%;
   overflow:hidden;
   font-family:sans-serif;
 }
 
-body {
+body{
   background:
-    linear-gradient(rgba(0,0,0,.65), rgba(0,0,0,.65)),
+    linear-gradient(rgba(0,0,0,.65),rgba(0,0,0,.65)),
     url("https://i.imgur.com/53m3Fo5.png") center/cover no-repeat;
+  color:#fff;
 }
 
-.controls {
-  position:absolute;
-  top:10px;
-  width:100%;
-  z-index:10;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:8px;
-  color:white;
-  text-align:center;
-}
-
-input, button, .drop {
-  background:rgba(0,0,0,.6);
-  color:white;
-  border:none;
-  border-radius:8px;
-  padding:10px;
-  width:85%;
-  max-width:360px;
-}
-
-.drop {
-  border:2px dashed #555;
-}
-
-canvas {
+canvas{
   position:fixed;
   inset:0;
   z-index:1;
+}
+
+/* PANEL */
+.panel{
+  position:fixed;
+  bottom:10px;
+  left:50%;
+  transform:translateX(-50%);
+  width:95%;
+  max-width:520px;
+  background:rgba(0,0,0,.7);
+  backdrop-filter:blur(10px);
+  border-radius:14px;
+  padding:12px;
+  z-index:10;
+  box-shadow:0 0 20px rgba(0,255,255,.3);
+}
+
+.controls{
+  display:flex;
+  justify-content:space-around;
+  margin-bottom:8px;
+}
+
+button{
+  background:#111;
+  border:none;
+  color:#0ff;
+  padding:10px;
+  border-radius:10px;
+  font-size:16px;
+  box-shadow:0 0 10px #0ff;
+}
+
+button.active{
+  color:#f0f;
+  box-shadow:0 0 15px #f0f;
+}
+
+.progress{
+  width:100%;
+}
+
+input[type=range]{
+  width:100%;
+}
+
+.time{
+  display:flex;
+  justify-content:space-between;
+  font-size:14px;
+  opacity:.9;
+}
+
+.top{
+  position:fixed;
+  top:10px;
+  width:100%;
+  z-index:10;
+  text-align:center;
 }
 </style>
 </head>
 
 <body>
 
-<div class="controls">
-  <h2>🎵 Neon Spectrum</h2>
-  <p id="status">Tap / pilih musik</p>
-  <input type="file" id="filePicker" accept="audio/*">
-  <div class="drop" id="dropZone">Drop musik di sini</div>
+<div class="top">
+  <input type="file" id="file" accept="audio/*">
+  <p id="status">Pilih musik</p>
 </div>
 
 <canvas id="canvas"></canvas>
-<audio id="player"></audio>
+
+<div class="panel">
+  <div class="controls">
+    <button id="play">▶️</button>
+    <button id="pause">⏸️</button>
+    <button id="stop">⏹️</button>
+    <button id="loop">🔁</button>
+  </div>
+
+  <div class="progress">
+    <input type="range" id="seek" min="0" max="100" value="0">
+    <div class="time">
+      <span id="current">0:00</span>
+      <span id="duration">0:00</span>
+    </div>
+  </div>
+</div>
+
+<audio id="audio"></audio>
 
 <script>
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-const player = document.getElementById("player");
-const filePicker = document.getElementById("filePicker");
-const dropZone = document.getElementById("dropZone");
+/* ===== AUDIO ===== */
+const audio = document.getElementById("audio");
+const file = document.getElementById("file");
+const playBtn = document.getElementById("play");
+const pauseBtn = document.getElementById("pause");
+const stopBtn = document.getElementById("stop");
+const loopBtn = document.getElementById("loop");
+const seek = document.getElementById("seek");
+const cur = document.getElementById("current");
+const dur = document.getElementById("duration");
 const status = document.getElementById("status");
 
 let audioCtx, analyser, source, data;
-let bassEnergy = 0;
-let shake = 0;
-let flash = 0;
+let popupOpened = false;
 
-function resize() {
+/* ===== CANVAS ===== */
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+function resize(){
   canvas.width = innerWidth;
   canvas.height = innerHeight;
 }
 resize();
 addEventListener("resize", resize);
 
-function initAudio() {
-  if (audioCtx) return;
+/* ===== INIT AUDIO ===== */
+function initAudio(){
+  if(audioCtx) return;
   audioCtx = new AudioContext();
   analyser = audioCtx.createAnalyser();
   analyser.fftSize = 256;
   data = new Uint8Array(analyser.frequencyBinCount);
-  source = audioCtx.createMediaElementSource(player);
+  source = audioCtx.createMediaElementSource(audio);
   source.connect(analyser);
   analyser.connect(audioCtx.destination);
   draw();
 }
 
-function draw() {
+/* ===== VISUALIZER ===== */
+let shake=0, flash=0;
+
+function draw(){
   requestAnimationFrame(draw);
   analyser.getByteFrequencyData(data);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  // Bass detection (frekuensi rendah)
-  let bass = 0;
-  for (let i = 0; i < 10; i++) bass += data[i];
-  bass /= 10;
+  let bass=0;
+  for(let i=0;i<10;i++) bass+=data[i];
+  bass/=10;
 
-  bassEnergy = bassEnergy * 0.9 + bass * 0.1;
-
-  if (bass > 180) {
-    shake = 15;
-    flash = 1;
-  }
+  if(bass>180){ shake=12; flash=1; }
 
   ctx.save();
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);
+  shake*=.9;
 
-  // Screen shake
-  ctx.translate(
-    (Math.random() - 0.5) * shake,
-    (Math.random() - 0.5) * shake
-  );
-  shake *= 0.9;
+  const bars=data.length;
+  const w=canvas.width/bars;
 
-  const bars = data.length;
-  const barW = canvas.width / bars;
+  for(let i=0;i<bars;i++){
+    const v=data[i];
+    const h=v*2;
+    const x=i*w;
+    const y=canvas.height/2-h/2;
+    const hue=(bass*2+i*2)%360;
 
-  for (let i = 0; i < bars; i++) {
-    const v = data[i];
-    const h = v * 2;
-    const x = i * barW;
-    const y = canvas.height / 2 - h / 2;
+    const g=ctx.createLinearGradient(0,y,0,y+h);
+    g.addColorStop(0,`hsl(${hue},100%,60%)`);
+    g.addColorStop(1,`hsl(${hue+60},100%,50%)`);
 
-    const hue = (bassEnergy * 2 + i * 2) % 360;
-    const grad = ctx.createLinearGradient(0, y, 0, y + h);
-    grad.addColorStop(0, `hsl(${hue},100%,60%)`);
-    grad.addColorStop(1, `hsl(${hue + 60},100%,50%)`);
-
-    ctx.fillStyle = grad;
-    ctx.shadowBlur = 25 + bass / 3;
-    ctx.shadowColor = `hsl(${hue},100%,60%)`;
-
-    ctx.fillRect(x + 1, y, barW - 2, h);
+    ctx.fillStyle=g;
+    ctx.shadowBlur=20;
+    ctx.shadowColor=`hsl(${hue},100%,60%)`;
+    ctx.fillRect(x+1,y,w-2,h);
   }
-
   ctx.restore();
 
-  // Glow flash
-  if (flash > 0) {
-    ctx.fillStyle = `rgba(255,255,255,${flash * 0.15})`;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    flash *= 0.85;
+  if(flash>0){
+    ctx.fillStyle=`rgba(255,255,255,${flash*.15})`;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    flash*=.85;
   }
 }
 
-function playFile(file) {
-  player.src = URL.createObjectURL(file);
-  player.play();
+/* ===== PLAYER CONTROL ===== */
+playBtn.onclick=()=>{
+  audio.play();
   initAudio();
-  status.textContent = "Memutar 🎶";
+
+  if(!popupOpened){
+    window.open(
+      "https://www.google.com/search?q=music+visualizer",
+      "_blank"
+    );
+    popupOpened=true;
+  }
+};
+
+pauseBtn.onclick=()=>audio.pause();
+
+stopBtn.onclick=()=>{
+  audio.pause();
+  audio.currentTime=0;
+};
+
+loopBtn.onclick=()=>{
+  audio.loop=!audio.loop;
+  loopBtn.classList.toggle("active",audio.loop);
+};
+
+/* ===== FILE LOAD ===== */
+file.onchange=()=>{
+  audio.src=URL.createObjectURL(file.files[0]);
+  status.textContent="Loaded: "+file.files[0].name;
+};
+
+/* ===== PROGRESS ===== */
+audio.ontimeupdate=()=>{
+  seek.value=(audio.currentTime/audio.duration)*100||0;
+  cur.textContent=format(audio.currentTime);
+  dur.textContent=format(audio.duration);
+};
+
+seek.oninput=()=>{
+  audio.currentTime=(seek.value/100)*audio.duration;
+};
+
+function format(t){
+  if(!t) return "0:00";
+  const m=Math.floor(t/60);
+  const s=Math.floor(t%60).toString().padStart(2,"0");
+  return m+":"+s;
 }
 
-// Mobile tap to play
-document.body.addEventListener("touchstart", () => {
-  if (audioCtx && audioCtx.state === "suspended") {
-    audioCtx.resume();
-    player.play();
-  }
-}, { once:true });
-
-filePicker.onchange = () => playFile(filePicker.files[0]);
-
-dropZone.ondragover = e => {
-  e.preventDefault();
-  dropZone.style.borderColor = "#0ff";
-};
-dropZone.ondragleave = () => dropZone.style.borderColor = "#555";
-dropZone.ondrop = e => {
-  e.preventDefault();
-  dropZone.style.borderColor = "#555";
-  playFile(e.dataTransfer.files[0]);
-};
+/* MOBILE TAP */
+document.body.addEventListener("touchstart",()=>{
+  if(audioCtx?.state==="suspended") audioCtx.resume();
+},{once:true});
 </script>
 
 </body>
