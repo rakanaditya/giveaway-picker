@@ -1,260 +1,191 @@
 <!doctype html>
-<html lang="id">
+<html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>🎵 Neon Spectrum Player</title>
+<meta name="viewport" content="width=device-width">
+<title>Neon Spectrum Pro</title>
 
 <style>
-html,body{
-  margin:0;
-  height:100%;
-  overflow:hidden;
-  font-family:sans-serif;
-}
-
-body{
-  background:
-    linear-gradient(rgba(0,0,0,.65),rgba(0,0,0,.65)),
-    url("https://i.imgur.com/53m3Fo5.png") center/cover no-repeat;
-  color:#fff;
-}
-
-canvas{
-  position:fixed;
-  inset:0;
-  z-index:1;
-}
-
-/* PANEL */
-.panel{
-  position:fixed;
-  bottom:10px;
-  left:50%;
-  transform:translateX(-50%);
-  width:95%;
-  max-width:520px;
-  background:rgba(0,0,0,.7);
-  backdrop-filter:blur(10px);
-  border-radius:14px;
-  padding:12px;
-  z-index:10;
-  box-shadow:0 0 20px rgba(0,255,255,.3);
-}
-
-.controls{
-  display:flex;
-  justify-content:space-around;
-  margin-bottom:8px;
-}
-
-button{
-  background:#111;
-  border:none;
-  color:#0ff;
-  padding:10px;
-  border-radius:10px;
-  font-size:16px;
-  box-shadow:0 0 10px #0ff;
-}
-
-button.active{
-  color:#f0f;
-  box-shadow:0 0 15px #f0f;
-}
-
-.progress{
-  width:100%;
-}
-
-input[type=range]{
-  width:100%;
-}
-
-.time{
-  display:flex;
-  justify-content:space-between;
-  font-size:14px;
-  opacity:.9;
-}
-
-.top{
-  position:fixed;
-  top:10px;
-  width:100%;
-  z-index:10;
-  text-align:center;
-}
+body{margin:0;background:#000;color:#fff;font-family:sans-serif;overflow:hidden}
+canvas{position:fixed;inset:0}
+.panel{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);
+width:95%;max-width:560px;background:rgba(0,0,0,.75);
+backdrop-filter:blur(10px);border-radius:14px;padding:12px;
+box-shadow:0 0 20px #0ff}
+.row{display:flex;gap:8px;margin-top:6px}
+button,input[type=range],select{
+flex:1;background:#111;border:none;border-radius:10px;
+padding:8px;color:#0ff;box-shadow:0 0 10px #0ff}
+button.active{color:#f0f;box-shadow:0 0 15px #f0f}
+label{font-size:12px;opacity:.9}
 </style>
 </head>
 
 <body>
 
-<div class="top">
-  <input type="file" id="file" accept="audio/*">
-  <p id="status">Pilih musik</p>
-</div>
+<input id="playlist" type="file" multiple accept="audio/*" style="position:fixed;top:10px;left:10px;z-index:10">
 
-<canvas id="canvas"></canvas>
+<canvas id="c"></canvas>
 
 <div class="panel">
-  <div class="controls">
+  <div class="row">
+    <button id="prev">⏮</button>
     <button id="play">▶️</button>
     <button id="pause">⏸️</button>
-    <button id="stop">⏹️</button>
+    <button id="stop">⏹</button>
     <button id="loop">🔁</button>
+    <button id="rec">⏺</button>
   </div>
 
-  <div class="progress">
-    <input type="range" id="seek" min="0" max="100" value="0">
-    <div class="time">
-      <span id="current">0:00</span>
-      <span id="duration">0:00</span>
-    </div>
+  <div class="row">
+    <label>Volume</label>
+    <input id="vol" type="range" min="0" max="1" step="0.01" value="1">
+    <label>Bass Boost</label>
+    <input id="bass" type="range" min="-40" max="20" step="1" value="0">
+  </div>
+
+  <div class="row">
+    <input id="seek" type="range" min="0" max="100" value="0">
+  </div>
+
+  <div class="row">
+    <select id="list"></select>
+    <input id="yt" placeholder="Tempel URL audio YouTube (stream)">
+    <button id="loadYT">Load</button>
+  </div>
+
+  <div class="row">
+    <span id="time">0:00 / 0:00</span>
   </div>
 </div>
 
 <audio id="audio"></audio>
 
 <script>
-/* ===== AUDIO ===== */
-const audio = document.getElementById("audio");
-const file = document.getElementById("file");
-const playBtn = document.getElementById("play");
-const pauseBtn = document.getElementById("pause");
-const stopBtn = document.getElementById("stop");
-const loopBtn = document.getElementById("loop");
-const seek = document.getElementById("seek");
-const cur = document.getElementById("current");
-const dur = document.getElementById("duration");
-const status = document.getElementById("status");
+const a = audio;
+let ctx, analyser, src, data;
+let bassEQ, gainNode;
+let recStream, recorder, chunks=[];
+let files=[], index=0;
 
-let audioCtx, analyser, source, data;
-let popupOpened = false;
+const cvs=c, g=cvs.getContext("2d");
+function size(){cvs.width=innerWidth;cvs.height=innerHeight}
+size(); addEventListener("resize",size);
 
-/* ===== CANVAS ===== */
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-function resize(){
-  canvas.width = innerWidth;
-  canvas.height = innerHeight;
-}
-resize();
-addEventListener("resize", resize);
+/* ==== AUDIO GRAPH ==== */
+function init(){
+  if(ctx) return;
+  ctx=new AudioContext();
+  analyser=ctx.createAnalyser();
+  analyser.fftSize=256;
+  data=new Uint8Array(analyser.frequencyBinCount);
 
-/* ===== INIT AUDIO ===== */
-function initAudio(){
-  if(audioCtx) return;
-  audioCtx = new AudioContext();
-  analyser = audioCtx.createAnalyser();
-  analyser.fftSize = 256;
-  data = new Uint8Array(analyser.frequencyBinCount);
-  source = audioCtx.createMediaElementSource(audio);
-  source.connect(analyser);
-  analyser.connect(audioCtx.destination);
+  gainNode=ctx.createGain();
+  bassEQ=ctx.createBiquadFilter();
+  bassEQ.type="lowshelf";
+  bassEQ.frequency.value=150;
+
+  src=ctx.createMediaElementSource(a);
+  src.connect(bassEQ);
+  bassEQ.connect(gainNode);
+  gainNode.connect(analyser);
+  analyser.connect(ctx.destination);
+
   draw();
 }
 
-/* ===== VISUALIZER ===== */
+/* ==== VISUALIZER ==== */
 let shake=0, flash=0;
-
 function draw(){
   requestAnimationFrame(draw);
   analyser.getByteFrequencyData(data);
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+  let bass = data.slice(0,12).reduce((a,b)=>a+b)/12;
+  if(bass>170){shake=12;flash=1}
+  g.clearRect(0,0,cvs.width,cvs.height);
 
-  let bass=0;
-  for(let i=0;i<10;i++) bass+=data[i];
-  bass/=10;
-
-  if(bass>180){ shake=12; flash=1; }
-
-  ctx.save();
-  ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);
+  g.save();
+  g.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);
   shake*=.9;
 
-  const bars=data.length;
-  const w=canvas.width/bars;
-
+  const bars=data.length, w=cvs.width/bars;
   for(let i=0;i<bars;i++){
-    const v=data[i];
-    const h=v*2;
-    const x=i*w;
-    const y=canvas.height/2-h/2;
+    const v=data[i], h=v*2;
+    const x=i*w, y=cvs.height/2-h/2;
     const hue=(bass*2+i*2)%360;
-
-    const g=ctx.createLinearGradient(0,y,0,y+h);
-    g.addColorStop(0,`hsl(${hue},100%,60%)`);
-    g.addColorStop(1,`hsl(${hue+60},100%,50%)`);
-
-    ctx.fillStyle=g;
-    ctx.shadowBlur=20;
-    ctx.shadowColor=`hsl(${hue},100%,60%)`;
-    ctx.fillRect(x+1,y,w-2,h);
+    const grd=g.createLinearGradient(0,y,0,y+h);
+    grd.addColorStop(0,`hsl(${hue},100%,60%)`);
+    grd.addColorStop(1,`hsl(${hue+60},100%,50%)`);
+    g.fillStyle=grd; g.shadowBlur=18; g.shadowColor=`hsl(${hue},100%,60%)`;
+    g.fillRect(x+1,y,w-2,h);
   }
-  ctx.restore();
+  g.restore();
 
   if(flash>0){
-    ctx.fillStyle=`rgba(255,255,255,${flash*.15})`;
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+    g.fillStyle=`rgba(255,255,255,${flash*.12})`;
+    g.fillRect(0,0,cvs.width,cvs.height);
     flash*=.85;
   }
 }
 
-/* ===== PLAYER CONTROL ===== */
-playBtn.onclick=()=>{
-  audio.play();
-  initAudio();
+/* ==== UI ==== */
+function loadTrack(i){
+  index=i;
+  a.src=files[i].url;
+  a.play(); init();
+  document.getElementById("list").selectedIndex=i;
+}
 
-  if(!popupOpened){
-    window.open(
-      "https://www.google.com/search?q=music+visualizer",
-      "_blank"
-    );
-    popupOpened=true;
+playlist.onchange=()=>{
+  files=[...playlist.files].map(f=>({name:f.name,url:URL.createObjectURL(f)}));
+  list.innerHTML=files.map((f,i)=>`<option value="${i}">${f.name}</option>`).join("");
+  if(files.length) loadTrack(0);
+};
+
+list.onchange=()=>loadTrack(+list.value);
+
+prev.onclick=()=>{ if(index>0) loadTrack(index-1); };
+play.onclick=()=>{ a.play(); init(); };
+pause.onclick=()=>a.pause();
+stop.onclick=()=>{a.pause();a.currentTime=0};
+loop.onclick=()=>{a.loop=!a.loop;loop.classList.toggle("active",a.loop)};
+
+vol.oninput=e=>gainNode.gain.value=e.target.value;
+bass.oninput=e=>bassEQ.gain.value=e.target.value;
+
+a.ontimeupdate=()=>{
+  seek.value=(a.currentTime/a.duration)*100||0;
+  time.textContent=f(a.currentTime)+" / "+f(a.duration);
+};
+seek.oninput=()=>a.currentTime=(seek.value/100)*a.duration;
+function f(t){if(!t)return"0:00";const m=Math.floor(t/60),s=String(Math.floor(t%60)).padStart(2,"0");return `${m}:${s}`;}
+
+a.onended=()=>{ if(index<files.length-1) loadTrack(index+1); };
+
+/* ==== EXPORT VIDEO (WEBM) ==== */
+rec.onclick=()=>{
+  if(!recorder){
+    recStream=cvs.captureStream(60);
+    recorder=new MediaRecorder(recStream,{mimeType:"video/webm"});
+    recorder.ondataavailable=e=>chunks.push(e.data);
+    recorder.onstop=()=>{
+      const blob=new Blob(chunks,{type:"video/webm"});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement("a");
+      a.href=url;a.download="visualizer.webm";a.click();
+      chunks=[];recorder=null;
+    };
+    recorder.start(); rec.classList.add("active");
+  } else {
+    recorder.stop(); rec.classList.remove("active");
   }
 };
 
-pauseBtn.onclick=()=>audio.pause();
-
-stopBtn.onclick=()=>{
-  audio.pause();
-  audio.currentTime=0;
+/* ==== LOAD YOUTUBE AUDIO STREAM ==== */
+loadYT.onclick=()=>{
+  if(!yt.value) return;
+  a.src=yt.value; // HARUS berupa direct audio stream
+  a.play(); init();
 };
-
-loopBtn.onclick=()=>{
-  audio.loop=!audio.loop;
-  loopBtn.classList.toggle("active",audio.loop);
-};
-
-/* ===== FILE LOAD ===== */
-file.onchange=()=>{
-  audio.src=URL.createObjectURL(file.files[0]);
-  status.textContent="Loaded: "+file.files[0].name;
-};
-
-/* ===== PROGRESS ===== */
-audio.ontimeupdate=()=>{
-  seek.value=(audio.currentTime/audio.duration)*100||0;
-  cur.textContent=format(audio.currentTime);
-  dur.textContent=format(audio.duration);
-};
-
-seek.oninput=()=>{
-  audio.currentTime=(seek.value/100)*audio.duration;
-};
-
-function format(t){
-  if(!t) return "0:00";
-  const m=Math.floor(t/60);
-  const s=Math.floor(t%60).toString().padStart(2,"0");
-  return m+":"+s;
-}
-
-/* MOBILE TAP */
-document.body.addEventListener("touchstart",()=>{
-  if(audioCtx?.state==="suspended") audioCtx.resume();
-},{once:true});
 </script>
 
 </body>
