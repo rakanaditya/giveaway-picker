@@ -95,30 +95,6 @@
 
   .carousel img:hover { transform: scale(1.05); }
 
-  /* Skeleton Loading */
-  .img-wrapper {
-    position: relative;
-    min-width: 280px;
-    border-radius: 10px;
-    overflow: hidden;
-  }
-
-  .img-skeleton {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg,#2a2a2a 0%,#3a3a3a 50%,#2a2a2a 100%);
-    animation: shimmer 1.2s infinite;
-    border-radius: 10px;
-  }
-
-  @keyframes shimmer {
-    from { background-position: -200px 0; }
-    to { background-position: 200px 0; }
-  }
-
-  .carousel img.loading { opacity: 0; }
-  .carousel img.loaded { opacity: 1; transition: opacity .4s ease; }
-
   /* Modal */
   .modal {
     display: none;
@@ -185,49 +161,15 @@
 
     <p>Berikut bukti giveaway nyata dari server <strong>Rakan Aditya Community</strong> 👇</p>
 
-    <!-- Carousel + Skeleton Loading -->
     <div class="carousel" id="carousel">
-
-      <!-- ulangi pola ini untuk semua gambar -->
-      <div class="img-wrapper">
-        <span class="img-skeleton"></span>
-        <img loading="lazy" src="https://i.imgur.com/xyq3S9A.jpeg" alt="bukti1" class="loading">
-      </div>
-
-      <div class="img-wrapper">
-        <span class="img-skeleton"></span>
-        <img loading="lazy" src="https://i.imgur.com/ZoMCLdP.jpeg" alt="bukti2" class="loading">
-      </div>
-
-      <div class="img-wrapper">
-        <span class="img-skeleton"></span>
-        <img loading="lazy" src="https://i.imgur.com/sInniAs.jpeg" alt="bukti3" class="loading">
-      </div>
-
-      <div class="img-wrapper">
-        <span class="img-skeleton"></span>
-        <img loading="lazy" src="https://i.imgur.com/oI7nR6N.jpeg" alt="bukti4" class="loading">
-      </div>
-
-      <div class="img-wrapper">
-        <span class="img-skeleton"></span>
-        <img loading="lazy" src="https://i.imgur.com/8Erz9g1.jpeg" alt="bukti5" class="loading">
-      </div>
-
-      <div class="img-wrapper">
-        <span class="img-skeleton"></span>
-        <img loading="lazy" src="https://i.imgur.com/B8gboUY.jpeg" alt="bukti6" class="loading">
-      </div>
-
-      <div class="img-wrapper">
-        <span class="img-skeleton"></span>
-        <img loading="lazy" src="https://i.imgur.com/DaaNYgS.jpeg" alt="bukti7" class="loading">
-      </div>
-
-      <div class="img-wrapper">
-        <span class="img-skeleton"></span>
-        <img loading="lazy" src="https://i.imgur.com/mqo9IoH.jpeg" alt="bukti8" class="loading">
-      </div>
+      <img src="https://i.imgur.com/xyq3S9A.jpeg" alt="bukti1">
+      <img src="https://i.imgur.com/ZoMCLdP.jpeg" alt="bukti2">
+      <img src="https://i.imgur.com/sInniAs.jpeg" alt="bukti3">
+      <img src="https://i.imgur.com/oI7nR6N.jpeg" alt="bukti4">
+      <img src="https://i.imgur.com/8Erz9g1.jpeg" alt="bukti5">
+      <img src="https://i.imgur.com/B8gboUY.jpeg" alt="bukti6">
+      <img src="https://i.imgur.com/DaaNYgS.jpeg" alt="bukti7">
+      <img src="https://i.imgur.com/mqo9IoH.jpeg" alt="bukti8">
     </div>
 
     <p style="margin-top: 40px;">
@@ -236,7 +178,6 @@
     </p>
   </div>
 
-  <!-- Modal -->
   <div id="imgModal" class="modal">
     <span class="close-btn" onclick="closeModal()">×</span>
     <img class="modal-content" id="modalImg" />
@@ -246,7 +187,6 @@
   const modal = document.getElementById("imgModal");
   const modalImg = document.getElementById("modalImg");
 
-  // Zoom image
   document.querySelectorAll(".carousel img").forEach(img => {
     img.addEventListener("click", () => {
       modal.style.display = "flex";
@@ -263,23 +203,12 @@
   modal.addEventListener("click", e => { if (e.target === modal) closeModal(); });
   window.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
 
-  // Autoscroll carousel
   const carousel = document.getElementById("carousel");
   let autoScroll = setInterval(() => {
     const atEnd = carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 10;
     if (atEnd) carousel.scrollTo({ left: 0, behavior: "smooth" });
     else carousel.scrollBy({ left: 300, behavior: "smooth" });
   }, 3000);
-
-  // Skeleton -> fade-in after loaded
-  document.querySelectorAll(".carousel img").forEach(img => {
-    img.addEventListener("load", () => {
-      img.classList.remove("loading");
-      img.classList.add("loaded");
-      const skeleton = img.previousElementSibling;
-      if (skeleton) skeleton.remove();
-    });
-  });
   </script>
 
 </body>
