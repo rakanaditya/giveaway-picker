@@ -132,6 +132,53 @@
     .carousel img { max-height: 200px; }
     .close-btn { top: 15px; right: 20px; font-size: 28px; }
   }
+
+/* === MOBILE FIX — layout lebih rapi & jelas === */
+@media (max-width: 600px) {
+
+  .container {
+    margin: 12px;
+    padding: 18px;
+    text-align: left;
+  }
+
+  h2 {
+    text-align: center;
+    font-size: 20px;
+  }
+
+  /* teks paragraf lebih readable */
+  p {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ubah carousel jadi grid stack */
+  .carousel {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    overflow-x: hidden;   /* hilangkan scroll samping */
+    padding-bottom: 0;
+  }
+
+  .carousel img {
+    width: 100%;
+    max-height: none;
+    min-width: auto;
+    border-radius: 12px;
+    object-fit: cover;
+    scroll-snap-align: unset;
+  }
+
+  /* modal tetap nyaman */
+  .modal-content {
+    max-width: 95%;
+    max-height: 85%;
+  }
+}
+
+    
   </style>
 </head>
 
