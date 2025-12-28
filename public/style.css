@@ -251,3 +251,51 @@ ul#participantsUl li {
   background-color: #c93232;
   transform: translateY(-1px);
 }
+
+/* === RESPONSIVE (MOBILE FIRST IMPROVEMENTS) === */
+@media (max-width: 768px) {
+body {
+padding: 12px;
+text-align: center;
+}
+
+
+.navbar {
+flex-direction: column;
+gap: 8px;
+padding: 12px 14px;
+}
+
+
+.navbar .nav-links {
+display: flex;
+flex-wrap: wrap;
+justify-content: center;
+gap: 10px;
+}
+
+
+.container {
+max-width: 100%;
+margin: 10px auto;
+border-radius: 14px;
+padding: 10px;
+}
+
+
+.giveaway-box {
+padding: 12px;
+border-width: 1px;
+}
+
+
+h2 {
+font-size: 20px;
+margin-bottom: 10px;
+}
+
+
+#statusText {
+font-size: 22px;
+}
+}
