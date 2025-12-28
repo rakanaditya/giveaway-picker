@@ -6,160 +6,159 @@
   <title>Tentang Website</title>
   <link rel="stylesheet" href="/style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
   <style>
-  * {
-    box-sizing: border-box;
-  }
+  * { box-sizing: border-box; }
 
   body {
-  margin: 0;
-  padding: 0px;
-  font-family: 'Poppins', sans-serif;
- background: linear-gradient(135deg, #1f1c2c, #928dab);
-  background-size: cover;
-  background-color: #f0f2f5;
-  text-align: center;
-   color: #e0e0e0;
-}
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #1f1c2c, #928dab);
+    background-size: cover;
+    color: #e0e0e0;
+    text-align: center;
+  }
 
-    .navbar {
-  background-color: #0f0f1a;
-  color: white;
-  padding: 15px 25px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-}
+  .navbar {
+    background-color: #0f0f1a;
+    color: white;
+    padding: 15px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  }
 
-    .navbar .nav-links a {
+  .navbar .nav-links a {
     color: white;
     margin-left: 20px;
     text-decoration: none;
     font-weight: 600;
-    transition: color 0.2s;
+    transition: color .2s;
   }
 
- .navbar .nav-links a:hover {
-  color: #00f7ff;
-  text-shadow: 0 0 5px #00f7ff;
-}
+  .navbar .nav-links a:hover {
+    color: #00f7ff;
+    text-shadow: 0 0 5px #00f7ff;
+  }
 
-    .container {
-  max-width: 1080px;
-  margin: 30px auto;
-  padding: 30px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-  backdrop-filter: blur(12px);
-}
+  .container {
+    max-width: 1080px;
+    margin: 30px auto;
+    padding: 30px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    backdrop-filter: blur(12px);
+  }
 
-h2 {
-  color: #ffffff;
-  font-size: 26px;
-  margin-bottom: 15px;
-  text-align: center;
-  text-shadow: 0 0 10px #00f7ff;
-}
+  h2 {
+    color: #ffffff;
+    font-size: 26px;
+    margin-bottom: 15px;
+    text-shadow: 0 0 10px #00f7ff;
+  }
 
- p, li {
-  font-size: 16px;
-  line-height: 1.7;
-  margin-bottom: 20px;
-  color: #e0e0e0;
-}
+  p, li {
+    font-size: 16px;
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
 
-ul {
-  padding-left: 20px;
-}
+  ul { padding-left: 20px; }
 
-    /* Carousel */
-    .carousel {
-      display: flex;
-      overflow-x: auto;
-      scroll-behavior: smooth;
-      gap: 10px;
-      margin-top: 20px;
-      scroll-snap-type: x mandatory;
-      padding-bottom: 10px;
-      align-items: center;
-    }
+  /* Carousel */
+  .carousel {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    gap: 10px;
+    margin-top: 20px;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 10px;
+    align-items: center;
+  }
 
-    .carousel img {
-  max-height: 300px;      /* Batasi tinggi maksimal */
-  max-width: 100%;        /* Jangan melebihi lebar kontainer */
-  height: auto;           /* Tinggi mengikuti rasio gambar */
-  width: auto;
-  min-width: 280px;            /* Lebar menyesuaikan proporsi */
-  border-radius: 10px;
-  flex-shrink: 0;
-  scroll-snap-align: center;
-  cursor: pointer;
-  transition: transform 0.3s;
-  object-fit: contain;    /* Hindari croping gambar */
-}
+  .carousel img {
+    max-height: 300px;
+    max-width: 100%;
+    height: auto;
+    min-width: 280px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    scroll-snap-align: center;
+    cursor: pointer;
+    transition: transform .3s;
+    object-fit: contain;
+  }
 
+  .carousel img:hover { transform: scale(1.05); }
 
-    .carousel img:hover {
-      transform: scale(1.05);
-    }
+  /* Skeleton Loading */
+  .img-wrapper {
+    position: relative;
+    min-width: 280px;
+    border-radius: 10px;
+    overflow: hidden;
+  }
 
-    /* Modal */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 999;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.85);
-      align-items: center;
-      justify-content: center;
-    }
+  .img-skeleton {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg,#2a2a2a 0%,#3a3a3a 50%,#2a2a2a 100%);
+    animation: shimmer 1.2s infinite;
+    border-radius: 10px;
+  }
 
-    .modal-content {
-      max-width: 90%;
-      max-height: 90%;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(255,255,255,0.2);
-    }
+  @keyframes shimmer {
+    from { background-position: -200px 0; }
+    to { background-position: 200px 0; }
+  }
 
-    .close-btn {
-      position: absolute;
-      top: 25px;
-      right: 35px;
-      font-size: 32px;
-      color: white;
-      cursor: pointer;
-      font-weight: bold;
-      z-index: 1000;
-    }
+  .carousel img.loading { opacity: 0; }
+  .carousel img.loaded { opacity: 1; transition: opacity .4s ease; }
 
-    @media (max-width: 600px) {
-      .container {
-        margin: 10px;
-        padding: 20px;
-      }
+  /* Modal */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    inset: 0;
+    background: rgba(0,0,0,.85);
+    align-items: center;
+    justify-content: center;
+  }
 
-      h2 {
-        font-size: 22px;
-      }
+  .modal-content {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(255,255,255,.2);
+  }
 
-      .carousel img {
-        height: 180px;
-      }
+  .close-btn {
+    position: absolute;
+    top: 25px;
+    right: 35px;
+    font-size: 32px;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+  }
 
-      .close-btn {
-        top: 15px;
-        right: 20px;
-        font-size: 28px;
-      }
-    }
+  /* Mobile Responsive */
+  @media (max-width: 600px) {
+    .container { margin: 12px; padding: 20px; }
+    h2 { font-size: 22px; }
+    .navbar { flex-direction: column; gap: 6px; }
+    .navbar .nav-links { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .carousel img { max-height: 200px; }
+    .close-btn { top: 15px; right: 20px; font-size: 28px; }
+  }
   </style>
 </head>
+
 <body>
 
   <div class="navbar">
@@ -177,27 +176,63 @@ ul {
 
   <div class="container">
     <h2>ℹ️ Tentang Website Giveaway Picker</h2>
+
     <p>
-      Website ini dibangun menggunakan HTML, CSS, dan JavaScript sebagai frontend, serta Google Apps Script dan Google Sheets sebagai backend.
-      Semua sistem seperti validasi peserta, pengambilan pemenang, dan integrasi Discord dilakukan secara otomatis.
+      Website ini menggunakan HTML, CSS, dan JavaScript sebagai frontend,
+      serta Google Apps Script + Google Sheets sebagai backend.
+      Semua sistem validasi peserta, pengambilan pemenang, dan integrasi Discord berjalan otomatis.
     </p>
 
-    <p>Berikut adalah beberapa bukti bahwa server Discord <strong>Rakan Aditya Community</strong> benar-benar memberikan hadiah giveaway!</p>
+    <p>Berikut bukti giveaway nyata dari server <strong>Rakan Aditya Community</strong> 👇</p>
 
-    <!-- 🔹 Gambar Bukti -->
+    <!-- Carousel + Skeleton Loading -->
     <div class="carousel" id="carousel">
-      <img src="https://i.imgur.com/xyq3S9A.jpeg" alt="bukti1" />
-      <img src="https://i.imgur.com/ZoMCLdP.jpeg" alt="bukti2" />
-      <img src="https://i.imgur.com/sInniAs.jpeg" alt="bukti3" />
-      <img src="https://i.imgur.com/oI7nR6N.jpeg" alt="bukti4" />
-      <img src="https://i.imgur.com/8Erz9g1.jpeg" alt="bukti5" />
-      <img src="https://i.imgur.com/B8gboUY.jpeg" alt="bukti6" />
-      <img src="https://i.imgur.com/DaaNYgS.jpeg" alt="bukti7" />
-      <img src="https://i.imgur.com/mqo9IoH.jpeg" alt="bukti8" />
+
+      <!-- ulangi pola ini untuk semua gambar -->
+      <div class="img-wrapper">
+        <span class="img-skeleton"></span>
+        <img loading="lazy" src="https://i.imgur.com/xyq3S9A.jpeg" alt="bukti1" class="loading">
+      </div>
+
+      <div class="img-wrapper">
+        <span class="img-skeleton"></span>
+        <img loading="lazy" src="https://i.imgur.com/ZoMCLdP.jpeg" alt="bukti2" class="loading">
+      </div>
+
+      <div class="img-wrapper">
+        <span class="img-skeleton"></span>
+        <img loading="lazy" src="https://i.imgur.com/sInniAs.jpeg" alt="bukti3" class="loading">
+      </div>
+
+      <div class="img-wrapper">
+        <span class="img-skeleton"></span>
+        <img loading="lazy" src="https://i.imgur.com/oI7nR6N.jpeg" alt="bukti4" class="loading">
+      </div>
+
+      <div class="img-wrapper">
+        <span class="img-skeleton"></span>
+        <img loading="lazy" src="https://i.imgur.com/8Erz9g1.jpeg" alt="bukti5" class="loading">
+      </div>
+
+      <div class="img-wrapper">
+        <span class="img-skeleton"></span>
+        <img loading="lazy" src="https://i.imgur.com/B8gboUY.jpeg" alt="bukti6" class="loading">
+      </div>
+
+      <div class="img-wrapper">
+        <span class="img-skeleton"></span>
+        <img loading="lazy" src="https://i.imgur.com/DaaNYgS.jpeg" alt="bukti7" class="loading">
+      </div>
+
+      <div class="img-wrapper">
+        <span class="img-skeleton"></span>
+        <img loading="lazy" src="https://i.imgur.com/mqo9IoH.jpeg" alt="bukti8" class="loading">
+      </div>
     </div>
 
     <p style="margin-top: 40px;">
-      Jika kamu menemukan bug atau ingin menyarankan fitur baru, silakan hubungi kami lewat server Discord kami yang aktif dan ramah 😊
+      Jika menemukan bug atau ingin mengusulkan fitur baru,
+      silakan bergabung ke server Discord kami — komunitas aktif & ramah 😊
     </p>
   </div>
 
@@ -208,42 +243,43 @@ ul {
   </div>
 
   <script>
-    // Zoom gambar saat diklik
-    const modal = document.getElementById("imgModal");
-    const modalImg = document.getElementById("modalImg");
+  const modal = document.getElementById("imgModal");
+  const modalImg = document.getElementById("modalImg");
 
-    document.querySelectorAll(".carousel img").forEach(img => {
-      img.addEventListener("click", () => {
-        modal.style.display = "flex";
-        modalImg.src = img.src;
-        modalImg.alt = img.alt;
-      });
+  // Zoom image
+  document.querySelectorAll(".carousel img").forEach(img => {
+    img.addEventListener("click", () => {
+      modal.style.display = "flex";
+      modalImg.src = img.src;
+      modalImg.alt = img.alt;
     });
+  });
 
-    function closeModal() {
-      modal.style.display = "none";
-      modalImg.src = "";
-    }
-
-    modal.addEventListener("click", e => {
-      if (e.target === modal) closeModal();
-    });
-
-    window.addEventListener("keydown", e => {
-      if (e.key === "Escape") closeModal();
-    });
-
-    // Autoplay carousel scroll
-    const carousel = document.getElementById("carousel");
-   let autoScroll = setInterval(() => {
-  const atEnd = carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 10;
-  if (atEnd) {
-    carousel.scrollTo({ left: 0, behavior: "smooth" });
-  } else {
-    carousel.scrollBy({ left: 300, behavior: "smooth" });
+  function closeModal() {
+    modal.style.display = "none";
+    modalImg.src = "";
   }
-}, 3000);
 
+  modal.addEventListener("click", e => { if (e.target === modal) closeModal(); });
+  window.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+
+  // Autoscroll carousel
+  const carousel = document.getElementById("carousel");
+  let autoScroll = setInterval(() => {
+    const atEnd = carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 10;
+    if (atEnd) carousel.scrollTo({ left: 0, behavior: "smooth" });
+    else carousel.scrollBy({ left: 300, behavior: "smooth" });
+  }, 3000);
+
+  // Skeleton -> fade-in after loaded
+  document.querySelectorAll(".carousel img").forEach(img => {
+    img.addEventListener("load", () => {
+      img.classList.remove("loading");
+      img.classList.add("loaded");
+      const skeleton = img.previousElementSibling;
+      if (skeleton) skeleton.remove();
+    });
+  });
   </script>
 
 </body>
