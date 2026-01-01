@@ -1,115 +1,91 @@
 /* === GLOBAL === */
 
 * {
-  box-sizing: border-box;
-}
-
-:root {
-  --bg: #0f1116;
-  --card: rgba(24,27,35,0.7);
-  --card-border: rgba(255,255,255,0.08);
-  --accent: #4f8bff;
-  --accent-hover: #3a6fe0;
-  --text: #e6e9ef;
-  --text-muted: #9aa3b2;
-  --success: #4ade80;
-  --warning: #ffb02e;
-  --danger: #ef4444;
-  --glass: blur(12px) saturate(1.2);
-  --radius: 16px;
-  --shadow: 0 18px 40px rgba(0,0,0,.35);
-}
+    box-sizing: border-box;
+  }
 
 body {
   margin: 0;
-  padding: 24px;
-  font-family: 'Poppins', system-ui, sans-serif;
-  background: linear-gradient(140deg,#0a0c10,#141925 40%,#10182b 90%);
-  color: var(--text);
+  padding: 20px;
+  font-family: 'Poppins', sans-serif;
+  background: url('/gradient-abstract-background_23-2149101392.png') no-repeat center center fixed;
+  background-size: cover;
+  background-color: #f0f2f5;
   text-align: center;
-  min-height: 100vh;
-  display: grid;
-  place-items: start center;
+  color: #333;
 }
 
-/* === CONTAINER CARD (match .container in index.html) === */
+/* === CONTAINER CARD === */
 .container {
-  width: 100%;
-  max-width: 540px;
-  margin: 0 auto;
-  background: var(--card);
-  backdrop-filter: var(--glass);
-  border: 1.5px solid var(--card-border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 18px 20px 22px;
+  max-width: 500px;
+  margin: auto;
+  background: rgba(255, 255, 255, 0.5);
+ padding: 0px;
+/* padding: 30px 40px; */
+  border-radius: 16px;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
 }
+
 
 /* === TITLE === */
 h2 {
-  margin: 4px 0 14px;
+  color: #1877f2;
+  margin-bottom: 25px;
   font-weight: 600;
-  font-size: 22px;
-  letter-spacing: .2px;
-  color: var(--accent);
 }
 
-/* === FORM INPUTS (selectors kept identical) === */
+/* === FORM INPUTS === */
 form input[type="text"],
 form input[type="number"],
 form input[type="password"] {
   width: 100%;
-  padding: 12px 14px;
+  padding: 12px;
   margin: 10px 0;
-  font-size: 15px;
-  color: var(--text);
-  background: rgba(0,0,0,.25);
-  border: 1.5px solid rgba(255,255,255,.14);
-  border-radius: 10px;
+  font-size: 16px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  box-sizing: border-box;
 }
 
 form input:focus {
-  border-color: var(--accent);
+  border-color: #1877f2;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(79,139,255,.25);
 }
 
-/* === BUTTON (same selector) === */
+/* === BUTTON === */
 form button {
   width: 100%;
-  background: var(--accent);
-  color: #fff;
-  padding: 12px 18px;
+  background: #1877f2;
+  color: white;
+  padding: 12px 20px;
   border: none;
-  font-size: 15px;
-  border-radius: 10px;
+  font-size: 16px;
+  border-radius: 8px;
   cursor: pointer;
-  margin-top: 6px;
-  transition: background .18s, transform .12s;
+  margin-top: 10px;
+  transition: background 0.2s;
 }
 
 form button:hover {
-  background: var(--accent-hover);
-  transform: translateY(-1px);
+  background: #165ec9;
 }
 
 /* === STATUS / ERROR MESSAGES === */
 .status-message {
-  margin-top: 12px;
-  font-weight: 600;
-  color: var(--danger);
-  font-size: 13px;
+  margin-top: 15px;
+  font-weight: bold;
+  color: red;
+  font-size: 14px;
 }
 
 /* === LINKS === */
 p {
-  margin-top: 18px;
-  font-size: 14px;
-  color: var(--text-muted);
+  margin-top: 20px;
+  font-size: 15px;
 }
 
 a {
-  color: var(--accent);
+  color: #1877f2;
   text-decoration: none;
 }
 
@@ -119,63 +95,60 @@ a:hover {
 
 /* === WINNER DISPLAY === */
 .winner {
-  font-size: 18px;
-  margin-top: 18px;
-  color: var(--success);
-  font-weight: 700;
+  font-size: 20px;
+  margin-top: 20px;
+  color: green;
+  font-weight: bold;
 }
 
-/* === PARTICIPANT LIST (same class names) === */
+/* === PARTICIPANT LIST === */
 .participant-list {
-  margin-top: 18px;
+  margin-top: 20px;
   text-align: left;
 }
 
 .participant {
   margin: 6px 0;
   font-size: 14px;
-  background: rgba(255,255,255,.06);
+  background: #f0f8ff;
   padding: 10px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 6px;
+  border: 1px solid #d0e7ff;
 }
 
-/* === GIVEAWAY MODERN (keep .giveaway-box) === */
+/* === GIVEAWAY MODERN === */
 .giveaway-box {
-  backdrop-filter: var(--glass);
-  border: 1.5px solid var(--card-border);
-  border-radius: var(--radius);
-  animation: fadeInUp .5s ease;
-  padding: 8px 10px 2px;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255);
+  animation: fadeInUp 0.6s ease;
 }
 
 .giveaway-box h1 {
-  font-size: 24px;
-  margin-bottom: 14px;
-  font-weight: 600;
+  font-size: 26px;
+  margin-bottom: 20px;
 }
 
 #statusText {
-  font-size: 30px;
-  font-weight: 600;
-  color: #fff;
+  font-size: 36px;
+  font-weight: 500;
+  color: #000000;
 }
 
 #countdown {
-  font-size: 28px;
-  margin: 6px 0 10px;
-  color: #fff;
+  font-size: 35px;
+  margin: 8px 0 10px;
+  color: #000000;
 }
 
 #submitStatus {
-  font-weight: 600;
-  color: var(--success);
+  font-weight: 500;
+  color: green;
 }
 
 #winnerText {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--warning);
+  font-size: 20px;
+  font-weight: bold;
+  color: #ff9800;
 }
 
 ul#participantsUl {
@@ -185,117 +158,75 @@ ul#participantsUl {
 }
 
 ul#participantsUl li {
-  background: rgba(255,255,255,.08);
+  background: rgba(255, 255, 255, 0.1);
   margin: 6px auto;
   padding: 10px;
-  width: 82%;
-  max-width: 320px;
-  border-radius: 12px;
+  width: 80%;
+  max-width: 300px;
+  border-radius: 8px;
   font-weight: 600;
-  color: #9dd6ff;
-  text-shadow: 0 0 4px rgba(157,214,255,.5);
-  transition: transform .16s, background-color .16s, border .16s;
-  border: 1px solid rgba(255,255,255,.18);
+  color: #00f7ff;
+  text-shadow: 0 0 5px #00f7ff;
+  transition: transform 0.2s, background-color 0.2s;
+  border: 1px solid #ddd;
 }
 
 #participantsUl li:hover {
-  background-color: rgba(255,255,255,.14);
-  transform: translateY(-1px) scale(1.01);
+  background-color: rgba(255, 255, 255, 0.15);
+  transform: scale(1.02);
 }
 
 .highlight-user {
-  color: #9dd6ff;
+  color: #00f7ff;
   font-weight: 700;
-  text-shadow: 0 0 6px rgba(157,214,255,.9);
+  text-shadow: 0 0 6px #00f7ff;
 }
+
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(32px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* === ACTION BUTTONS KEEP SAME IDS / CLASSES === */
+
 .discord-button {
   display: inline-block;
   margin-top: 10px;
-  padding: 10px 18px;
-  background-color: #5865F2;
+  padding: 10px 20px;
+  background-color: #5865F2; /* Discord Blue */
   color: #fff;
   border: none;
-  border-radius: 12px;
-  font-weight: 700;
+  border-radius: 8px;
+  font-weight: bold;
   text-decoration: none;
-  transition: background .18s, transform .12s;
-  box-shadow: 0 10px 24px rgba(0,0,0,.28);
+  transition: background 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
 .discord-button:hover {
   background-color: #4752c4;
-  transform: translateY(-1px);
 }
+
+
 
 #logoutBtn {
   width: 100%;
-  background-color: var(--danger);
-  color: #fff;
+  background-color: #f44336;
+  color: white;
   border: none;
-  padding: 10px 14px;
-  border-radius: 10px;
-  font-weight: 700;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: bold;
   cursor: pointer;
-  transition: .18s;
-  margin-top: 10px;
+  transition: 0.3s;
 }
 
 #logoutBtn:hover {
-  background-color: #c93232;
-  transform: translateY(-1px);
-}
-
-/* === RESPONSIVE (MOBILE FIRST IMPROVEMENTS) === */
-@media (max-width: 768px) {
-body {
-padding: 12px;
-text-align: center;
-}
-
-
-.navbar {
-flex-direction: column;
-gap: 8px;
-padding: 12px 14px;
-}
-
-
-.navbar .nav-links {
-display: flex;
-flex-wrap: wrap;
-justify-content: center;
-gap: 10px;
-}
-
-
-.container {
-max-width: 100%;
-margin: 10px auto;
-border-radius: 14px;
-padding: 10px;
-}
-
-
-.giveaway-box {
-padding: 12px;
-border-width: 1px;
-}
-
-
-h2 {
-font-size: 20px;
-margin-bottom: 10px;
-}
-
-
-#statusText {
-font-size: 22px;
-}
+  background-color: #d32f2f;
 }
