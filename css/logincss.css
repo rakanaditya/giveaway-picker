@@ -1,0 +1,134 @@
+/* === Japanese Modern Silver Theme & Button Styles === */
+.btn-silver-jp {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  color: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  padding: 12px 24px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
+}
+
+.btn-silver-jp::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: 0.5s;
+}
+
+.btn-silver-jp:hover::after {
+  left: 100%;
+}
+
+.btn-silver-jp:hover {
+  background: linear-gradient(135deg, #ffffff 0%, #d4dfed 100%);
+  box-shadow: 0 6px 20px rgba(0, 247, 255, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px);
+  color: #0d1b2a;
+}
+
+.btn-silver-jp:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Form & Input refinement */
+form button[type="submit"], #logoutBtn {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+/* === RESPONSIVE LAYOUT (MOBILE, TABLET, DESKTOP) === */
+
+/* HP / Mobile Kecil (Default max-width 480px) */
+@media screen and (max-width: 480px) {
+  body {
+    padding: 10px !important;
+  }
+
+  .container {
+    width: 100% !important;
+    margin: 10px auto !important;
+    padding: 20px 15px !important;
+    border-radius: 12px;
+  }
+
+  h2 {
+    font-size: 20px !important;
+    margin-bottom: 15px !important;
+  }
+
+  form input[type="text"],
+  form input[type="password"] {
+    font-size: 14px !important;
+    padding: 10px !important;
+  }
+
+  .btn-silver-jp {
+    padding: 10px 16px !important;
+    font-size: 14px !important;
+    width: 100% !important;
+  }
+
+  .button-group {
+    flex-direction: column !important;
+    gap: 8px;
+  }
+}
+
+/* Tablet & Perangkat Sedang (481px s.d. 768px) */
+@media screen and (min-width: 481px) and (max-width: 768px) {
+  .container {
+    max-width: 450px !important;
+    padding: 25px 30px !important;
+  }
+
+  .button-group {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .button-group .btn-silver-jp {
+    flex: 1;
+    font-size: 13px !important;
+    padding: 10px 12px !important;
+  }
+}
+
+/* Desktop & Layar Besar (di atas 769px) */
+@media screen and (min-width: 769px) {
+  .container {
+    max-width: 480px;
+    margin: 40px auto;
+    padding: 35px 40px;
+  }
+
+  .button-group {
+    flex-direction: row;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .button-group .btn-silver-jp {
+    font-size: 14px;
+  }
+}
