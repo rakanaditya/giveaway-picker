@@ -7,7 +7,7 @@
     "vercel-build": "echo Build successful"
   },
   "engines": {
-    "node": "22.x"
+    "node": "24.x"
   },
   "dependencies": {
     "express": "^4.19.2",
