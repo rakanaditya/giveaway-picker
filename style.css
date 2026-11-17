@@ -1,37 +1,40 @@
-/* === GLOBAL === */
-
+/* === GLOBAL & JAPANESE SILVER THEME === */
 * {
-    box-sizing: border-box;
-  }
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
   padding: 20px;
   font-family: 'Poppins', sans-serif;
-  background: url('/gradient-abstract-background_23-2149101392.png') no-repeat center center fixed;
+  /* Background Silver Modern ala Jepang (Clean Metallic Gradient) */
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
+  background-attachment: fixed;
   background-size: cover;
-  background-color: #f0f2f5;
+  min-height: 100vh;
   text-align: center;
-  color: #333;
+  color: #1e293b;
 }
 
 /* === CONTAINER CARD === */
 .container {
   max-width: 500px;
   margin: auto;
-  background: rgba(255, 255, 255, 0.5);
- padding: 0px;
-/* padding: 30px 40px; */
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 30px 40px;
   border-radius: 16px;
-  box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
-
 
 /* === TITLE === */
 h2 {
-  color: #1877f2;
+  color: #0f172a;
   margin-bottom: 25px;
   font-weight: 600;
+  letter-spacing: -0.5px;
 }
 
 /* === FORM INPUTS === */
@@ -42,39 +45,49 @@ form input[type="password"] {
   padding: 12px;
   margin: 10px 0;
   font-size: 16px;
-  border: 2px solid #ddd;
+  border: 1px solid #cbd5e1;
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 8px;
   box-sizing: border-box;
+  color: #0f172a;
+  transition: all 0.3s ease;
 }
 
 form input:focus {
-  border-color: #1877f2;
+  border-color: #64748b;
+  background: #ffffff;
   outline: none;
+  box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.15);
 }
 
-/* === BUTTON === */
+/* === BUTTON (Japanese Silver Style) === */
 form button {
   width: 100%;
-  background: #1877f2;
-  color: white;
+  background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
+  color: #0f172a;
   padding: 12px 20px;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.9);
   font-size: 16px;
+  font-weight: 600;
   border-radius: 8px;
   cursor: pointer;
   margin-top: 10px;
-  transition: background 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 form button:hover {
-  background: #165ec9;
+  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 1);
+  transform: translateY(-2px);
+  color: #000;
 }
 
 /* === STATUS / ERROR MESSAGES === */
 .status-message {
   margin-top: 15px;
   font-weight: bold;
-  color: red;
+  color: #ef4444;
   font-size: 14px;
 }
 
@@ -82,11 +95,13 @@ form button:hover {
 p {
   margin-top: 20px;
   font-size: 15px;
+  color: #334155;
 }
 
 a {
-  color: #1877f2;
+  color: #2563eb;
   text-decoration: none;
+  font-weight: 500;
 }
 
 a:hover {
@@ -97,7 +112,7 @@ a:hover {
 .winner {
   font-size: 20px;
   margin-top: 20px;
-  color: green;
+  color: #16a34a;
   font-weight: bold;
 }
 
@@ -110,45 +125,47 @@ a:hover {
 .participant {
   margin: 6px 0;
   font-size: 14px;
-  background: #f0f8ff;
+  background: rgba(255, 255, 255, 0.6);
   padding: 10px;
   border-radius: 6px;
-  border: 1px solid #d0e7ff;
+  border: 1px solid #cbd5e1;
 }
 
 /* === GIVEAWAY MODERN === */
 .giveaway-box {
-  backdrop-filter: blur(10px);
-  border: 2px solid rgba(255, 255, 255);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
   animation: fadeInUp 0.6s ease;
 }
 
 .giveaway-box h1 {
   font-size: 26px;
   margin-bottom: 20px;
+  color: #0f172a;
 }
 
 #statusText {
-  font-size: 36px;
-  font-weight: 500;
-  color: #000000;
+  font-size: 32px;
+  font-weight: 600;
+  color: #0f172a;
 }
 
 #countdown {
-  font-size: 35px;
+  font-size: 30px;
   margin: 8px 0 10px;
-  color: #000000;
+  color: #334155;
+  font-weight: 500;
 }
 
 #submitStatus {
-  font-weight: 500;
-  color: green;
+  font-weight: 600;
+  color: #16a34a;
 }
 
 #winnerText {
   font-size: 20px;
   font-weight: bold;
-  color: #ff9800;
+  color: #d97706;
 }
 
 ul#participantsUl {
@@ -158,30 +175,27 @@ ul#participantsUl {
 }
 
 ul#participantsUl li {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.5);
   margin: 6px auto;
   padding: 10px;
   width: 80%;
   max-width: 300px;
   border-radius: 8px;
   font-weight: 600;
-  color: #00f7ff;
-  text-shadow: 0 0 5px #00f7ff;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
   transition: transform 0.2s, background-color 0.2s;
-  border: 1px solid #ddd;
 }
 
-#participantsUl li:hover {
-  background-color: rgba(255, 255, 255, 0.15);
+ul#participantsUl li:hover {
+  background-color: rgba(255, 255, 255, 0.8);
   transform: scale(1.02);
 }
 
 .highlight-user {
-  color: #00f7ff;
+  color: #2563eb;
   font-weight: 700;
-  text-shadow: 0 0 6px #00f7ff;
 }
-
 
 @keyframes fadeInUp {
   from {
@@ -194,39 +208,39 @@ ul#participantsUl li {
   }
 }
 
-
 .discord-button {
   display: inline-block;
   margin-top: 10px;
   padding: 10px 20px;
-  background-color: #5865F2; /* Discord Blue */
+  background: linear-gradient(135deg, #5865F2 0%, #4752c4 100%);
   color: #fff;
   border: none;
   border-radius: 8px;
   font-weight: bold;
   text-decoration: none;
-  transition: background 0.3s ease;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(88, 101, 242, 0.3);
 }
 
 .discord-button:hover {
-  background-color: #4752c4;
+  background: linear-gradient(135deg, #4752c4 0%, #3c45a5 100%);
+  transform: translateY(-2px);
 }
-
-
 
 #logoutBtn {
   width: 100%;
-  background-color: #f44336;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: white;
   border: none;
   padding: 10px;
   border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
-  transition: 0.3s;
+  transition: all 0.3s;
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
 }
 
 #logoutBtn:hover {
-  background-color: #d32f2f;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-2px);
 }
