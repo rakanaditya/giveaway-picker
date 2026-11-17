@@ -4,119 +4,70 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🎉 Giveaway Picker</title>
+  <!-- CSS Global & Styling Khusus Mobile -->
   <link rel="stylesheet" href="/style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/stylemob.css" media="screen and (max-width: 768px)" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    * {
-    box-sizing: border-box;
-  }
-
-  body {
-  margin: 0;
-  padding: 0px;
-  font-family: 'Poppins', sans-serif;
-  background-size: cover;
-  background-color: #f0f2f5;
-  text-align: center;
-   color: #e0e0e0;
-}
-
-    .navbar {
-  background-color: #0f0f1a;
-  color: white;
-  padding: 15px 25px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-}
-
-    .navbar .nav-links a {
-    color: white;
-    margin-left: 20px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: color 0.2s;
-  }
-
- .navbar .nav-links a:hover {
-  color: #00f7ff;
-  text-shadow: 0 0 5px #00f7ff;
-}
-
-    .container {
-  max-width: 1080px;
-  margin: 30px auto;
-  padding: 30px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-  backdrop-filter: blur(12px);
-}
-
-h2 {
-  color: #ffffff;
-  font-size: 26px;
-  margin-bottom: 15px;
-  text-align: center;
-  text-shadow: 0 0 10px #00f7ff;
-}
-
- p, li {
-  font-size: 16px;
-  line-height: 1.7;
-  margin-bottom: 20px;
-  color: #e0e0e0;
-}
-
-ul {
-  padding-left: 20px;
-}
-
-  @media (max-width: 600px) {
-  .container {
-    margin: 10px;
-    padding: 20px;
-  }
-
-  h2 {
-    font-size: 22px;
-  }
-}
-
-    .carousel {
-      display: flex;
-      overflow-x: auto;
-      gap: 12px;
-      scroll-snap-type: x mandatory;
-      margin-top: 20px;
-    }
-
-    .carousel img {
-      height: 180px;
-      border-radius: 10px;
-      scroll-snap-align: center;
-      flex-shrink: 0;
-    }
-
-    .discord-button {
-      display: inline-block;
-      margin-top: 10px;
-      padding: 10px 20px;
-      background-color: #7289da;
-      color: white;
-      border-radius: 6px;
-      text-decoration: none;
+    /* === Japanese Modern Silver Button & Theme Enhancements === */
+    .btn-silver-jp {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      color: #1a1a1a;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      padding: 12px 24px;
       font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.5px;
     }
 
-    #rollingText {
-      font-size: 24px;
-      margin-top: 20px;
-      color: #4caf50;
+    .btn-silver-jp::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      transition: 0.5s;
     }
 
+    .btn-silver-jp:hover::after {
+      left: 100%;
+    }
 
+    .btn-silver-jp:hover {
+      background: linear-gradient(135deg, #ffffff 0%, #d4dfed 100%);
+      box-shadow: 0 6px 20px rgba(0, 247, 255, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      transform: translateY(-2px);
+      color: #0d1b2a;
+    }
+
+    .btn-silver-jp:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Form & Input refinement */
+    form button[type="submit"], #logoutBtn, .discord-button {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) !important;
+      color: #1a1a1a !important;
+      border: 1px solid rgba(255, 255, 255, 0.6) !important;
+      font-weight: 600 !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+      transition: all 0.3s ease !important;
+    }
+
+    form button[type="submit"]:hover, #logoutBtn:hover, .discord-button:hover {
+      background: linear-gradient(135deg, #ffffff 0%, #d4dfed 100%) !important;
+      box-shadow: 0 6px 18px rgba(0,247,255,0.3) !important;
+      color: #000 !important;
+      transform: translateY(-2px);
+    }
   </style>
 </head>
 <body>
@@ -126,12 +77,10 @@ ul {
     <div><strong>🎁 Giveaway</strong></div>
     <div class="nav-links">
       <a href="/">Beranda</a>
-      <a href="/shop.html">Shop</a>
-      <a href="/about.html">Tentang</a>
-     <!--    <a href="/login.html">Login</a> -->
-    <!--   <a href="/register.html">Register</a> -->
-      <a href="/event.html">Event</a>
-      <a href="/info.html">Tentang Website</a>
+      <a href="/shop">Shop</a>
+      <a href="/about">Tentang</a>
+      <a href="/event">Event</a>
+      <a href="/info">Tentang Website</a>
     </div>
   </div>
 
@@ -144,7 +93,7 @@ ul {
 
     <form id="numberForm" style="display:none">
       <input type="number" id="numberInput" placeholder="Tebak angka (1–1000)" required min="1" max="1000" />
-      <button type="submit">Kirim</button>
+      <button type="submit" class="btn-silver-jp">Kirim Tebakan</button>
     </form>
 
     <div id="winnerSection" style="display:none">
@@ -158,10 +107,11 @@ ul {
       <h3>👥 Peserta Saat Ini:</h3>
       <ul id="participantsUl"></ul>
     </div>
+
     <!-- 🔹 Discord -->
     <div style="margin-top: 30px; text-align:center;">
       <h3>💬 Gabung di Server Discord</h3>
-      <a href="https://discord.gg/4vNhCF5EHw" target="_blank" class="discord-button">Join Server</a>
+      <a href="https://discord.gg/4vNhCF5EHw" target="_blank" class="discord-button btn-silver-jp">Join Server</a>
       <br/>
       <iframe
         src="https://discord.com/widget?id=798751181508837376&theme=dark"
@@ -176,7 +126,7 @@ ul {
 
     <!-- 🔹 Info User -->
     <div id="userInfo" style="margin-top:20px;"></div>
-    <button id="logoutBtn" style="display:none; margin-top:10px;">🔓 Logout</button>
+    <button id="logoutBtn" class="btn-silver-jp" style="display:none; margin-top:10px;">🔓 Logout</button>
 
     <!-- 🔹 Link lupa password -->
     <p style="margin-top: 20px; text-align:center;">
@@ -207,7 +157,7 @@ ul {
     const username = savedUser?.username;
 
     if (!username) {
-      window.location.href = "/login.html";
+      window.location.href = "/login";
     } else {
       userInfo.innerHTML = `👤 Masuk sebagai: <span class="highlight-user">${username}</span>`;
       logoutBtn.style.display = "inline-block";
@@ -215,7 +165,7 @@ ul {
 
     logoutBtn.addEventListener("click", () => {
       localStorage.removeItem("giveawayUser");
-      window.location.href = "/login.html";
+      window.location.href = "/login";
     });
 
     async function fetchData() {
