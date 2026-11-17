@@ -1,6 +1,7 @@
 {
   "rewrites": [
     { "source": "/api/data", "destination": "/api/data.js" },
+    { "source": "/api/submit", "destination": "/api/submit.js" },
     { "source": "/api/admin-auth", "destination": "/api/admin-auth.js" },
     { "source": "/api/giveaway", "destination": "/api/giveaway.js" },
     { "source": "/css/stylemob.css", "destination": "/css/stylemob.css" },
