@@ -3,8 +3,6 @@
     { "source": "/api/data", "destination": "/api/data.js" },
     { "source": "/api/admin-auth", "destination": "/api/admin-auth.js" },
     { "source": "/api/giveaway", "destination": "/api/giveaway.js" },
-    { "source": "/", "destination": "/index.html" },
-    { "source": "/style.css", "destination": "/style.css" },
     { "source": "/css/stylemob.css", "destination": "/css/stylemob.css" },
     { "source": "/about", "destination": "/public/about.html" },
     { "source": "/admin", "destination": "/public/admin.html" },
