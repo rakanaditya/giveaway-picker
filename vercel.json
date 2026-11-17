@@ -7,7 +7,7 @@
     { "source": "/", "destination": "/public/login.html" },
     { "source": "/home", "destination": "/index.html" },
     { "source": "/style.css", "destination": "/style.css" },
-    { "source": "/css/stylemob.css", "destination": "/css/stylemob.css" },
+    { "source": "/css/(.*)", "destination": "/css/$1" },
     { "source": "/about", "destination": "/public/about.html" },
     { "source": "/admin", "destination": "/public/admin.html" },
     { "source": "/event", "destination": "/public/event.html" },
