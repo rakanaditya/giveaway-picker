@@ -1,15 +1,17 @@
 {
   "rewrites": [
-   { "source": "/api/data", "destination": "/api/data.js" },
+    { "source": "/api/data", "destination": "/api/data.js" },
     { "source": "/api/admin-auth", "destination": "/api/admin-auth.js" },
- { "source": "/api/submit", "destination": "/api/submit.js" },
+    { "source": "/api/giveaway", "destination": "/api/giveaway.js" },
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/style.css", "destination": "/style.css" },
     { "source": "/about", "destination": "/public/about.html" },
     { "source": "/admin", "destination": "/public/admin.html" },
-   { "source": "/event", "destination": "/public/event.html" },
-{ "source": "/info", "destination": "/public/info.html" },
-{ "source": "/login", "destination": "/public/login.html" },
-{ "source": "/music", "destination": "/public/music.html" },
-{ "source": "/register", "destination": "/public/register.html" },
-{ "source": "/shop", "destination": "/public/shop.html" }
+    { "source": "/event", "destination": "/public/event.html" },
+    { "source": "/info", "destination": "/public/info.html" },
+    { "source": "/login", "destination": "/public/login.html" },
+    { "source": "/music", "destination": "/public/music.html" },
+    { "source": "/register", "destination": "/public/register.html" },
+    { "source": "/shop", "destination": "/public/shop.html" }
   ]
 }
