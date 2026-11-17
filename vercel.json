@@ -1,6 +1,7 @@
 {
   "rewrites": [
    { "source": "/api/data", "destination": "/api/data.js" },
+    { "source": "/api/admin-auth", "destination": "/api/admin-auth.js" },
  { "source": "/api/submit", "destination": "/api/submit.js" },
     { "source": "/about", "destination": "/public/about.html" },
     { "source": "/admin", "destination": "/public/admin.html" },
