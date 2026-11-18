@@ -2,10 +2,9 @@
   "name": "giveaways picker",
   "version": "1.0.0",
   "description": "Randoms giveaways picker angka",
-  "main": "index.html",
+  "main": "db.js",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
     "build:css": "tailwindcss -i ./src/input.css -o ./dist/output.css --minify",
     "dev": "vercel dev"
   },
