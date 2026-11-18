@@ -1,0 +1,233 @@
+/* === GLOBAL & JAPANESE SILVER BACKGROUND === */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
+  background-attachment: fixed;
+  background-size: cover;
+  min-height: 100vh;
+  text-align: center;
+  color: #1e293b;
+}
+
+/* === NAVBAR === */
+.navbar {
+  background-color: #0f172a;
+  color: white;
+  padding: 15px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+  margin-bottom: 30px;
+}
+
+.navbar .nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.navbar .nav-links a {
+  color: #f8fafc;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+  transition: color 0.2s, text-shadow 0.2s;
+}
+
+.navbar .nav-links a:hover {
+  color: #38bdf8;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+}
+
+/* === CONTAINER CARD (GLASSMORPHISM SILVER) === */
+.container.giveaway-box {
+  max-width: 480px;
+  margin: 40px auto;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 35px 40px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  animation: fadeInUp 0.5s ease;
+}
+
+h2 {
+  color: #0f172a;
+  margin-top: 0;
+  margin-bottom: 24px;
+  font-weight: 700;
+  font-size: 24px;
+  letter-spacing: -0.3px;
+}
+
+/* === FORM INPUTS === */
+.form input[type="text"],
+.form input[type="password"] {
+  width: 100%;
+  padding: 12px 14px;
+  margin: 10px 0;
+  font-size: 15px;
+  font-family: 'Poppins', sans-serif;
+  border: 1px solid #cbd5e1;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 8px;
+  color: #0f172a;
+  transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+}
+
+.form input:focus {
+  border-color: #64748b;
+  background: #ffffff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.18);
+}
+
+/* === JAPANESE MODERN SILVER BUTTON === */
+.btn-silver-jp {
+  background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%);
+  color: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  padding: 12px 22px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.4px;
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
+}
+
+.btn-silver-jp::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  transition: 0.5s;
+}
+
+.btn-silver-jp:hover::after {
+  left: 100%;
+}
+
+.btn-silver-jp:hover {
+  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.25), inset 0 1px 0 #ffffff;
+  transform: translateY(-2px);
+  color: #020617;
+}
+
+.btn-silver-jp:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15);
+}
+
+.form button[type="submit"],
+#logoutBtn {
+  width: 100%;
+  margin-top: 12px;
+}
+
+/* === BUTTON GROUP === */
+.button-group {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.button-group .btn-silver-jp {
+  flex: 1;
+}
+
+/* === STATUS MESSAGE === */
+.status-message {
+  margin-top: 14px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #dc2626;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === RESPONSIVE MOBILE & TABLET === */
+@media screen and (max-width: 768px) {
+  body {
+    padding: 12px;
+  }
+
+  .navbar {
+    flex-direction: column;
+    padding: 12px 15px;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .navbar .nav-links {
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .navbar .nav-links a {
+    font-size: 13px;
+    padding: 5px 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+  }
+
+  .container.giveaway-box {
+    max-width: 100%;
+    margin: 15px auto;
+    padding: 24px 18px;
+  }
+
+  h2 {
+    font-size: 20px;
+    margin-bottom: 18px;
+  }
+
+  .form input[type="text"],
+  .form input[type="password"] {
+    font-size: 14px;
+    padding: 11px 12px;
+  }
+
+  .button-group {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn-silver-jp {
+    width: 100%;
+    padding: 11px 16px;
+    font-size: 14px;
+  }
+}
