@@ -107,7 +107,8 @@
           isAdmin: result.isAdmin || false
         }));
 
-       window.location.href = result.isAdmin ? "/admin" : "/home";
+        // Redirect ke /admin jika admin, atau ke /home (halaman utama giveaway) jika user biasa
+        window.location.href = result.isAdmin ? "/admin" : "/home";
 
       } catch (err) {
         statusEl.textContent = "❌ Gagal login: " + err.message;
