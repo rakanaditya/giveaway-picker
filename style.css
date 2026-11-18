@@ -7,7 +7,6 @@ body {
   margin: 0;
   padding: 20px;
   font-family: 'Poppins', sans-serif;
-  /* Background Silver Modern ala Jepang (Clean Metallic Gradient) */
   background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
   background-attachment: fixed;
   background-size: cover;
@@ -16,28 +15,48 @@ body {
   color: #1e293b;
 }
 
-/* === CONTAINER CARD === */
+.navbar {
+  background-color: #0f172a;
+  color: white;
+  padding: 15px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.navbar .nav-links a {
+  color: white;
+  margin-left: 20px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.navbar .nav-links a:hover {
+  color: #38bdf8;
+  text-shadow: 0 0 5px #38bdf8;
+}
+
 .container {
   max-width: 500px;
   margin: auto;
   background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
   padding: 30px 40px;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
-/* === TITLE === */
 h2 {
   color: #0f172a;
   margin-bottom: 25px;
   font-weight: 600;
-  letter-spacing: -0.5px;
 }
 
-/* === FORM INPUTS === */
 form input[type="text"],
 form input[type="number"],
 form input[type="password"] {
@@ -48,124 +67,38 @@ form input[type="password"] {
   border: 1px solid #cbd5e1;
   background: rgba(255, 255, 255, 0.9);
   border-radius: 8px;
-  box-sizing: border-box;
   color: #0f172a;
-  transition: all 0.3s ease;
 }
 
-form input:focus {
-  border-color: #64748b;
-  background: #ffffff;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.15);
-}
-
-/* === BUTTON (Japanese Silver Style) === */
-form button {
+.btn-silver-jp {
   width: 100%;
-  background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
-  color: #0f172a;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  color: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.8);
   padding: 12px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  font-size: 16px;
   font-weight: 600;
   border-radius: 8px;
   cursor: pointer;
   margin-top: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
-form button:hover {
-  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 1);
+.btn-silver-jp:hover {
+  background: linear-gradient(135deg, #ffffff 0%, #d4dfed 100%);
   transform: translateY(-2px);
-  color: #000;
-}
-
-/* === STATUS / ERROR MESSAGES === */
-.status-message {
-  margin-top: 15px;
-  font-weight: bold;
-  color: #ef4444;
-  font-size: 14px;
-}
-
-/* === LINKS === */
-p {
-  margin-top: 20px;
-  font-size: 15px;
-  color: #334155;
-}
-
-a {
-  color: #2563eb;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-/* === WINNER DISPLAY === */
-.winner {
-  font-size: 20px;
-  margin-top: 20px;
-  color: #16a34a;
-  font-weight: bold;
-}
-
-/* === PARTICIPANT LIST === */
-.participant-list {
-  margin-top: 20px;
-  text-align: left;
-}
-
-.participant {
-  margin: 6px 0;
-  font-size: 14px;
-  background: rgba(255, 255, 255, 0.6);
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #cbd5e1;
-}
-
-/* === GIVEAWAY MODERN === */
-.giveaway-box {
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  animation: fadeInUp 0.6s ease;
-}
-
-.giveaway-box h1 {
-  font-size: 26px;
-  margin-bottom: 20px;
-  color: #0f172a;
 }
 
 #statusText {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 600;
   color: #0f172a;
 }
 
 #countdown {
-  font-size: 30px;
+  font-size: 24px;
   margin: 8px 0 10px;
   color: #334155;
-  font-weight: 500;
-}
-
-#submitStatus {
-  font-weight: 600;
-  color: #16a34a;
-}
-
-#winnerText {
-  font-size: 20px;
-  font-weight: bold;
-  color: #d97706;
 }
 
 ul#participantsUl {
@@ -184,63 +117,9 @@ ul#participantsUl li {
   font-weight: 600;
   color: #0f172a;
   border: 1px solid #cbd5e1;
-  transition: transform 0.2s, background-color 0.2s;
-}
-
-ul#participantsUl li:hover {
-  background-color: rgba(255, 255, 255, 0.8);
-  transform: scale(1.02);
 }
 
 .highlight-user {
   color: #2563eb;
   font-weight: 700;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.discord-button {
-  display: inline-block;
-  margin-top: 10px;
-  padding: 10px 20px;
-  background: linear-gradient(135deg, #5865F2 0%, #4752c4 100%);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(88, 101, 242, 0.3);
-}
-
-.discord-button:hover {
-  background: linear-gradient(135deg, #4752c4 0%, #3c45a5 100%);
-  transform: translateY(-2px);
-}
-
-#logoutBtn {
-  width: 100%;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
-}
-
-#logoutBtn:hover {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  transform: translateY(-2px);
 }
