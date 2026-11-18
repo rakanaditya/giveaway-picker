@@ -3,60 +3,87 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login Giveaway</title>
-  <!-- CSS Global, Mobile Responsive, & Login Specific Styles -->
+  <title>Giveaways Picker - Login</title>
   <link rel="stylesheet" href="/css/login.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <!-- 🔹 Navigation -->
-  <div class="navbar">
-    <div><strong>🎁 Giveaway</strong></div>
-    <div class="nav-links">
-      <a href="/">Beranda</a>
-      <a href="/shop">Shop</a>
-      <a href="/about">Tentang</a>
-      <a href="/login">Login</a>
-      <a href="/register">Register</a>
-      <a href="/event">Event</a>
-      <a href="/info">Tentang Website</a>
-      <a href="/music">Music</a>
+  <!-- 🔹 Header Title ala Otakudesu -->
+  <header class="site-header">
+    <div class="header-inner">
+      <h1 class="site-title">GIVEAWAYS PICKER</h1>
+      <span class="site-subtitle">Platform Undian & Tebak Angka Komunitas</span>
     </div>
-  </div>
+  </header>
 
-  <!-- 🔹 Login Container -->
-  <div class="container giveaway-box">
-    <h2>🔐 Login Giveaway</h2>
-    <form id="loginForm" class="form">
-      <input type="text" id="loginUsername" placeholder="🧑 Username" required />
-      <input type="password" id="loginPassword" placeholder="🔒 Password" required />
-      <button type="submit" class="btn-silver-jp">🔓 Login</button>
-      <div id="loginStatus" class="status-message"></div>
-    </form>
-
-    <div id="userInfo" style="margin-top:20px;"></div>
-
-    <div class="button-group">
-      <a href="https://dyno.gg/form/e462024a" target="_blank" class="btn-silver-jp" style="font-size: 14px; padding: 10px 16px;">
-        🔑 Lupa Password
-      </a>
-      <a href="https://discord.gg/4vNhCF5EHw" target="_blank" class="btn-silver-jp" style="font-size: 14px; padding: 10px 16px;">
-        💬 Hubungi Admin via Discord
-      </a>
+  <!-- 🔹 Menu Navbar ala Otakudesu -->
+  <nav class="otaku-navbar">
+    <div class="nav-container">
+      <a href="/home">HOME</a>
+      <a href="/shop">SHOP</a>
+      <a href="/about">TENTANG</a>
+      <a href="/login" class="active">LOGIN</a>
+      <a href="/register">REGISTER</a>
+      <a href="/event">EVENT</a>
+      <a href="/info">TENTANG WEBSITE</a>
+      <a href="/music">MUSIC</a>
     </div>
+  </nav>
 
-    <button id="logoutBtn" class="btn-silver-jp" style="display:none;">🔓 Logout</button>
+  <!-- 🔹 Main Content -->
+  <main class="main-wrapper">
+    <div class="container giveaway-box">
+      <h2> Login Giveaway</h2>
+      <form id="loginForm" class="form">
+        <input type="text" id="loginUsername" placeholder="🧑 Username" required />
+        <input type="password" id="loginPassword" placeholder="🔒 Password" required />
+        <button type="submit" class="btn-silver-jp">🔓 Login</button>
+        <div id="loginStatus" class="status-message"></div>
+      </form>
 
-    <div style="margin-top: 25px;">
-      <a href="/register" class="btn-silver-jp" style="width: 100%;">
-        ✍️ Daftar Sekarang
-      </a>
+      <div id="userInfo" style="margin-top:15px;"></div>
+
+      <div class="button-group">
+        <a href="https://dyno.gg/form/e462024a" target="_blank" class="btn-silver-jp btn-sm">
+          🔑 Lupa Password
+        </a>
+        <a href="https://discord.gg/4vNhCF5EHw" target="_blank" class="btn-silver-jp btn-sm">
+          💬 Hubungi Admin via Discord
+        </a>
+      </div>
+
+      <button id="logoutBtn" class="btn-silver-jp" style="display:none;">🔓 Logout</button>
+
+      <div style="margin-top: 22px;">
+        <a href="/register" class="btn-silver-jp" style="width: 100%;">
+          ✍️ Daftar Sekarang
+        </a>
+      </div>
     </div>
-  </div>
+  </main>
+
+  <!-- 🔹 Footer ala Otakudesu -->
+  <footer class="otaku-footer">
+    <div class="footer-links">
+      <a href="/about">About</a>
+      <span>|</span>
+      <a href="/info">Tentang</a>
+      <span>|</span>
+      <a href="/event">Tips</a>
+    </div>
+    <div class="footer-copy">
+      &copy; rakanaditya 2026
+    </div>
+  </footer>
 
   <!-- 🔹 Login Script Logic -->
   <script>
+    const existingUser = JSON.parse(localStorage.getItem("giveawayUser"));
+    if (existingUser && existingUser.username) {
+      window.location.href = existingUser.isAdmin ? "/admin" : "/home";
+    }
+
     const form = document.getElementById("loginForm");
     const statusEl = document.getElementById("loginStatus");
 
@@ -105,7 +132,6 @@
           isAdmin: result.isAdmin || false
         }));
 
-        // Redirect ke /admin jika admin, atau ke /home (halaman utama giveaway) jika user biasa
         window.location.href = result.isAdmin ? "/admin" : "/home";
 
       } catch (err) {
