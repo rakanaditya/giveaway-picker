@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🎉 Giveaway Picker</title>
   <!-- CSS Global & Styling Khusus Mobile -->
   <link rel="stylesheet" href="/style.css" />
@@ -20,6 +20,7 @@
       <a href="/about">Tentang</a>
       <a href="/event">Event</a>
       <a href="/info">Tentang Website</a>
+      <a href="/music">Music</a>
     </div>
   </div>
 
@@ -73,7 +74,7 @@
     </p>
   </div>
 
-  <!-- 🔹 Script Giveaway -->
+  <!-- 🔹 Script Giveaway & Submit Logic -->
   <script>
     const form = document.getElementById("numberForm");
     const statusText = document.getElementById("statusText");
@@ -86,12 +87,14 @@
     const participantsList = document.getElementById("participantsList");
     const participantsUl = document.getElementById("participantsUl");
     const logoutBtn = document.getElementById("logoutBtn");
+    const numberInput = document.getElementById("numberInput");
 
     let startTime = null;
     let endTime = null;
     let submitted = false;
     let rollingInterval = null;
 
+    // Cek sesi login user
     const savedUser = JSON.parse(localStorage.getItem("giveawayUser"));
     const username = savedUser?.username;
 
@@ -105,6 +108,41 @@
     logoutBtn.addEventListener("click", () => {
       localStorage.removeItem("giveawayUser");
       window.location.href = "/login";
+    });
+
+    // Handler Submit Form Langsung ke /api/submit
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const number = parseInt(numberInput.value.trim(), 10);
+
+      if (isNaN(number) || number < 1 || number > 1000) {
+        submitStatus.textContent = "❌ Masukkan angka 1–1000";
+        return;
+      }
+
+      submitStatus.textContent = "🔄 Mengirim...";
+      try {
+        const res = await fetch("/api/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, number }),
+        });
+
+        const json = await res.json();
+
+        if (json.success) {
+          submitStatus.textContent = "✅ " + json.message;
+          numberInput.value = "";
+          form.style.display = "none";
+          submitted = true;
+          fetchData(); // Segarkan daftar peserta langsung
+        } else {
+          submitStatus.textContent = "⚠️ " + (json.error || "Gagal submit");
+        }
+      } catch (err) {
+        console.error("Submit error:", err);
+        submitStatus.textContent = "❌ Terjadi kesalahan saat mengirim.";
+      }
     });
 
     async function fetchData() {
@@ -214,12 +252,6 @@
 
     fetchData();
     setInterval(fetchData, 8000);
-  </script>
-
-  <!-- 🔹 Submit Logic -->
-  <script type="module">
-    import { handleSubmit } from './submit.js';
-    form.addEventListener("submit", handleSubmit);
   </script>
 </body>
 </html>
