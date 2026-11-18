@@ -9,7 +9,6 @@
 </head>
 <body>
 
-  <!-- 🔹 Header Title ala Otakudesu -->
   <header class="site-header">
     <div class="header-inner">
       <h1 class="site-title">GIVEAWAYS PICKER</h1>
@@ -17,7 +16,6 @@
     </div>
   </header>
 
-  <!-- 🔹 Menu Navbar ala Otakudesu -->
   <nav class="otaku-navbar">
     <div class="nav-container">
       <a href="/home">HOME</a>
@@ -31,10 +29,9 @@
     </div>
   </nav>
 
-  <!-- 🔹 Main Content -->
   <main class="main-wrapper">
     <div class="container giveaway-box">
-      <h2> Login Giveaway</h2>
+      <h2>🔐 Login Giveaway</h2>
       <form id="loginForm" class="form">
         <input type="text" id="loginUsername" placeholder="🧑 Username" required />
         <input type="password" id="loginPassword" placeholder="🔒 Password" required />
@@ -63,7 +60,6 @@
     </div>
   </main>
 
-  <!-- 🔹 Footer ala Otakudesu -->
   <footer class="otaku-footer">
     <div class="footer-links">
       <a href="/about">About</a>
@@ -77,7 +73,6 @@
     </div>
   </footer>
 
-  <!-- 🔹 Login Script Logic -->
   <script>
     const existingUser = JSON.parse(localStorage.getItem("giveawayUser"));
     if (existingUser && existingUser.username) {
