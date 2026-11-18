@@ -1,12 +1,11 @@
 const { connectDB, User, Participant, Config, Log } = require('../db');
-const fetch = require('node-fetch');
 
 async function sendDiscordWebhook(content) {
   const webhook = process.env.DISCORD_WEBHOOK;
   if (!webhook) return;
   try {
     await fetch(webhook, {
-      method: "post",
+      method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ content })
     });
@@ -55,21 +54,24 @@ module.exports = async function handler(req, res) {
     if (method === "POST") {
       const { action, username, password } = body || {};
       const cleanUsername = String(username || "").trim();
-      const timestamp = new Date();
 
       if (action === "register" || action === "login") {
-        if (!cleanUsername || !password) return res.status(400).json({ error: "Data kurang" });
+        if (!cleanUsername || !password) {
+          return res.status(400).json({ success: false, message: "Username dan password wajib diisi" });
+        }
+
         const existingUser = await User.findOne({ username: { $regex: new RegExp(`^${cleanUsername}$`, "i") } });
 
         if (action === "register") {
-          if (existingUser) return res.status(400).json({ error: "Username sudah terdaftar" });
+          if (existingUser) return res.status(400).json({ success: false, message: "Username sudah terdaftar" });
           await User.create({ username: cleanUsername, password });
           return res.status(200).json({ success: true, message: "Registrasi berhasil" });
         }
 
         if (!existingUser || existingUser.password !== password) {
-          return res.status(400).json({ error: "Login gagal" });
+          return res.status(400).json({ success: false, message: "Username atau password salah" });
         }
+
         return res.status(200).json({ success: true, message: "Login berhasil" });
       }
 
@@ -81,8 +83,9 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    return res.status(405).json({ error: "Method tidak diizinkan" });
+    return res.status(405).json({ success: false, message: "Method tidak diizinkan" });
   } catch (err) {
-    return res.status(500).json({ error: "Server Error", details: err.message });
+    console.error("API Data Error:", err);
+    return res.status(500).json({ success: false, error: "Server Error", details: err.message });
   }
 };
