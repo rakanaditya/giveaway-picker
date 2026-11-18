@@ -1,60 +1,106 @@
-/* === GLOBAL & JAPANESE SILVER THEME === */
-* {
+{
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  padding: 20px;
+  padding: 0;
   font-family: 'Poppins', sans-serif;
   background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
   background-attachment: fixed;
   background-size: cover;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   text-align: center;
   color: #1e293b;
 }
 
-.navbar {
-  background-color: #0f172a;
-  color: white;
-  padding: 15px 25px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-  border-radius: 8px;
-  margin-bottom: 20px;
+.site-header {
+  background-color: #11161d;
+  padding: 22px 20px 18px;
+  text-align: left;
+  border-bottom: 1px solid #1e293b;
 }
 
-.navbar .nav-links a {
-  color: white;
-  margin-left: 20px;
-  text-decoration: none;
+.header-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.site-title {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 1.5px;
+  line-height: 1.1;
+}
+
+.site-subtitle {
+  display: inline-block;
+  margin-top: 4px;
+  background-color: #2563eb;
+  color: #ffffff;
+  font-size: 11px;
   font-weight: 600;
-  transition: color 0.2s;
+  padding: 2px 8px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
 }
 
-.navbar .nav-links a:hover {
-  color: #38bdf8;
-  text-shadow: 0 0 5px #38bdf8;
+.otaku-navbar {
+  background-color: #181f29;
+  border-bottom: 3px solid #2563eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.nav-container {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.nav-container a {
+  color: #e2e8f0;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 13px 16px;
+  letter-spacing: 0.5px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.nav-container a:hover,
+.nav-container a.active {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+.main-wrapper {
+  flex: 1;
+  padding: 35px 16px;
 }
 
 .container {
-  max-width: 500px;
-  margin: auto;
-  background: rgba(255, 255, 255, 0.75);
+  max-width: 520px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   padding: 30px 40px;
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14), inset 0 1px 0 #ffffff;
 }
 
 h2 {
   color: #0f172a;
-  margin-bottom: 25px;
-  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-weight: 700;
 }
 
 form input[type="text"],
@@ -64,41 +110,47 @@ form input[type="password"] {
   padding: 12px;
   margin: 10px 0;
   font-size: 16px;
+  font-family: 'Poppins', sans-serif;
   border: 1px solid #cbd5e1;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 8px;
   color: #0f172a;
 }
 
 .btn-silver-jp {
   width: 100%;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  color: #1a1a1a;
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%);
+  color: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.95);
   padding: 12px 20px;
+  font-family: 'Poppins', sans-serif;
   font-weight: 600;
   border-radius: 8px;
   cursor: pointer;
   margin-top: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  transition: all 0.28s ease;
+  display: inline-block;
+  text-decoration: none;
 }
 
 .btn-silver-jp:hover {
-  background: linear-gradient(135deg, #ffffff 0%, #d4dfed 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.22);
   transform: translateY(-2px);
 }
 
 #statusText {
-  font-size: 28px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 700;
   color: #0f172a;
 }
 
 #countdown {
-  font-size: 24px;
-  margin: 8px 0 10px;
+  font-size: 20px;
+  margin: 8px 0 12px;
   color: #334155;
+  font-weight: 600;
 }
 
 ul#participantsUl {
@@ -108,11 +160,11 @@ ul#participantsUl {
 }
 
 ul#participantsUl li {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.65);
   margin: 6px auto;
   padding: 10px;
-  width: 80%;
-  max-width: 300px;
+  width: 85%;
+  max-width: 320px;
   border-radius: 8px;
   font-weight: 600;
   color: #0f172a;
@@ -122,4 +174,38 @@ ul#participantsUl li {
 .highlight-user {
   color: #2563eb;
   font-weight: 700;
+}
+
+.otaku-footer {
+  background-color: #11161d;
+  color: #94a3b8;
+  text-align: center;
+  padding: 20px 15px;
+  border-top: 3px solid #2563eb;
+  font-size: 13px;
+}
+
+.footer-links {
+  margin-bottom: 8px;
+}
+
+.footer-links a {
+  color: #e2e8f0;
+  text-decoration: none;
+  font-weight: 600;
+  margin: 0 10px;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover {
+  color: #38bdf8;
+}
+
+.footer-links span {
+  color: #475569;
+}
+
+.footer-copy {
+  font-size: 12px;
+  color: #94a3b8;
 }
