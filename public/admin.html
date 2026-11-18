@@ -3,130 +3,207 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🎛️ Admin Panel Giveaway</title>
-  <link rel="stylesheet" href="/admin.css" />
+  <title>Giveaways Picker - Admin Panel</title>
+  <link rel="stylesheet" href="/css/admin.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="container">
-    <h1>🎛️ Admin Panel</h1>
-    <p>Login sebagai: <strong id="adminUser"></strong></p>
-    <button onclick="logout()">🔓 Logout</button>
 
-    <h3>🕒 Atur Jadwal Giveaway</h3>
-    <label>Waktu Mulai</label>
-    <input type="datetime-local" id="startTimeInput" />
-    <label>Waktu Selesai</label>
-    <input type="datetime-local" id="endTimeInput" />
-    <button onclick="saveDeadline()">💾 Simpan Jadwal</button>
+  <!-- 🔹 Header Title ala Otakudesu -->
+  <header class="site-header">
+    <div class="header-inner">
+      <h1 class="site-title">GIVEAWAYS PICKER</h1>
+      <span class="site-subtitle">Panel Kontrol Administrator</span>
+    </div>
+  </header>
 
-    <h3>🧹 Reset Peserta</h3>
-    <button onclick="resetPeserta()">🚨 Reset Giveaway</button>
+  <!-- 🔹 Menu Navbar ala Otakudesu -->
+  <nav class="otaku-navbar">
+    <div class="nav-container">
+      <a href="/home">HOME</a>
+      <a href="/shop">SHOP</a>
+      <a href="/about">TENTANG</a>
+      <a href="/login">LOGIN</a>
+      <a href="/register">REGISTER</a>
+      <a href="/event">EVENT</a>
+      <a href="/info">TENTANG WEBSITE</a>
+      <a href="/music">MUSIC</a>
+    </div>
+  </nav>
 
-    <div id="statusMsg" class="status-message"></div>
-  </div>
+  <!-- 🔹 Main Content -->
+  <main class="main-wrapper">
+    <div class="container giveaway-box">
+      <h2>🎛️ Admin Panel Giveaway</h2>
+      <p class="admin-badge">👤 Login sebagai: <strong id="adminUser"></strong></p>
+
+      <div class="admin-section">
+        <h3>🕒 Atur Jadwal Giveaway</h3>
+        <div class="form-group">
+          <label for="startTimeInput">Waktu Mulai</label>
+          <input type="datetime-local" id="startTimeInput" />
+        </div>
+        <div class="form-group">
+          <label for="endTimeInput">Waktu Selesai</label>
+          <input type="datetime-local" id="endTimeInput" />
+        </div>
+        <button onclick="saveDeadline()" class="btn-silver-jp">💾 Simpan Jadwal</button>
+      </div>
+
+      <hr class="divider" />
+
+      <div class="admin-section">
+        <h3>🧹 Manajemen Peserta & Reset</h3>
+        <button onclick="resetPeserta()" class="btn-silver-jp btn-danger">🚨 Reset Giveaway & Hapus Peserta</button>
+      </div>
+
+      <div id="statusMsg" class="status-message"></div>
+
+      <div style="margin-top: 25px;">
+        <button onclick="logout()" class="btn-silver-jp">🔓 Logout</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- 🔹 Footer ala Otakudesu -->
+  <footer class="otaku-footer">
+    <div class="footer-links">
+      <a href="/about">About</a>
+      <span>|</span>
+      <a href="/info">Tentang</a>
+      <span>|</span>
+      <a href="/event">Tips</a>
+    </div>
+    <div class="footer-copy">
+      &copy; rakanaditya 2026
+    </div>
+  </footer>
 
   <script>
     const user = JSON.parse(localStorage.getItem("giveawayUser"));
     if (!user || !user.isAdmin) {
       alert("⛔ Akses admin ditolak!");
-      window.location.href = "/login.html";
+      window.location.href = "/login";
     }
 
     document.getElementById("adminUser").textContent = user.username;
     const statusMsg = document.getElementById("statusMsg");
+
+    // Helper format Date ISO ke datetime-local sesuai zona waktu lokal
+    function toLocalDatetimeInput(isoString) {
+      const date = new Date(isoString);
+      const offset = date.getTimezoneOffset() * 60000;
+      return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+    }
 
     // === Ambil waktu dari backend
     fetch("/api/data")
       .then(res => res.json())
       .then(data => {
         if (data.startTime) {
-          document.getElementById("startTimeInput").value =
-            new Date(data.startTime).toISOString().slice(0, 16);
+          document.getElementById("startTimeInput").value = toLocalDatetimeInput(data.startTime);
         }
         if (data.endTime) {
-          document.getElementById("endTimeInput").value =
-            new Date(data.endTime).toISOString().slice(0, 16);
+          document.getElementById("endTimeInput").value = toLocalDatetimeInput(data.endTime);
         }
       })
       .catch(err => {
+        statusMsg.style.color = "#dc2626";
         statusMsg.textContent = "⚠️ Gagal mengambil data waktu: " + err.message;
       });
 
     // === Simpan Deadline
-  // === Simpan Deadline
-async function saveDeadline() {
-  const startRaw = document.getElementById("startTimeInput").value;
-  const endRaw = document.getElementById("endTimeInput").value;
+    async function saveDeadline() {
+      const startRaw = document.getElementById("startTimeInput").value;
+      const endRaw = document.getElementById("endTimeInput").value;
 
-  if (!startRaw || !endRaw) {
-    statusMsg.textContent = "❌ Masukkan waktu mulai dan selesai!";
-    return;
-  }
+      if (!startRaw || !endRaw) {
+        statusMsg.style.color = "#dc2626";
+        statusMsg.textContent = "❌ Masukkan waktu mulai dan selesai!";
+        return;
+      }
 
-  const start = new Date(startRaw);
-  const end = new Date(endRaw);
+      const start = new Date(startRaw);
+      const end = new Date(endRaw);
 
-  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-    statusMsg.textContent = "❌ Format tanggal tidak valid!";
-    return;
-  }
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        statusMsg.style.color = "#dc2626";
+        statusMsg.textContent = "❌ Format tanggal tidak valid!";
+        return;
+      }
 
-  statusMsg.textContent = "⏳ Menyimpan jadwal...";
+      if (end <= start) {
+        statusMsg.style.color = "#dc2626";
+        statusMsg.textContent = "❌ Waktu selesai harus lebih akhir dari waktu mulai!";
+        return;
+      }
 
-  try {
-    const res = await fetch("/api/data", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "setDeadline",
-        username: user.username,
-        startTime: start.toISOString(),
-        endTime: end.toISOString()
-      })
-    });
+      statusMsg.style.color = "#1e293b";
+      statusMsg.textContent = "⏳ Menyimpan jadwal...";
 
-    const data = await res.json();
+      try {
+        const res = await fetch("/api/data", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "setDeadline",
+            username: user.username,
+            startTime: start.toISOString(),
+            endTime: end.toISOString()
+          })
+        });
 
-    if (data.success) {
-      statusMsg.textContent = "✅ " + data.message;
-    } else {
-      statusMsg.textContent = "❌ Gagal menyimpan: " + (data.message || "Unknown error");
+        const data = await res.json();
+
+        if (data.success) {
+          statusMsg.style.color = "#16a34a";
+          statusMsg.textContent = "✅ " + data.message;
+        } else {
+          statusMsg.style.color = "#dc2626";
+          statusMsg.textContent = "❌ Gagal menyimpan: " + (data.message || "Unknown error");
+        }
+      } catch (err) {
+        statusMsg.style.color = "#dc2626";
+        statusMsg.textContent = "❌ Error: " + err.message;
+      }
     }
-  } catch (err) {
-    statusMsg.textContent = "❌ Error: " + err.message;
-  }
-}
 
-
-
+    // === Reset Peserta
     async function resetPeserta() {
-  statusMsg.textContent = "🔄 Mereset peserta...";
-  try {
-    const res = await fetch("/api/data", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "reset",
-        username: user.username
-      })
-    });
+      if (!confirm("⚠️ Yakin ingin mereset seluruh peserta dan pemenang giveaway?")) return;
 
-    const data = await res.json();
+      statusMsg.style.color = "#1e293b";
+      statusMsg.textContent = "🔄 Mereset peserta...";
 
-    if (data.success) {
-      statusMsg.textContent = "✅ " + data.message;
-    } else {
-      statusMsg.textContent = "❌ Gagal reset: " + (data.message || "Unknown error");
+      try {
+        const res = await fetch("/api/data", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "reset",
+            username: user.username
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          statusMsg.style.color = "#16a34a";
+          statusMsg.textContent = "✅ " + data.message;
+        } else {
+          statusMsg.style.color = "#dc2626";
+          statusMsg.textContent = "❌ Gagal reset: " + (data.message || "Unknown error");
+        }
+      } catch (err) {
+        statusMsg.style.color = "#dc2626";
+        statusMsg.textContent = "❌ Gagal reset: " + err.message;
+      }
     }
-  } catch (err) {
-    statusMsg.textContent = "❌ Gagal reset: " + err.message;
-  }
-}
 
     // === Logout
     function logout() {
       localStorage.removeItem("giveawayUser");
-      window.location.href = "/login.html";
+      window.location.href = "/login";
     }
   </script>
 </body>
