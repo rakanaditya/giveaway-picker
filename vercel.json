@@ -1,17 +1,15 @@
 {
   "rewrites": [
-    { "source": "/api/data", "destination": "/api/data.js" },
-    { "source": "/api/admin-auth", "destination": "/api/admin-auth.js" },
-     { "source": "/api/giveaway", "destination": "/api/giveaway.js" },
-    { "source": "/", "destination": "/public/login.html" },
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/", "destination": "/login.html" },
     { "source": "/home", "destination": "/index.html" },
-    { "source": "/login", "destination": "/public/login.html" },
-    { "source": "/admin", "destination": "/public/admin.html" },
-    { "source": "/shop", "destination": "/public/shop.html" },
-    { "source": "/about", "destination": "/public/about.html" },
-    { "source": "/event", "destination": "/public/event.html" },
-    { "source": "/info", "destination": "/public/info.html" },
-    { "source": "/music", "destination": "/public/music.html" },
-    { "source": "/register", "destination": "/public/register.html" }
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/shop", "destination": "/shop.html" },
+    { "source": "/about", "destination": "/about.html" },
+    { "source": "/event", "destination": "/event.html" },
+    { "source": "/info", "destination": "/info.html" },
+    { "source": "/music", "destination": "/music.html" },
+    { "source": "/register", "destination": "/register.html" }
   ]
 }
