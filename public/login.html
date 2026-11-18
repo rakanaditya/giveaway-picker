@@ -107,7 +107,7 @@
           isAdmin: result.isAdmin || false
         }));
 
-        window.location.href = result.isAdmin ? "/admin" : "/";
+       window.location.href = result.isAdmin ? "/admin" : "/home";
 
       } catch (err) {
         statusEl.textContent = "❌ Gagal login: " + err.message;
