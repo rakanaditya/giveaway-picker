@@ -3,78 +3,94 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🎉 Giveaway Picker</title>
-  <!-- CSS Global & Styling Khusus Mobile -->
+  <title>Giveaways Picker - Home</title>
   <link rel="stylesheet" href="/style.css" />
   <link rel="stylesheet" href="/css/stylemob.css" media="screen and (max-width: 768px)" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <!-- 🔹 Navigation -->
-  <div class="navbar">
-    <div><strong>🎁 Giveaway</strong></div>
-    <div class="nav-links">
-      <a href="/home">Beranda</a>
-      <a href="/shop">Shop</a>
-      <a href="/about">Tentang</a>
-      <a href="/event">Event</a>
-      <a href="/info">Tentang Website</a>
-      <a href="/music">Music</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <h1 class="site-title">GIVEAWAYS PICKER</h1>
+      <span class="site-subtitle">Platform Undian & Tebak Angka Komunitas</span>
     </div>
-  </div>
+  </header>
 
-  <!-- 🔹 Giveaway Container -->
-  <div class="container giveaway-box">
-    <h2>🎉 Giveaway Robux</h2>
-    <div id="statusText">⏳ Memuat status...</div>
-    <div id="countdown"></div>
-    <div id="submitStatus" style="margin-top:10px;"></div>
-
-    <form id="numberForm" style="display:none">
-      <input type="number" id="numberInput" placeholder="Tebak angka (1–1000)" required min="1" max="1000" />
-      <button type="submit" class="btn-silver-jp">Kirim Tebakan</button>
-    </form>
-
-    <div id="winnerSection" style="display:none">
-      <h3>🎉 Pemenang:</h3>
-      <div id="winnerText">Belum ada</div>
+  <nav class="otaku-navbar">
+    <div class="nav-container">
+      <a href="/home" class="active">HOME</a>
+      <a href="/shop">SHOP</a>
+      <a href="/about">TENTANG</a>
+      <a href="/login">LOGIN</a>
+      <a href="/register">REGISTER</a>
+      <a href="/event">EVENT</a>
+      <a href="/info">TENTANG WEBSITE</a>
+      <a href="/music">MUSIC</a>
     </div>
+  </nav>
 
-    <div id="rollingText"></div>
+  <main class="main-wrapper">
+    <div class="container giveaway-box">
+      <h2>🎉 Giveaway Robux</h2>
+      <div id="statusText">⏳ Memuat status...</div>
+      <div id="countdown"></div>
+      <div id="submitStatus" style="margin-top:10px;"></div>
 
-    <div id="participantsList" style="margin-top:20px; display:none;">
-      <h3>👥 Peserta Saat Ini:</h3>
-      <ul id="participantsUl"></ul>
+      <form id="numberForm" style="display:none">
+        <input type="number" id="numberInput" placeholder="Tebak angka (1–1000)" required min="1" max="1000" />
+        <button type="submit" class="btn-silver-jp">Kirim Tebakan</button>
+      </form>
+
+      <div id="winnerSection" style="display:none">
+        <h3>🎉 Pemenang:</h3>
+        <div id="winnerText">Belum ada</div>
+      </div>
+
+      <div id="rollingText"></div>
+
+      <div id="participantsList" style="margin-top:20px; display:none;">
+        <h3>👥 Peserta Saat Ini:</h3>
+        <ul id="participantsUl"></ul>
+      </div>
+
+      <div style="margin-top: 30px; text-align:center;">
+        <h3>💬 Gabung di Server Discord</h3>
+        <a href="https://discord.gg/4vNhCF5EHw" target="_blank" class="discord-button btn-silver-jp">Join Server</a>
+        <br/>
+        <iframe
+          src="https://discord.com/widget?id=798751181508837376&theme=dark"
+          width="350"
+          height="350"
+          allowtransparency="true"
+          frameborder="0"
+          sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
+          style="border-radius: 10px; margin-top: 10px; max-width: 100%;"
+        ></iframe>
+      </div>
+
+      <div id="userInfo" style="margin-top:20px;"></div>
+      <button id="logoutBtn" class="btn-silver-jp" style="display:none; margin-top:10px;">🔓 Logout</button>
+
+      <p style="margin-top: 20px; text-align:center;">
+        🔐 <a href="https://dyno.gg/form/e462024a" target="_blank">Lupa password?</a>
+      </p>
     </div>
+  </main>
 
-    <!-- 🔹 Discord -->
-    <div style="margin-top: 30px; text-align:center;">
-      <h3>💬 Gabung di Server Discord</h3>
-      <a href="https://discord.gg/4vNhCF5EHw" target="_blank" class="discord-button btn-silver-jp">Join Server</a>
-      <br/>
-      <iframe
-        src="https://discord.com/widget?id=798751181508837376&theme=dark"
-        width="350"
-        height="350"
-        allowtransparency="true"
-        frameborder="0"
-        sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
-        style="border-radius: 10px; margin-top: 10px;"
-      ></iframe>
+  <footer class="otaku-footer">
+    <div class="footer-links">
+      <a href="/about">About</a>
+      <span>|</span>
+      <a href="/info">Tentang</a>
+      <span>|</span>
+      <a href="/event">Tips</a>
     </div>
+    <div class="footer-copy">
+      &copy; rakanaditya 2026
+    </div>
+  </footer>
 
-    <!-- 🔹 Info User -->
-    <div id="userInfo" style="margin-top:20px;"></div>
-    <button id="logoutBtn" class="btn-silver-jp" style="display:none; margin-top:10px;">🔓 Logout</button>
-
-    <!-- 🔹 Link lupa password -->
-    <p style="margin-top: 20px; text-align:center;">
-      🔐 <a href="https://dyno.gg/form/e462024a" target="_blank">Lupa password?</a>
-    </p>
-  </div>
-
-  <!-- 🔹 Script Giveaway & Submit Logic -->
   <script>
     const form = document.getElementById("numberForm");
     const statusText = document.getElementById("statusText");
@@ -94,7 +110,6 @@
     let submitted = false;
     let rollingInterval = null;
 
-    // Cek sesi login user
     const savedUser = JSON.parse(localStorage.getItem("giveawayUser"));
     const username = savedUser?.username;
 
@@ -110,7 +125,6 @@
       window.location.href = "/login";
     });
 
-    // Handler Submit Form Langsung ke /api/submit
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const number = parseInt(numberInput.value.trim(), 10);
@@ -135,9 +149,9 @@
           numberInput.value = "";
           form.style.display = "none";
           submitted = true;
-          fetchData(); // Segarkan daftar peserta langsung
+          fetchData();
         } else {
-          submitStatus.textContent = "⚠️ " + (json.error || "Gagal submit");
+          submitStatus.textContent = "⚠️ " + (json.message || "Gagal submit");
         }
       } catch (err) {
         console.error("Submit error:", err);
