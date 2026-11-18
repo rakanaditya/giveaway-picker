@@ -15,8 +15,7 @@
     "pusher": "^5.3.4",
     "express": "^4.19.2",
     "ytdl-core": "^4.11.5",
-    "mongoose": "^8.0.0",
-    "node-fetch": "^3.3.2"
+    "mongoose": "^8.0.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.17",
