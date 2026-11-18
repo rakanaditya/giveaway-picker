@@ -124,10 +124,10 @@
 
         localStorage.setItem("giveawayUser", JSON.stringify({
           username,
-          isAdmin: result.isAdmin || false
+          isAdmin: loginData.isAdmin || false
         }));
 
-        window.location.href = result.isAdmin ? "/admin" : "/home";
+        window.location.href = loginData.isAdmin ? "/admin" : "/home";
 
       } catch (err) {
         statusEl.textContent = "❌ Gagal login: " + err.message;
