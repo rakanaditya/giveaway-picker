@@ -1,4 +1,3 @@
-// db.js
 const mongoose = require('mongoose');
 
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -23,7 +22,6 @@ async function connectDB() {
   return cached.conn;
 }
 
-// Schemas
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true, lowercase: true, trim: true },
   password: { type: String, required: true }
@@ -36,7 +34,7 @@ const participantSchema = new mongoose.Schema({
 });
 
 const configSchema = new mongoose.Schema({
-  key: { type: String, required: true, unique: true }, // 'settings'
+  key: { type: String, required: true, unique: true },
   startTime: { type: Date },
   endTime: { type: Date },
   winnerUsername: { type: String, default: null },
