@@ -3,226 +3,118 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Daftar Giveaway</title>
-  <link rel="stylesheet" href="/style.css" />
-
-<style>
-      * {
-    box-sizing: border-box;
-  }
-
-  body {
-  margin: 0;
-  padding: 0px;
-  font-family: 'Poppins', sans-serif;
-  background-size: cover;
-  background-color: #f0f2f5;
-  text-align: center;
-   color: #e0e0e0;
-}
-
-    .navbar {
-  background-color: #0f0f1a;
-  color: white;
-  padding: 15px 25px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-}
-
-    .navbar .nav-links a {
-    color: white;
-    margin-left: 20px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: color 0.2s;
-  }
-
- .navbar .nav-links a:hover {
-  color: #00f7ff;
-  text-shadow: 0 0 5px #00f7ff;
-}
-
-    .container {
-  max-width: 1080px;
-  margin: 30px auto;
-  padding: 30px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-  backdrop-filter: blur(12px);
-}
-
-h2 {
-  color: #ffffff;
-  font-size: 26px;
-  margin-bottom: 15px;
-  text-align: center;
-  text-shadow: 0 0 10px #00f7ff;
-}
-
- p, li {
-  font-size: 16px;
-  line-height: 1.7;
-  margin-bottom: 20px;
-  color: #e0e0e0;
-}
-
-ul {
-  padding-left: 20px;
-}
-
-  @media (max-width: 600px) {
-  .container {
-    margin: 10px;
-    padding: 20px;
-  }
-
-  h2 {
-    font-size: 22px;
-  }
-}
-
-.primary-button {
-  display: inline-block;
-  margin-top: 10px;
-  padding: 10px 20px;
-  background-color: white;
-  color: #0f0f1a;
-  border-radius: 6px;
-  text-decoration: none;
-  font-weight: 600;
-  transition: background 0.3s;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-}
-
-.primary-button:hover {
-  background-color: #e0e0e0;
-}
-
-.secondary-button {
-  display: inline-block;
-  margin: 5px;
-  padding: 8px 16px;
-  background-color: rgba(0, 247, 255, 0.1);
-  color: #00f7ff;
-  border: 1px solid #00f7ff;
-  border-radius: 6px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.3s;
-}
-
-.secondary-button:hover {
-  background-color: #00f7ff;
-  color: #0f0f1a;
-}
-
-
-  </style>
-
+  <title>Giveaways Picker - Register</title>
+  <link rel="stylesheet" href="/css/login.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
- <div class="navbar">
-    <div><strong>🎁 Giveaway</strong></div>
-    <div class="nav-links">
-      <a href="/">Beranda</a>
-      <a href="/shop.html">Shop</a>
-      <a href="/about.html">Tentang</a>
-      <a href="/login.html">Login</a>
-      <a href="/register.html">Register</a>
-      <a href="/event.html">Event</a>
-      <a href="/info.html">Tentang Website</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <h1 class="site-title">GIVEAWAYS PICKER</h1>
+      <span class="site-subtitle">Platform Undian & Tebak Angka Komunitas</span>
     </div>
-  </div>
+  </header>
 
+  <nav class="otaku-navbar">
+    <div class="nav-container">
+      <a href="/home">HOME</a>
+      <a href="/shop">SHOP</a>
+      <a href="/about">TENTANG</a>
+      <a href="/login">LOGIN</a>
+      <a href="/register" class="active">REGISTER</a>
+      <a href="/event">EVENT</a>
+      <a href="/info">TENTANG WEBSITE</a>
+      <a href="/music">MUSIC</a>
+    </div>
+  </nav>
 
+  <main class="main-wrapper">
+    <div class="container giveaway-box">
+      <h2>✍️ Daftar Akun Giveaway</h2>
+      <form id="registerForm" class="form">
+        <input type="text" id="regUsername" placeholder="🧑 Username (min. 3 karakter)" required />
+        <input type="password" id="regPassword" placeholder="🔒 Password (min. 4 karakter)" required />
+        <button type="submit" class="btn-silver-jp">✅ Daftar Sekarang</button>
+        <div id="regStatus" class="status-message"></div>
+      </form>
 
-  <div class="container">
-    <h2>📝 Daftar Akun Giveaway</h2>
-    <form id="registerForm" class="form">
-      <input type="text" id="regUsername" placeholder="🧑 Username" required />
-      <input type="password" id="regPassword" placeholder="🔒 Password (min 4)" required />
-      <button type="submit">📥 Daftar</button>
-      <div id="regStatus" class="status-message"></div>
-    </form>
+      <div style="margin-top: 22px;">
+        <a href="/login" class="btn-silver-jp" style="width: 100%;">
+          🔓 Sudah Punya Akun? Login
+        </a>
+      </div>
+    </div>
+  </main>
 
-<div style="margin-top: 20px;">
-    <p>Sudah punya akun? <a href="/login.html" class="primary-button">
-    Login disini
-  </a>
-</div>
-
-<div style="margin-top: 30px;">
-    <strong>⚠️Note Username sesuai nickname DISCORD atau ROBLOX</strong>
-</div>
-
-  </div>
+  <footer class="otaku-footer">
+    <div class="footer-links">
+      <a href="/about">About</a>
+      <span>|</span>
+      <a href="/info">Tentang</a>
+      <span>|</span>
+      <a href="/event">Tips</a>
+    </div>
+    <div class="footer-copy">
+      &copy; rakanaditya 2026
+    </div>
+  </footer>
 
   <script>
     const form = document.getElementById("registerForm");
     const statusEl = document.getElementById("regStatus");
 
-   form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      statusEl.style.color = "#1e293b";
+      statusEl.textContent = "🔄 Mendaftarkan akun...";
 
-  const username = document.getElementById("regUsername").value.trim();
-  const password = document.getElementById("regPassword").value.trim();
+      const username = document.getElementById("regUsername").value.trim();
+      const password = document.getElementById("regPassword").value.trim();
 
-  // Validasi input
-  if (username.length < 3 || password.length < 4) {
-    statusEl.textContent = "❌ Username dan password minimal 4 karakter!";
-    return;
-  }
-  if (/^\d+$/.test(password)) {
-    statusEl.textContent = "❌ Password tidak boleh hanya angka!";
-    return;
-  }
+      if (username.length < 3 || password.length < 4) {
+        statusEl.style.color = "#dc2626";
+        statusEl.textContent = "❌ Username min. 3 karakter & password min. 4 karakter!";
+        return;
+      }
 
-  statusEl.textContent = "🔄 Mendaftarkan akun...";
+      try {
+        const res = await fetch("/api/data", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "register",
+            username,
+            password
+          })
+        });
 
-  try {
-    const res = await fetch("/api/data", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "register",
-        username,
-        password
-      })
+        const data = await res.json();
+
+        if (!data.success) {
+          statusEl.style.color = "#dc2626";
+          statusEl.textContent = "❌ " + (data.message || "Gagal mendaftar");
+          return;
+        }
+
+        statusEl.style.color = "#16a34a";
+        statusEl.textContent = "✅ " + data.message + "! Mengalihkan...";
+
+        localStorage.setItem("giveawayUser", JSON.stringify({
+          username,
+          isAdmin: data.isAdmin || false
+        }));
+
+        setTimeout(() => {
+          window.location.href = data.isAdmin ? "/admin" : "/home";
+        }, 1000);
+
+      } catch (err) {
+        statusEl.style.color = "#dc2626";
+        statusEl.textContent = "❌ Terjadi kesalahan: " + err.message;
+      }
     });
-
-    const data = await res.json();
-    if (!data.success) {
-      statusEl.textContent = "⚠️ Gagal daftar: " + (data.message || "Unknown error");
-      return;
-    }
-
-    // Cek apakah akun adalah admin
-    const adminRes = await fetch("/api/admin-auth", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password })
-    });
-
-    const result = await adminRes.json();
-
-    // Simpan sesi user
-    localStorage.setItem("giveawayUser", JSON.stringify({
-      username,
-      isAdmin: result.isAdmin || false
-    }));
-
-    // Redirect ke halaman sesuai role
-    window.location.href = result.isAdmin ? "/admin.html" : "/index.html";
-
-  } catch (err) {
-    statusEl.textContent = "❌ Error saat daftar: " + err.message;
-  }
-});
-
   </script>
+
 </body>
 </html>
