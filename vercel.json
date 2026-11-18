@@ -1,7 +1,8 @@
 {
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/css/(.*)", "destination": "/css/$1" },
+    { "source": "/api/data", "destination": "/api/data.js" },
+    { "source": "/api/admin-auth", "destination": "/api/admin-auth.js" },
+     { "source": "/api/giveaway", "destination": "/api/giveaway.js" },
     { "source": "/", "destination": "/public/login.html" },
     { "source": "/home", "destination": "/index.html" },
     { "source": "/login", "destination": "/public/login.html" },
