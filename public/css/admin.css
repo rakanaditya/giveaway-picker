@@ -1,88 +1,316 @@
-/* === GLOBAL ADMIN === */
-body {
-  margin: 0;
-  padding: 20px;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: url('/gradient-abstract-background_23-2149101392.png') no-repeat center center fixed;
-  background-size: cover;
-  background-color: #f0f2f5;
-  text-align: center;
-  color: #333;
-}
-
-/* === CONTAINER CARD === */
-.container {
-  max-width: 500px;
-  margin: auto;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 30px 40px;
-  border-radius: 16px;
-  box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
-}
-
-/* === TITLE === */
-h1, h2, h3 {
-  color: #1877f2;
-  font-weight: 600;
-  margin-bottom: 20px;
-}
-
-/* === FORM INPUTS === */
-input[type="text"],
-input[type="number"],
-input[type="password"],
-input[type="datetime-local"] {
-  width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  font-size: 16px;
-  border: 2px solid #ddd;
-  border-radius: 8px;
+/* === GLOBAL & JAPANESE SILVER BACKGROUND === */
+{
   box-sizing: border-box;
 }
 
-input:focus {
-  border-color: #1877f2;
-  outline: none;
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
+  background-attachment: fixed;
+  background-size: cover;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  color: #1e293b;
 }
 
-/* === BUTTON === */
-button {
+/* === HEADER TITLE (STYLE OTAKUDESU) === */
+.site-header {
+  background-color: #11161d;
+  padding: 22px 20px 18px;
+  text-align: left;
+  border-bottom: 1px solid #1e293b;
+}
+
+.header-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.site-title {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 1.5px;
+  line-height: 1.1;
+}
+
+.site-subtitle {
+  display: inline-block;
+  margin-top: 4px;
+  background-color: #2563eb;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}
+
+/* === NAVBAR MENU (STYLE OTAKUDESU) === */
+.otaku-navbar {
+  background-color: #181f29;
+  border-bottom: 3px solid #2563eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.nav-container {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.nav-container a {
+  color: #e2e8f0;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 13px 16px;
+  letter-spacing: 0.5px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.nav-container a:hover,
+.nav-container a.active {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+/* === MAIN WRAPPER & CARD === */
+.main-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 35px 16px;
+}
+
+.container.giveaway-box {
   width: 100%;
-  background: #1877f2;
-  color: white;
-  padding: 12px 20px;
-  border: none;
+  max-width: 520px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 35px 40px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14), inset 0 1px 0 #ffffff;
+  text-align: center;
+  animation: fadeInUp 0.45s ease;
+}
+
+h2 {
+  color: #0f172a;
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-weight: 700;
+  font-size: 24px;
+}
+
+.admin-badge {
+  display: inline-block;
+  background: rgba(37, 99, 235, 0.1);
+  color: #1e40af;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  margin-bottom: 22px;
+  border: 1px solid rgba(37, 99, 235, 0.25);
+}
+
+.admin-section {
+  text-align: left;
+  margin-bottom: 15px;
+}
+
+.admin-section h3 {
   font-size: 16px;
+  color: #0f172a;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 5px;
+}
+
+input[type="datetime-local"] {
+  width: 100%;
+  padding: 11px 14px;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  border: 1px solid #cbd5e1;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  color: #0f172a;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+input[type="datetime-local"]:focus {
+  border-color: #2563eb;
+  background: #ffffff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.divider {
+  border: 0;
+  height: 1px;
+  background: #cbd5e1;
+  margin: 22px 0;
+}
+
+/* === JAPANESE MODERN SILVER BUTTON === */
+.btn-silver-jp {
+  width: 100%;
+  background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%);
+  color: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  padding: 12px 22px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
   border-radius: 8px;
   cursor: pointer;
-  margin-top: 10px;
-  transition: background 0.2s;
+  margin-top: 8px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.4px;
+  display: inline-block;
+  text-align: center;
 }
 
-button:hover {
-  background: #165ec9;
+.btn-silver-jp::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  transition: 0.5s;
 }
 
-/* === STATUS / ERROR MESSAGES === */
+.btn-silver-jp:hover::after {
+  left: 100%;
+}
+
+.btn-silver-jp:hover {
+  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.22), inset 0 1px 0 #ffffff;
+  transform: translateY(-2px);
+  color: #020617;
+}
+
+.btn-silver-jp:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15);
+}
+
+.btn-silver-jp.btn-danger {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #b91c1c;
+}
+
+.btn-silver-jp.btn-danger:hover {
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.22), inset 0 1px 0 #ffffff;
+  color: #991b1b;
+}
+
 .status-message {
-  margin-top: 15px;
-  font-weight: bold;
-  color: red;
+  margin-top: 16px;
+  font-weight: 600;
   font-size: 14px;
+  min-height: 20px;
 }
 
-/* === LINKS & PARAGRAPH === */
-p {
-  margin-top: 20px;
-  font-size: 15px;
+/* === FOOTER (STYLE OTAKUDESU) === */
+.otaku-footer {
+  background-color: #11161d;
+  color: #94a3b8;
+  text-align: center;
+  padding: 20px 15px;
+  border-top: 3px solid #2563eb;
+  font-size: 13px;
 }
 
-a {
-  color: #1877f2;
+.footer-links {
+  margin-bottom: 8px;
+}
+
+.footer-links a {
+  color: #e2e8f0;
   text-decoration: none;
+  font-weight: 600;
+  margin: 0 10px;
+  transition: color 0.2s;
 }
 
-a:hover {
-  text-decoration: underline;
+.footer-links a:hover {
+  color: #38bdf8;
+}
+
+.footer-links span {
+  color: #475569;
+}
+
+.footer-copy {
+  font-size: 12px;
+  color: #94a3b8;
+  letter-spacing: 0.3px;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === RESPONSIVE MOBILE & TABLET === */
+@media screen and (max-width: 768px) {
+  .site-header {
+    text-align: center;
+    padding: 16px 12px;
+  }
+
+  .site-title {
+    font-size: 24px;
+  }
+
+  .nav-container {
+    justify-content: center;
+  }
+
+  .nav-container a {
+    font-size: 12px;
+    padding: 10px 12px;
+  }
+
+  .container.giveaway-box {
+    padding: 24px 18px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
 }
