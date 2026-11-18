@@ -55,6 +55,15 @@ module.exports = async function handler(req, res) {
       const { action, username, password } = body || {};
       const cleanUsername = String(username || "").trim();
 
+      const envAdminUser = String(process.env.ADMIN_USERNAME || "").trim();
+      const envAdminPass = String(process.env.ADMIN_PASSWORD || "").trim();
+
+      const isEnvAdmin =
+        envAdminUser !== "" &&
+        envAdminPass !== "" &&
+        cleanUsername.toLowerCase() === envAdminUser.toLowerCase() &&
+        password === envAdminPass;
+
       if (action === "register" || action === "login") {
         if (!cleanUsername || !password) {
           return res.status(400).json({ success: false, message: "Username dan password wajib diisi" });
@@ -62,17 +71,52 @@ module.exports = async function handler(req, res) {
 
         const existingUser = await User.findOne({ username: { $regex: new RegExp(`^${cleanUsername}$`, "i") } });
 
+        // === PROSES REGISTER ===
         if (action === "register") {
-          if (existingUser) return res.status(400).json({ success: false, message: "Username sudah terdaftar" });
-          await User.create({ username: cleanUsername, password });
-          return res.status(200).json({ success: true, message: "Registrasi berhasil" });
+          if (existingUser) {
+            return res.status(400).json({ success: false, message: "Username sudah terdaftar" });
+          }
+
+          await User.create({
+            username: cleanUsername,
+            password,
+            isAdmin: isEnvAdmin
+          });
+
+          return res.status(200).json({
+            success: true,
+            message: isEnvAdmin ? "Registrasi Admin berhasil" : "Registrasi berhasil",
+            isAdmin: isEnvAdmin
+          });
+        }
+
+        // === PROSES LOGIN ===
+        if (isEnvAdmin) {
+          // Jika cocok dengan .env admin tapi belum ada di MongoDB, otomatis buatkan di MongoDB
+          if (!existingUser) {
+            await User.create({ username: cleanUsername, password, isAdmin: true });
+          } else if (!existingUser.isAdmin || existingUser.password !== password) {
+            existingUser.isAdmin = true;
+            existingUser.password = password;
+            await existingUser.save();
+          }
+
+          return res.status(200).json({
+            success: true,
+            message: "Login Admin berhasil",
+            isAdmin: true
+          });
         }
 
         if (!existingUser || existingUser.password !== password) {
           return res.status(400).json({ success: false, message: "Username atau password salah" });
         }
 
-        return res.status(200).json({ success: true, message: "Login berhasil" });
+        return res.status(200).json({
+          success: true,
+          message: existingUser.isAdmin ? "Login Admin berhasil" : "Login berhasil",
+          isAdmin: existingUser.isAdmin || false
+        });
       }
 
       if (action === "reset") {
