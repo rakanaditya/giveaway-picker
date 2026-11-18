@@ -1,4 +1,3 @@
-/* === GLOBAL & JAPANESE SILVER BACKGROUND === */
 {
   box-sizing: border-box;
 }
@@ -16,7 +15,6 @@ body {
   color: #1e293b;
 }
 
-/* === HEADER TITLE (STYLE OTAKUDESU) === */
 .site-header {
   background-color: #11161d;
   padding: 22px 20px 18px;
@@ -50,7 +48,6 @@ body {
   letter-spacing: 0.5px;
 }
 
-/* === NAVBAR MENU (STYLE OTAKUDESU) === */
 .otaku-navbar {
   background-color: #181f29;
   border-bottom: 3px solid #2563eb;
@@ -81,7 +78,6 @@ body {
   color: #ffffff;
 }
 
-/* === MAIN WRAPPER & CARD === */
 .main-wrapper {
   flex: 1;
   display: flex;
@@ -112,7 +108,6 @@ h2 {
   font-size: 24px;
 }
 
-/* === FORM INPUTS === */
 .form input[type="text"],
 .form input[type="password"] {
   width: 100%;
@@ -134,7 +129,6 @@ h2 {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
-/* === JAPANESE MODERN SILVER BUTTON === */
 .btn-silver-jp {
   background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%);
   color: #0f172a;
@@ -193,7 +187,6 @@ h2 {
   margin-top: 12px;
 }
 
-/* === BUTTON GROUP === */
 .button-group {
   display: flex;
   flex-direction: row;
@@ -213,7 +206,6 @@ h2 {
   color: #dc2626;
 }
 
-/* === FOOTER (STYLE OTAKUDESU) === */
 .otaku-footer {
   background-color: #11161d;
   color: #94a3b8;
@@ -260,7 +252,6 @@ h2 {
   }
 }
 
-/* === RESPONSIVE MOBILE & TABLET === */
 @media screen and (max-width: 768px) {
   .site-header {
     text-align: center;
