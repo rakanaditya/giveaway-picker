@@ -1,6 +1,8 @@
 {
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
+   { "source": "/api/data", "destination": "/api/data.js" },
+   { "source": "/api/submit", "destination": "/api/submit.js" },
+    { "source": "/api/admin-auth", "destination": "/api/admin-auth.js" },
     { "source": "/", "destination": "/login.html" },
     { "source": "/home", "destination": "/index.html" },
     { "source": "/login", "destination": "/login.html" },
