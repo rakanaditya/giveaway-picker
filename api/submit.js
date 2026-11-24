@@ -1,7 +1,9 @@
-const { connectDB, Participant } = require('../db');
+import { connectDB, Participant } from '../db.js';
 
-module.exports = async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ success: false, message: "Method tidak diizinkan" });
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ success: false, message: "Method tidak diizinkan" });
+  }
 
   try {
     await connectDB();
@@ -37,4 +39,4 @@ module.exports = async function handler(req, res) {
   } catch (err) {
     return res.status(500).json({ success: false, error: "Server Error", details: err.message });
   }
-};
+}
