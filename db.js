@@ -1,22 +1,21 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI;
-
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside Vercel.');
-}
 
 let cached = global.mongoose;
 if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
 
-async function connectDB() {
+export async function connectDB() {
+  if (!MONGODB_URI) {
+    throw new Error('Variabel MONGODB_URI belum diatur di Vercel Environment Variables.');
+  }
   if (cached.conn) return cached.conn;
   if (!cached.promise) {
     cached.promise = mongoose.connect(MONGODB_URI, {
       bufferCommands: false,
-    }).then((mongoose) => mongoose);
+    }).then((m) => m);
   }
   cached.conn = await cached.promise;
   return cached.conn;
@@ -49,9 +48,7 @@ const logSchema = new mongoose.Schema({
   details: String
 });
 
-const User = mongoose.models.User || mongoose.model('User', userSchema);
-const Participant = mongoose.models.Participant || mongoose.model('Participant', participantSchema);
-const Config = mongoose.models.Config || mongoose.model('Config', configSchema);
-const Log = mongoose.models.Log || mongoose.model('Log', logSchema);
-
-module.exports = { connectDB, User, Participant, Config, Log };
+export const User = mongoose.models.User || mongoose.model('User', userSchema);
+export const Participant = mongoose.models.Participant || mongoose.model('Participant', participantSchema);
+export const Config = mongoose.models.Config || mongoose.model('Config', configSchema);
+export const Log = mongoose.models.Log || mongoose.model('Log', logSchema);
