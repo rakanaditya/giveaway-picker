@@ -1,4 +1,4 @@
-const { connectDB, User, Participant, Config, Log } = require('../db.js');
+import { connectDB, User, Participant, Config, Log } from '../db.js';
 
 async function sendDiscordWebhook(content) {
   const webhook = process.env.DISCORD_WEBHOOK;
@@ -14,7 +14,7 @@ async function sendDiscordWebhook(content) {
   }
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
@@ -71,7 +71,6 @@ module.exports = async function handler(req, res) {
 
         const existingUser = await User.findOne({ username: { $regex: new RegExp(`^${cleanUsername}$`, "i") } });
 
-        // === PROSES REGISTER ===
         if (action === "register") {
           if (existingUser) {
             return res.status(400).json({ success: false, message: "Username sudah terdaftar" });
@@ -90,9 +89,7 @@ module.exports = async function handler(req, res) {
           });
         }
 
-        // === PROSES LOGIN ===
         if (isEnvAdmin) {
-          // Jika cocok dengan .env admin tapi belum ada di MongoDB, otomatis buatkan di MongoDB
           if (!existingUser) {
             await User.create({ username: cleanUsername, password, isAdmin: true });
           } else if (!existingUser.isAdmin || existingUser.password !== password) {
@@ -119,6 +116,25 @@ module.exports = async function handler(req, res) {
         });
       }
 
+      if (action === "setDeadline") {
+        const { startTime, endTime } = body || {};
+        if (!startTime || !endTime) {
+          return res.status(400).json({ success: false, message: "Waktu mulai dan selesai wajib diisi" });
+        }
+
+        await Config.findOneAndUpdate(
+          { key: 'settings' },
+          { startTime: new Date(startTime), endTime: new Date(endTime) },
+          { upsert: true }
+        );
+
+        await sendDiscordWebhook(
+          `🕒 **JADWAL GIVEAWAY DIATUR** oleh **${cleanUsername}**\n• Mulai: ${new Date(startTime).toLocaleString('id-ID')}\n• Selesai: ${new Date(endTime).toLocaleString('id-ID')}`
+        );
+
+        return res.status(200).json({ success: true, message: "Jadwal giveaway berhasil disimpan!" });
+      }
+
       if (action === "reset") {
         await Participant.deleteMany({});
         await Config.findOneAndUpdate({ key: 'settings' }, { winnerUsername: null, winnerNumber: null }, { upsert: true });
@@ -132,4 +148,4 @@ module.exports = async function handler(req, res) {
     console.error("API Data Error:", err);
     return res.status(500).json({ success: false, error: "Server Error", details: err.message });
   }
-};
+}
