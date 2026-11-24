@@ -2,8 +2,14 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Giveaways Picker - Music Player</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#11161d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="GP Music" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="https://i.imgur.com/53m3Fo5.png" />
+  <title>Giveaways Picker - Music & Video Player</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *,
@@ -26,7 +32,7 @@
     /* === HEADER ALA OTAKUDESU === */
     .site-header {
       background-color: #11161d;
-      padding: 20px 20px 16px;
+      padding: 18px 20px 14px;
       text-align: left;
       border-bottom: 1px solid #1e293b;
       position: relative;
@@ -36,11 +42,16 @@
     .header-inner {
       max-width: 1120px;
       margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     .site-title {
       margin: 0;
-      font-size: 30px;
+      font-size: 28px;
       font-weight: 800;
       color: #ffffff;
       letter-spacing: 1.5px;
@@ -57,6 +68,59 @@
       padding: 2px 8px;
       border-radius: 3px;
       letter-spacing: 0.5px;
+    }
+
+    /* === TOMBOL INSTALL APK & STATUS JARINGAN === */
+    .pwa-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .net-badge {
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 20px;
+      background: #1e293b;
+      border: 1px solid #334155;
+    }
+
+    .net-badge.online {
+      color: #4ade80;
+      border-color: rgba(74, 222, 128, 0.4);
+    }
+
+    .net-badge.offline {
+      color: #fb923c;
+      border-color: rgba(251, 146, 60, 0.5);
+    }
+
+    .btn-install-apk {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 20px;
+      border: none;
+      background: linear-gradient(135deg, #1db954, #16a34a);
+      color: #000000;
+      font-family: 'Poppins', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(29, 185, 84, 0.35);
+    }
+
+    .ios-hint {
+      display: none;
+      background: #1e293b;
+      color: #e2e8f0;
+      font-size: 11.5px;
+      padding: 8px 14px;
+      text-align: center;
+      border-bottom: 1px solid #334155;
     }
 
     /* === NAVBAR ALA OTAKUDESU === */
@@ -112,7 +176,7 @@
       padding: 18px;
       display: flex;
       flex-direction: column;
-      max-height: 640px;
+      max-height: 660px;
       box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
     }
 
@@ -162,7 +226,7 @@
       color: #000000;
       font-family: 'Poppins', sans-serif;
       font-weight: 700;
-      font-size: 13.5px;
+      font-size: 13px;
       border: none;
       border-radius: 24px;
       cursor: pointer;
@@ -311,6 +375,7 @@
       display: flex;
       align-items: center;
       gap: 5px;
+      margin-top: 2px;
     }
 
     .tag-pill {
@@ -324,6 +389,8 @@
     .tag-spotify { background: rgba(29, 185, 84, 0.2); color: #1db954; }
     .tag-youtube { background: rgba(239, 68, 68, 0.2); color: #f87171; }
     .tag-local { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .tag-video { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+    .tag-sync { background: rgba(251, 146, 60, 0.2); color: #fb923c; }
 
     .btn-del-track {
       background: transparent;
@@ -384,13 +451,22 @@
     .now-playing-header {
       display: flex;
       align-items: center;
-      gap: 16px;
+      justify-content: space-between;
+      gap: 12px;
       margin-bottom: 16px;
     }
 
+    .now-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+      flex: 1;
+    }
+
     .album-art {
-      width: 72px;
-      height: 72px;
+      width: 68px;
+      height: 68px;
       border-radius: 10px;
       background: linear-gradient(135deg, #1db954, #2563eb);
       display: flex;
@@ -416,7 +492,7 @@
 
     .now-playing-title {
       margin: 4px 0;
-      font-size: 20px;
+      font-size: 19px;
       font-weight: 700;
       color: #ffffff;
       white-space: nowrap;
@@ -425,18 +501,35 @@
     }
 
     .now-playing-sub {
-      font-size: 12.5px;
+      font-size: 12px;
       color: #b3b3b3;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    /* STAGE AREA: VISUALIZER / YOUTUBE / SPOTIFY EMBED */
+    .btn-mode-toggle {
+      background: #282828;
+      color: #e2e8f0;
+      border: 1px solid #3f3f46;
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .btn-mode-toggle:hover {
+      background: #3f3f46;
+    }
+
+    /* STAGE AREA: VIDEO / VISUALIZER / YOUTUBE / SPOTIFY EMBED */
     .stage-box {
       position: relative;
       width: 100%;
-      height: 265px;
+      height: 290px;
       border-radius: 12px;
       overflow: hidden;
       background:
@@ -453,6 +546,14 @@
       width: 100%;
       height: 100%;
       display: block;
+    }
+
+    video#videoPlayer {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000000;
+      display: none;
     }
 
     #ytContainer,
@@ -512,11 +613,11 @@
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 13px;
-      height: 13px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
       background: #ffffff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
       cursor: pointer;
       transition: transform 0.15s, background 0.15s;
     }
@@ -534,7 +635,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 20px;
+      gap: 18px;
       margin-bottom: 16px;
     }
 
@@ -579,10 +680,9 @@
       background: #1db954;
     }
 
-    /* Tombol Play/Pause Bulat Khas Spotify */
     .sp-btn.play-circle {
-      width: 48px;
-      height: 48px;
+      width: 50px;
+      height: 50px;
       background: #ffffff;
       color: #000000;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
@@ -664,13 +764,17 @@
 
     /* === RESPONSIVE MOBILE === */
     @media screen and (max-width: 820px) {
-      .site-header {
+      .header-inner {
+        flex-direction: column;
         text-align: center;
-        padding: 16px 12px;
       }
 
       .site-title {
-        font-size: 24px;
+        font-size: 23px;
+      }
+
+      .pwa-toolbar {
+        justify-content: center;
       }
 
       .nav-container {
@@ -679,39 +783,63 @@
 
       .nav-container a {
         font-size: 12px;
-        padding: 10px 12px;
+        padding: 10px 11px;
       }
 
       .spotify-wrapper {
         grid-template-columns: 1fr;
-      }
-
-      .spotify-sidebar {
-        max-height: 380px;
-        order: 2;
+        margin: 14px auto;
+        padding: 0 12px;
+        gap: 14px;
       }
 
       .spotify-main {
         order: 1;
+        padding: 14px;
+      }
+
+      .spotify-sidebar {
+        order: 2;
+        max-height: 400px;
+        padding: 14px;
       }
 
       .stage-box {
-        height: 210px;
+        height: 220px;
+      }
+
+      .main-buttons {
+        gap: 14px;
       }
 
       .sliders-row {
         grid-template-columns: 1fr;
+        gap: 10px;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- 🔹 Header Title ala Otakudesu -->
+  <!-- Petunjuk Install iOS Safari -->
+  <div id="iosInstallHint" class="ios-hint">
+    📲 Untuk iPhone: tekan ikon <strong>Bagikan (Share)</strong> di bawah lalu pilih <strong>"Tambah ke Layar Utama"</strong>.
+  </div>
+
+  <!-- 🔹 Header Title ala Otakudesu + Tombol Install App -->
   <header class="site-header">
     <div class="header-inner">
-      <h1 class="site-title">GIVEAWAYS PICKER</h1>
-      <span class="site-subtitle">Platform Undian & Tebak Angka Komunitas</span>
+      <div>
+        <h1 class="site-title">GIVEAWAYS PICKER</h1>
+        <span class="site-subtitle">Platform Undian & Tebak Angka Komunitas</span>
+      </div>
+
+      <div class="pwa-toolbar">
+        <span id="networkStatusBadge" class="net-badge online">🟢 Online</span>
+        <button type="button" id="installAppBtn" class="btn-install-apk">
+          📲 Install Aplikasi (APK)
+        </button>
+      </div>
     </div>
   </header>
 
@@ -729,7 +857,7 @@
     </div>
   </nav>
 
-  <!-- 🔹 Spotify Style Music Player -->
+  <!-- 🔹 Spotify Style Music & Video Player -->
   <main class="spotify-wrapper">
     <!-- KIRI: Playlist Lokal Browser -->
     <aside class="spotify-sidebar">
@@ -738,14 +866,14 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="#1db954"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
           Playlist Saya
         </h3>
-        <span class="badge-count" id="trackCount">0 Lagu</span>
+        <span class="badge-count" id="trackCount">0 Media</span>
       </div>
 
       <div class="add-actions">
-        <input type="file" id="fileInput" multiple accept="audio/*" hidden />
+        <input type="file" id="fileInput" multiple accept="audio/*,video/*" hidden />
         <button type="button" class="btn-spotify-add" onclick="document.getElementById('fileInput').click()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-          Tambah File Lagu (MP3)
+          Tambah Lagu / Video (MP3 & MP4)
         </button>
 
         <div class="url-add-box">
@@ -754,39 +882,46 @@
         </div>
 
         <div class="support-tags">
-          <span>✔ Spotify Link</span>
-          <span>✔ YouTube Link</span>
-          <span>✔ MP3 Lokal</span>
+          <span>✔ Spotify</span>
+          <span>✔ YouTube Video</span>
+          <span>✔ MP3 / MP4 Offline</span>
         </div>
       </div>
 
       <div class="playlist-items" id="playlistContainer">
         <div class="empty-playlist">
-          Playlist masih kosong.<br>Tambahkan file lagu atau tempel link <strong>Spotify</strong> / <strong>YouTube</strong> di atas.
+          Playlist masih kosong.<br>Tambahkan file lagu/video lokal atau tempel link <strong>Spotify</strong> / <strong>YouTube</strong> (tetap bisa ditambah saat Offline).
         </div>
       </div>
 
       <button type="button" class="btn-reset-playlist" id="resetBtn">
-        Reset Semua Lagu
+        Reset Semua Lagu & Video
       </button>
     </aside>
 
-    <!-- KANAN: Now Playing & Player Controls -->
+    <!-- KANAN: Now Playing & Video/Visualizer Stage -->
     <section class="spotify-main">
       <div>
         <div class="now-playing-header">
-          <div class="album-art">
-            <svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+          <div class="now-left">
+            <div class="album-art">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+            </div>
+            <div class="now-playing-text">
+              <div class="now-playing-label" id="nowBadge">SIAP DIPUTAR</div>
+              <h2 class="now-playing-title" id="nowTitle">Belum ada media dipilih</h2>
+              <div class="now-playing-sub" id="nowSub">Mendukung Mode Offline, Video & Penyimpanan Lokal</div>
+            </div>
           </div>
-          <div class="now-playing-text">
-            <div class="now-playing-label" id="nowBadge">SIAP DIPUTAR</div>
-            <h2 class="now-playing-title" id="nowTitle">Belum ada lagu dipilih</h2>
-            <div class="now-playing-sub" id="nowSub">Mendukung Spotify, YouTube & penyimpanan lokal browser</div>
-          </div>
+
+          <button type="button" id="toggleVideoBtn" class="btn-mode-toggle" title="Ganti tampilan Video atau Visualizer">
+            🎬 Mode: Video
+          </button>
         </div>
 
-        <!-- Stage: Canvas Visualizer / YouTube IFrame / Spotify Embed -->
+        <!-- Stage: Video Lokal / Canvas Visualizer / YouTube Video / Spotify Embed -->
         <div class="stage-box">
+          <video id="videoPlayer" playsinline></video>
           <canvas id="c"></canvas>
           <div id="ytContainer"><div id="ytPlayer"></div></div>
           <div id="spotifyEmbedContainer"></div>
@@ -802,8 +937,8 @@
         </div>
 
         <div class="main-buttons">
-          <!-- Shuffle / Acak -->
-          <button type="button" class="sp-btn" id="shuffleBtn" title="Acak Lagu">
+          <!-- Shuffle -->
+          <button type="button" class="sp-btn" id="shuffleBtn" title="Acak">
             <svg viewBox="0 0 16 16"><path d="M13.151.922a.75.75 0 1 0-1.06 1.06L13.109 3H11.16a3.75 3.75 0 0 0-2.873 1.34l-6.173 7.356A2.25 2.25 0 0 1 .39 12.5H0V14h.391a3.75 3.75 0 0 0 2.873-1.34l6.173-7.356a2.25 2.25 0 0 1 1.724-.804h1.947l-1.017 1.018a.75.75 0 0 0 1.06 1.06L15.98 3.75 13.15.922zM.391 3.5H0V2h.391c1.109 0 2.16.49 2.873 1.34L4.89 5.277l-.979 1.167-1.796-2.14A2.25 2.25 0 0 0 .39 3.5z"/><path d="m7.5 10.723.98-1.167.957 1.14a2.25 2.25 0 0 0 1.724.804h1.947l-1.017-1.018a.75.75 0 1 1 1.06-1.06l2.829 2.828-2.829 2.828a.75.75 0 1 1-1.06-1.06L13.109 13H11.16a3.75 3.75 0 0 1-2.873-1.34l-.787-.938z"/></svg>
           </button>
 
@@ -817,8 +952,8 @@
             <svg id="playPauseIcon" viewBox="0 0 16 16"><path d="M3 1.713a.7.7 0 0 1 1.05-.607l10.89 6.288a.7.7 0 0 1 0 1.212L4.05 14.894A.7.7 0 0 1 3 14.288V1.713z"/></svg>
           </button>
 
-          <!-- Stop / Reset Posisi -->
-          <button type="button" class="sp-btn" id="stopBtn" title="Stop & Reset Lagu">
+          <!-- Stop / Reset -->
+          <button type="button" class="sp-btn" id="stopBtn" title="Stop & Reset">
             <svg viewBox="0 0 16 16"><path d="M2.5 2.5h11v11h-11v-11z"/></svg>
           </button>
 
@@ -827,8 +962,8 @@
             <svg viewBox="0 0 16 16"><path d="M12.7 1a.7.7 0 0 0-.7.7v5.15L2.05 1.107A.7.7 0 0 0 1 1.712v12.575a.7.7 0 0 0 1.05.607L12 9.149V14.3a.7.7 0 0 0 .7.7h1.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7h-1.6z"/></svg>
           </button>
 
-          <!-- Repeat / Loop -->
-          <button type="button" class="sp-btn" id="loopBtn" title="Ulangi Lagu">
+          <!-- Loop -->
+          <button type="button" class="sp-btn" id="loopBtn" title="Ulangi">
             <svg viewBox="0 0 16 16"><path d="M0 4.75A3.75 3.75 0 0 1 3.75 1h8.5A3.75 3.75 0 0 1 16 4.75v5a3.75 3.75 0 0 1-3.75 3.75H9.81l1.018 1.018a.75.75 0 1 1-1.06 1.06L6.939 12.75l2.829-2.828a.75.75 0 1 1 1.06 1.06L9.811 12h2.439a2.25 2.25 0 0 0 2.25-2.25v-5a2.25 2.25 0 0 0-2.25-2.25h-8.5A2.25 2.25 0 0 0 1.5 4.75v5A2.25 2.25 0 0 0 3.75 12H5v1.5H3.75A3.75 3.75 0 0 1 0 9.75v-5z"/></svg>
           </button>
         </div>
@@ -865,26 +1000,30 @@
 
   <audio id="audio" crossorigin="anonymous"></audio>
   <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="/js/music-mobile-pwa.js"></script>
 
   <script>
     const ICON_PLAY = '<path d="M3 1.713a.7.7 0 0 1 1.05-.607l10.89 6.288a.7.7 0 0 1 0 1.212L4.05 14.894A.7.7 0 0 1 3 14.288V1.713z"/>';
     const ICON_PAUSE = '<path d="M2.7 1a.7.7 0 0 0-.7.7v12.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7H2.7zm8 0a.7.7 0 0 0-.7.7v12.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7h-2.6z"/>';
 
     const audio = document.getElementById("audio");
+    const videoPlayer = document.getElementById("videoPlayer");
     const cvs = document.getElementById("c");
     const g = cvs.getContext("2d");
     const ytContainer = document.getElementById("ytContainer");
     const spotifyEmbedContainer = document.getElementById("spotifyEmbedContainer");
     const playPauseIcon = document.getElementById("playPauseIcon");
 
-    let ctx, analyser, src, data, bassEQ, gainNode;
+    let activeMediaEl = audio; // bisa audio atau videoPlayer
+    let ctx, analyser, data, bassEQ, gainNode;
+    let audioSrcNode, videoSrcNode;
     let tracks = [];
     let currentIndex = -1;
     let activeBlobUrl = null;
     let isLoop = false;
     let isShuffle = false;
 
-    /* === YOUTUBE IFRAME PLAYER STATE === */
+    /* === YOUTUBE IFRAME PLAYER === */
     let ytPlayer = null;
     let ytReady = false;
     let ytTimer = null;
@@ -893,7 +1032,7 @@
       ytPlayer = new YT.Player("ytPlayer", {
         height: "100%",
         width: "100%",
-        playerVars: { autoplay: 1, controls: 1, rel: 0 },
+        playerVars: { autoplay: 1, controls: 1, playsinline: 1, rel: 0 },
         events: {
           onReady: () => { ytReady = true; },
           onStateChange: (e) => {
@@ -937,42 +1076,42 @@
     function parseMediaLink(rawUrl) {
       const url = rawUrl.trim();
 
-      // 1. Cek Spotify URL (track / album / playlist / episode)
       const spMatch = url.match(/open\.spotify\.com\/(?:intl-[a-z]+\/)?(track|album|playlist|episode)\/([a-zA-Z0-9]+)/);
       if (spMatch) {
         const kind = spMatch[1];
         const id = spMatch[2];
         return {
           type: "spotify",
-          name: `Spotify ${kind.charAt(0).toUpperCase() + kind.slice(1)} (${id.slice(0, 6)}...)`,
+          name: `Spotify ${kind.charAt(0).toUpperCase() + kind.slice(1)} (${id.slice(0, 6)})`,
           embedUrl: `https://open.spotify.com/embed/${kind}/${id}?utm_source=generator&theme=0`,
-          url
+          url,
+          pendingSync: !navigator.onLine
         };
       }
 
-      // 2. Cek YouTube URL (watch?v=, youtu.be/, shorts/, music.youtube.com)
       const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
       if (ytMatch) {
         const videoId = ytMatch[1];
         return {
           type: "youtube",
-          name: `YouTube Audio (${videoId})`,
+          name: `YouTube Video (${videoId})`,
           videoId,
-          url
+          url,
+          pendingSync: !navigator.onLine
         };
       }
 
-      // 3. Direct Audio URL (.mp3 / .ogg / .wav)
       const cleanName = url.split("/").pop().split("?")[0] || "Audio Stream";
       return {
         type: "url",
         name: decodeURIComponent(cleanName),
-        url
+        url,
+        pendingSync: false
       };
     }
 
     /* === INDEXEDDB PENYIMPANAN LOKAL BROWSER === */
-    const DB_NAME = "GiveawayMusicDB_v2";
+    const DB_NAME = "GiveawayMusicPWA_DB";
     const STORE_NAME = "playlist";
 
     function openDB() {
@@ -989,7 +1128,7 @@
       });
     }
 
-    async function getAllTracksDB() {
+    window.getAllTracksDB = async function () {
       const db = await openDB();
       return new Promise((resolve, reject) => {
         const tx = db.transaction(STORE_NAME, "readonly");
@@ -997,7 +1136,7 @@
         req.onsuccess = () => resolve(req.result || []);
         req.onerror = () => reject(req.error);
       });
-    }
+    };
 
     async function addTrackDB(item) {
       const db = await openDB();
@@ -1008,6 +1147,16 @@
         req.onerror = () => reject(req.error);
       });
     }
+
+    window.updateTrackDB = async function (item) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        const req = tx.objectStore(STORE_NAME).put(item);
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+      });
+    };
 
     async function deleteTrackDB(id) {
       const db = await openDB();
@@ -1029,7 +1178,7 @@
       });
     }
 
-    /* === AUDIO CONTEXT & VISUALIZER === */
+    /* === AUDIO GRAPH & VISUALIZER === */
     function resizeCanvas() {
       const box = cvs.parentElement;
       cvs.width = box.clientWidth;
@@ -1038,36 +1187,43 @@
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
-    function initAudioGraph() {
-      if (ctx) {
-        if (ctx.state === "suspended") ctx.resume();
-        return;
+    function initAudioGraph(targetEl) {
+      if (!ctx) {
+        ctx = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = ctx.createAnalyser();
+        analyser.fftSize = 256;
+        data = new Uint8Array(analyser.frequencyBinCount);
+
+        gainNode = ctx.createGain();
+        gainNode.gain.value = document.getElementById("vol").value;
+
+        bassEQ = ctx.createBiquadFilter();
+        bassEQ.type = "lowshelf";
+        bassEQ.frequency.value = 150;
+        bassEQ.gain.value = document.getElementById("bass").value;
+
+        bassEQ.connect(gainNode);
+        gainNode.connect(analyser);
+        analyser.connect(ctx.destination);
+
+        drawVisualizer();
       }
-      ctx = new (window.AudioContext || window.webkitAudioContext)();
-      analyser = ctx.createAnalyser();
-      analyser.fftSize = 256;
-      data = new Uint8Array(analyser.frequencyBinCount);
 
-      gainNode = ctx.createGain();
-      gainNode.gain.value = document.getElementById("vol").value;
+      if (ctx.state === "suspended") ctx.resume();
 
-      bassEQ = ctx.createBiquadFilter();
-      bassEQ.type = "lowshelf";
-      bassEQ.frequency.value = 150;
-      bassEQ.gain.value = document.getElementById("bass").value;
-
-      src = ctx.createMediaElementSource(audio);
-      src.connect(bassEQ);
-      bassEQ.connect(gainNode);
-      gainNode.connect(analyser);
-      analyser.connect(ctx.destination);
-
-      drawVisualizer();
+      if (targetEl === audio && !audioSrcNode) {
+        audioSrcNode = ctx.createMediaElementSource(audio);
+        audioSrcNode.connect(bassEQ);
+      } else if (targetEl === videoPlayer && !videoSrcNode) {
+        videoSrcNode = ctx.createMediaElementSource(videoPlayer);
+        videoSrcNode.connect(bassEQ);
+      }
     }
 
     let shake = 0;
     function drawVisualizer() {
       requestAnimationFrame(drawVisualizer);
+      if (cvs.style.display === "none") return;
       analyser.getByteFrequencyData(data);
 
       const bassAvg = data.slice(0, 12).reduce((a, b) => a + b, 0) / 12;
@@ -1103,6 +1259,11 @@
     function stopAllEngines() {
       audio.pause();
       audio.currentTime = 0;
+      videoPlayer.pause();
+      videoPlayer.currentTime = 0;
+      videoPlayer.dataset.hasVideo = "false";
+      videoPlayer.style.display = "none";
+
       clearInterval(ytTimer);
       if (ytReady && ytPlayer && typeof ytPlayer.stopVideo === "function") {
         ytPlayer.stopVideo();
@@ -1115,15 +1276,15 @@
     }
 
     /* === RENDER & PLAYBACK === */
-    async function refreshPlaylist() {
-      tracks = await getAllTracksDB();
-      document.getElementById("trackCount").textContent = `${tracks.length} Lagu`;
+    window.refreshPlaylist = async function () {
+      tracks = await window.getAllTracksDB();
+      document.getElementById("trackCount").textContent = `${tracks.length} Media`;
 
       const container = document.getElementById("playlistContainer");
       if (tracks.length === 0) {
         container.innerHTML = `
           <div class="empty-playlist">
-            Playlist masih kosong.<br>Tambahkan file lagu atau tempel link <strong>Spotify</strong> / <strong>YouTube</strong> di atas.
+            Playlist masih kosong.<br>Tambahkan file lagu/video lokal atau tempel link <strong>Spotify</strong> / <strong>YouTube</strong> (tetap bisa ditambah saat Offline).
           </div>
         `;
         return;
@@ -1131,9 +1292,12 @@
 
       container.innerHTML = "";
       tracks.forEach((t, idx) => {
-        let badgeHtml = `<span class="tag-pill tag-local">MP3 Lokal</span>`;
-        if (t.type === "spotify") badgeHtml = `<span class="tag-pill tag-spotify">Spotify</span>`;
+        let badgeHtml = `<span class="tag-pill tag-local">Audio Lokal</span>`;
+        if (t.type === "video") badgeHtml = `<span class="tag-pill tag-video">Video Lokal</span>`;
+        else if (t.type === "spotify") badgeHtml = `<span class="tag-pill tag-spotify">Spotify</span>`;
         else if (t.type === "youtube") badgeHtml = `<span class="tag-pill tag-youtube">YouTube</span>`;
+
+        const syncTag = t.pendingSync ? `<span class="tag-pill tag-sync">Antre Online</span>` : "";
 
         const div = document.createElement("div");
         div.className = "track-item" + (idx === currentIndex ? " active" : "");
@@ -1142,10 +1306,10 @@
             <span class="track-num">${idx === currentIndex ? "▶" : idx + 1}</span>
             <div class="track-meta">
               <div class="track-title">${t.name}</div>
-              <div class="track-source">${badgeHtml}</div>
+              <div class="track-source">${badgeHtml} ${syncTag}</div>
             </div>
           </div>
-          <button type="button" class="btn-del-track" title="Hapus lagu ini">✕</button>
+          <button type="button" class="btn-del-track" title="Hapus">✕</button>
         `;
 
         div.querySelector(".track-info").onclick = () => playTrack(idx);
@@ -1155,17 +1319,17 @@
           if (idx === currentIndex) {
             stopAllEngines();
             currentIndex = -1;
-            document.getElementById("nowTitle").textContent = "Belum ada lagu dipilih";
+            document.getElementById("nowTitle").textContent = "Belum ada media dipilih";
             document.getElementById("nowBadge").textContent = "SIAP DIPUTAR";
           } else if (idx < currentIndex) {
             currentIndex--;
           }
-          await refreshPlaylist();
+          await window.refreshPlaylist();
         };
 
         container.appendChild(div);
       });
-    }
+    };
 
     function playTrack(idx) {
       if (idx < 0 || idx >= tracks.length) return;
@@ -1180,19 +1344,31 @@
 
       // MODE 1: SPOTIFY EMBED
       if (track.type === "spotify") {
+        if (!navigator.onLine) {
+          document.getElementById("nowBadge").textContent = "OFFLINE - TERSIMPAN";
+          document.getElementById("nowSub").textContent = "Link Spotify tersimpan lokal, putar saat internet aktif";
+          window.refreshPlaylist();
+          return;
+        }
         document.getElementById("nowBadge").textContent = "SPOTIFY PLAYER";
         document.getElementById("nowSub").textContent = track.url;
         cvs.style.display = "none";
         spotifyEmbedContainer.style.display = "block";
         spotifyEmbedContainer.innerHTML = `<iframe src="${track.embedUrl}" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
         setPlayIcon(true);
-        refreshPlaylist();
+        window.refreshPlaylist();
         return;
       }
 
-      // MODE 2: YOUTUBE PLAYER API
+      // MODE 2: YOUTUBE VIDEO + AUDIO
       if (track.type === "youtube") {
-        document.getElementById("nowBadge").textContent = "YOUTUBE AUDIO";
+        if (!navigator.onLine) {
+          document.getElementById("nowBadge").textContent = "OFFLINE - TERSIMPAN";
+          document.getElementById("nowSub").textContent = "Link YouTube tersimpan lokal, putar saat internet aktif";
+          window.refreshPlaylist();
+          return;
+        }
+        document.getElementById("nowBadge").textContent = "YOUTUBE VIDEO";
         document.getElementById("nowSub").textContent = track.url;
         cvs.style.display = "none";
         ytContainer.style.display = "block";
@@ -1200,29 +1376,53 @@
           ytPlayer.loadVideoById(track.videoId);
           ytPlayer.setVolume(document.getElementById("vol").value * 100);
         }
-        refreshPlaylist();
+        window.refreshPlaylist();
         return;
       }
 
-      // MODE 3: FILE LOKAL / DIRECT AUDIO + VISUALIZER
-      document.getElementById("nowBadge").textContent = "SEDANG DIPUTAR";
+      // MODE 3: FILE VIDEO LOKAL (.MP4 / .WEBM)
       if (activeBlobUrl) {
         URL.revokeObjectURL(activeBlobUrl);
         activeBlobUrl = null;
       }
 
+      if (track.type === "video" && track.blob) {
+        activeBlobUrl = URL.createObjectURL(track.blob);
+        activeMediaEl = videoPlayer;
+        videoPlayer.src = activeBlobUrl;
+        videoPlayer.loop = isLoop;
+        videoPlayer.dataset.hasVideo = "true";
+
+        const showVid = window.GP_PWA ? window.GP_PWA.isVideoMode() : true;
+        videoPlayer.style.display = showVid ? "block" : "none";
+        cvs.style.display = showVid ? "none" : "block";
+
+        document.getElementById("nowBadge").textContent = "VIDEO OFFLINE LOKAL";
+        document.getElementById("nowSub").textContent = "Diputar dari Penyimpanan Lokal Browser";
+
+        initAudioGraph(videoPlayer);
+        videoPlayer.play().then(() => setPlayIcon(true)).catch(() => setPlayIcon(false));
+        window.refreshPlaylist();
+        return;
+      }
+
+      // MODE 4: FILE AUDIO LOKAL / DIRECT URL + VISUALIZER
+      activeMediaEl = audio;
       if (track.type === "file" && track.blob) {
         activeBlobUrl = URL.createObjectURL(track.blob);
         audio.src = activeBlobUrl;
-        document.getElementById("nowSub").textContent = "Penyimpanan Lokal Browser";
+        document.getElementById("nowBadge").textContent = "AUDIO OFFLINE LOKAL";
+        document.getElementById("nowSub").textContent = "Diputar dari Penyimpanan Lokal Browser";
       } else {
         audio.src = track.url;
+        document.getElementById("nowBadge").textContent = "STREAMING AUDIO";
         document.getElementById("nowSub").textContent = track.url;
       }
 
-      initAudioGraph();
+      audio.loop = isLoop;
+      initAudioGraph(audio);
       audio.play().then(() => setPlayIcon(true)).catch(() => setPlayIcon(false));
-      refreshPlaylist();
+      window.refreshPlaylist();
     }
 
     function playNext() {
@@ -1237,24 +1437,27 @@
       }
     }
 
-    /* === EVENT LISTENERS === */
+    /* === TAMBAH FILE LOKAL (AUDIO & VIDEO) === */
     document.getElementById("fileInput").onchange = async (e) => {
       const selected = [...e.target.files];
       if (!selected.length) return;
       const wasEmpty = tracks.length === 0;
 
       for (const file of selected) {
+        const isVideoFile = file.type.startsWith("video/");
         await addTrackDB({
           name: file.name.replace(/\.[^/.]+$/, ""),
-          type: "file",
-          blob: file
+          type: isVideoFile ? "video" : "file",
+          blob: file,
+          pendingSync: false
         });
       }
       e.target.value = "";
-      await refreshPlaylist();
+      await window.refreshPlaylist();
       if (wasEmpty) playTrack(0);
     };
 
+    /* === TAMBAH LINK (BISA SAAT OFFLINE MAUPUN ONLINE) === */
     document.getElementById("addUrlBtn").onclick = async () => {
       const urlEl = document.getElementById("urlInput");
       const rawUrl = urlEl.value.trim();
@@ -1263,29 +1466,33 @@
       const wasEmpty = tracks.length === 0;
       const parsed = parseMediaLink(rawUrl);
 
-      // Coba ambil judul asli lagu Spotify/YouTube via oEmbed publik
-      try {
-        if (parsed.type === "spotify" || parsed.type === "youtube") {
-          const oembedEndpoint = parsed.type === "spotify"
-            ? `https://open.spotify.com/oembed?url=${encodeURIComponent(rawUrl)}`
-            : `https://www.youtube.com/oembed?url=${encodeURIComponent(rawUrl)}&format=json`;
+      // Jika sedang Online, ambil judul asli sekarang; jika Offline, tetap simpan ke IndexedDB lokal & tandai pendingSync
+      if (navigator.onLine && (parsed.type === "spotify" || parsed.type === "youtube")) {
+        try {
+          const oembedEndpoint =
+            parsed.type === "spotify"
+              ? `https://open.spotify.com/oembed?url=${encodeURIComponent(rawUrl)}`
+              : `https://www.youtube.com/oembed?url=${encodeURIComponent(rawUrl)}&format=json`;
           const res = await fetch(oembedEndpoint);
           if (res.ok) {
             const info = await res.json();
-            if (info.title) parsed.name = info.title;
+            if (info.title) {
+              parsed.name = info.title;
+              parsed.pendingSync = false;
+            }
           }
-        }
-      } catch (_) {}
+        } catch (_) {}
+      }
 
       await addTrackDB(parsed);
       urlEl.value = "";
-      await refreshPlaylist();
+      await window.refreshPlaylist();
       if (wasEmpty) playTrack(0);
     };
 
-    // Reset Semua Lagu
+    /* === RESET SEMUA === */
     document.getElementById("resetBtn").onclick = async () => {
-      if (!confirm("Reset dan hapus semua lagu dari playlist lokal browser?")) return;
+      if (!confirm("Reset dan hapus semua lagu & video dari playlist lokal browser?")) return;
       stopAllEngines();
       if (activeBlobUrl) {
         URL.revokeObjectURL(activeBlobUrl);
@@ -1295,16 +1502,16 @@
       await clearTracksDB();
 
       document.getElementById("nowBadge").textContent = "SIAP DIPUTAR";
-      document.getElementById("nowTitle").textContent = "Belum ada lagu dipilih";
+      document.getElementById("nowTitle").textContent = "Belum ada media dipilih";
       document.getElementById("nowSub").textContent = "Playlist telah di-reset";
       document.getElementById("seek").value = 0;
       document.getElementById("currTime").textContent = "0:00";
       document.getElementById("durTime").textContent = "0:00";
 
-      await refreshPlaylist();
+      await window.refreshPlaylist();
     };
 
-    // Tombol Play / Pause
+    /* === PLAY / PAUSE / STOP === */
     document.getElementById("playPauseBtn").onclick = () => {
       if (!tracks.length) return;
       if (currentIndex === -1) {
@@ -1327,17 +1534,16 @@
 
       if (track.type === "spotify") return;
 
-      if (audio.paused) {
-        initAudioGraph();
-        audio.play();
+      if (activeMediaEl.paused) {
+        initAudioGraph(activeMediaEl);
+        activeMediaEl.play();
         setPlayIcon(true);
       } else {
-        audio.pause();
+        activeMediaEl.pause();
         setPlayIcon(false);
       }
     };
 
-    // Tombol Stop & Reset posisi ke 0:00
     document.getElementById("stopBtn").onclick = () => {
       if (currentIndex === -1) return;
       const track = tracks[currentIndex];
@@ -1346,8 +1552,8 @@
         ytPlayer.seekTo(0);
         ytPlayer.pauseVideo();
       } else {
-        audio.pause();
-        audio.currentTime = 0;
+        activeMediaEl.pause();
+        activeMediaEl.currentTime = 0;
       }
       setPlayIcon(false);
       document.getElementById("seek").value = 0;
@@ -1365,6 +1571,7 @@
     document.getElementById("loopBtn").onclick = (e) => {
       isLoop = !isLoop;
       audio.loop = isLoop;
+      videoPlayer.loop = isLoop;
       e.currentTarget.classList.toggle("active", isLoop);
     };
 
@@ -1376,7 +1583,10 @@
     document.getElementById("vol").oninput = (e) => {
       const val = parseFloat(e.target.value);
       if (gainNode) gainNode.gain.value = val;
-      else audio.volume = val;
+      else {
+        audio.volume = val;
+        videoPlayer.volume = val;
+      }
       if (ytReady && ytPlayer && typeof ytPlayer.setVolume === "function") {
         ytPlayer.setVolume(val * 100);
       }
@@ -1393,12 +1603,21 @@
       return `${m}:${s}`;
     }
 
-    audio.ontimeupdate = () => {
-      const pct = (audio.currentTime / audio.duration) * 100 || 0;
-      document.getElementById("seek").value = pct;
-      document.getElementById("currTime").textContent = formatTime(audio.currentTime);
-      document.getElementById("durTime").textContent = formatTime(audio.duration);
-    };
+    function bindProgress(el) {
+      el.ontimeupdate = () => {
+        if (activeMediaEl !== el) return;
+        const pct = (el.currentTime / el.duration) * 100 || 0;
+        document.getElementById("seek").value = pct;
+        document.getElementById("currTime").textContent = formatTime(el.currentTime);
+        document.getElementById("durTime").textContent = formatTime(el.duration);
+      };
+      el.onended = () => {
+        if (!isLoop) playNext();
+      };
+    }
+
+    bindProgress(audio);
+    bindProgress(videoPlayer);
 
     document.getElementById("seek").oninput = (e) => {
       if (currentIndex === -1) return;
@@ -1408,17 +1627,13 @@
       if (track.type === "youtube" && ytReady && ytPlayer) {
         const dur = ytPlayer.getDuration();
         if (dur) ytPlayer.seekTo(pct * dur, true);
-      } else if (audio.duration) {
-        audio.currentTime = pct * audio.duration;
+      } else if (activeMediaEl.duration) {
+        activeMediaEl.currentTime = pct * activeMediaEl.duration;
       }
     };
 
-    audio.onended = () => {
-      if (!isLoop) playNext();
-    };
-
     // Muat playlist tersimpan saat halaman dibuka
-    refreshPlaylist();
+    window.refreshPlaylist();
   </script>
 </body>
 </html>
