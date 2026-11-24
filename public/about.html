@@ -2,116 +2,371 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tentang Giveaway</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Giveaways Picker - Tentang</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-  * {
-  box-sizing: border-box;
-}
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
 
-body {
-  font-family: 'Poppins', sans-serif;
-  margin: 0;
-  background: linear-gradient(135deg, #1f1c2c, #928dab);
-  color: #e0e0e0;
-}
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
+      background-attachment: fixed;
+      background-size: cover;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: #1e293b;
+    }
 
-.navbar {
-  background-color: #0f0f1a;
-  color: white;
-  padding: 15px 25px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-}
+    /* === HEADER ALA OTAKUDESU === */
+    .site-header {
+      background-color: #11161d;
+      padding: 22px 20px 18px;
+      text-align: left;
+      border-bottom: 1px solid #1e293b;
+    }
 
-.navbar .nav-links a {
-  color: white;
-  margin-left: 20px;
-  text-decoration: none;
-  font-weight: 600;
-  transition: color 0.2s;
-}
+    .header-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+    }
 
-.navbar .nav-links a:hover {
-  color: #00f7ff;
-  text-shadow: 0 0 5px #00f7ff;
-}
+    .site-title {
+      margin: 0;
+      font-size: 32px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 1.5px;
+      line-height: 1.1;
+    }
 
-.container {
-  max-width: 1080px;
-  margin: 30px auto;
-  padding: 30px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-  backdrop-filter: blur(12px);
-}
+    .site-subtitle {
+      display: inline-block;
+      margin-top: 4px;
+      background-color: #2563eb;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 3px;
+      letter-spacing: 0.5px;
+    }
 
-h2 {
-  color: #ffffff;
-  font-size: 26px;
-  margin-bottom: 15px;
-  text-align: center;
-  text-shadow: 0 0 10px #00f7ff;
-}
+    /* === NAVBAR ALA OTAKUDESU === */
+    .otaku-navbar {
+      background-color: #181f29;
+      border-bottom: 3px solid #2563eb;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
 
-p, li {
-  font-size: 16px;
-  line-height: 1.7;
-  margin-bottom: 20px;
-  color: #e0e0e0;
-}
+    .nav-container {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+    }
 
-ul {
-  padding-left: 20px;
-}
+    .nav-container a {
+      color: #e2e8f0;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 13px 16px;
+      letter-spacing: 0.5px;
+      transition: background-color 0.2s, color 0.2s;
+    }
 
-@media (max-width: 600px) {
-  .container {
-    margin: 10px;
-    padding: 20px;
-  }
+    .nav-container a:hover,
+    .nav-container a.active {
+      background-color: #2563eb;
+      color: #ffffff;
+    }
 
-  h2 {
-    font-size: 22px;
-  }
-}
+    /* === MAIN WRAPPER & CARD === */
+    .main-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 35px 16px;
+    }
 
-</style>
+    .container {
+      width: 100%;
+      max-width: 820px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      padding: 36px 40px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14), inset 0 1px 0 #ffffff;
+      animation: fadeInUp 0.45s ease;
+    }
 
+    h2 {
+      color: #0f172a;
+      font-size: 26px;
+      margin: 0 0 18px 0;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    p {
+      font-size: 15.5px;
+      line-height: 1.75;
+      margin: 0 0 16px 0;
+      color: #334155;
+    }
+
+    .section-label {
+      font-weight: 700;
+      color: #0f172a;
+      margin-top: 20px;
+      margin-bottom: 12px;
+    }
+
+    ul.feature-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 22px 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    ul.feature-list li {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 13px 16px;
+      font-size: 14.5px;
+      font-weight: 500;
+      color: #0f172a;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+
+    .closing-note {
+      text-align: center;
+      font-weight: 600;
+      color: #1e40af;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin: 22px 0 0 0;
+    }
+
+    /* === BUTTON GROUP === */
+    .action-row {
+      margin-top: 22px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .btn-silver-jp {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 24px;
+      background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%);
+      color: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 9px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+    }
+
+    .btn-silver-jp::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+      transition: 0.5s;
+    }
+
+    .btn-silver-jp:hover::after {
+      left: 100%;
+    }
+
+    .btn-silver-jp:hover {
+      background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.22), inset 0 1px 0 #ffffff;
+      transform: translateY(-2px);
+      color: #020617;
+    }
+
+    /* === FOOTER ALA OTAKUDESU === */
+    .otaku-footer {
+      background-color: #11161d;
+      color: #94a3b8;
+      text-align: center;
+      padding: 20px 15px;
+      border-top: 3px solid #2563eb;
+      font-size: 13px;
+    }
+
+    .footer-links {
+      margin-bottom: 8px;
+    }
+
+    .footer-links a {
+      color: #e2e8f0;
+      text-decoration: none;
+      font-weight: 600;
+      margin: 0 10px;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: #38bdf8;
+    }
+
+    .footer-links span {
+      color: #475569;
+    }
+
+    .footer-copy {
+      font-size: 12px;
+      color: #94a3b8;
+      letter-spacing: 0.3px;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* === RESPONSIVE MOBILE === */
+    @media screen and (max-width: 768px) {
+      .site-header {
+        text-align: center;
+        padding: 16px 12px;
+      }
+
+      .site-title {
+        font-size: 24px;
+      }
+
+      .nav-container {
+        justify-content: center;
+      }
+
+      .nav-container a {
+        font-size: 12px;
+        padding: 10px 12px;
+      }
+
+      .container {
+        padding: 24px 18px;
+      }
+
+      h2 {
+        font-size: 21px;
+      }
+
+      ul.feature-list {
+        grid-template-columns: 1fr;
+      }
+
+      .action-row {
+        flex-direction: column;
+      }
+
+      .btn-silver-jp {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
 
-  <div class="navbar">
-    <div><strong>🎁 Giveaway</strong></div>
-    <div class="nav-links">
-      <a href="/">Beranda</a>
-      <a href="/shop.html">Shop</a>
-      <a href="/about.html">Tentang</a>
-      <a href="/login.html">Login</a>
-      <a href="/register.html">Register</a>
-      <a href="/event.html">Event</a>
-      <a href="/info.html">Tentang Website</a>
+  <!-- 🔹 Header Title ala Otakudesu -->
+  <header class="site-header">
+    <div class="header-inner">
+      <h1 class="site-title">GIVEAWAYS PICKER</h1>
+      <span class="site-subtitle">Platform Undian & Tebak Angka Komunitas</span>
     </div>
-  </div>
+  </header>
 
-  <div class="container">
-    <h2>❓ Apa Itu Giveaway Picker?</h2>
-    <p>
-      <strong>Giveaway Picker</strong> adalah sistem interaktif yang dibuat untuk mengadakan event giveaway secara adil dan otomatis. Sistem ini terhubung langsung dengan Google Sheet dan Discord, memungkinkan peserta mendaftar, menebak angka, dan melihat status pemenang secara real-time.
-    </p>
+  <!-- 🔹 Menu Navbar ala Otakudesu -->
+  <nav class="otaku-navbar">
+    <div class="nav-container">
+      <a href="/home">HOME</a>
+      <a href="/shop">SHOP</a>
+      <a href="/about" class="active">TENTANG</a>
+      <a href="/login">LOGIN</a>
+      <a href="/register">REGISTER</a>
+      <a href="/event">EVENT</a>
+      <a href="/info">TENTANG WEBSITE</a>
+      <a href="/music">MUSIC</a>
+    </div>
+  </nav>
 
-    <p>Fitur unggulan:</p>
-    <ul>
-      <li>✅ Validasi user melalui login/register</li>
-      <li>🎯 Pemilihan pemenang acak secara transparan</li>
-      <li>📢 Notifikasi otomatis ke Discord</li>
-      <li>🔐 Sistem anti-spam dan hanya 1 entry/hari</li>
-    </ul>
+  <!-- 🔹 Main Content -->
+  <main class="main-wrapper">
+    <div class="container">
+      <h2>❓ Apa Itu Giveaways Picker?</h2>
+      <p>
+        <strong>Giveaways Picker</strong> adalah platform interaktif yang dirancang untuk menyelenggarakan event giveaway Robux dan hadiah komunitas secara adil, transparan, dan otomatis. Sistem ini terintegrasi langsung dengan database <strong>MongoDB</strong> dan <strong>Discord Webhook</strong>, memungkinkan peserta mendaftar, menebak angka keberuntungan, serta memantau hasil pemenang secara real-time.
+      </p>
 
-    <p>Terima kasih telah menggunakan platform kami! 🎉</p>
-  </div>
+      <p class="section-label">✨ Fitur Unggulan:</p>
+      <ul class="feature-list">
+        <li>✅ Validasi akun peserta melalui sistem Login & Register</li>
+        <li>🎯 Pemilihan pemenang acak secara otomatis & transparan</li>
+        <li>📢 Notifikasi status & pemenang real-time ke server Discord</li>
+        <li>🔐 Proteksi anti-spam dengan batas 1 tebakan angka per hari</li>
+      </ul>
+
+      <p class="closing-note">Terima kasih telah berpartisipasi dan menjadi bagian dari komunitas kami! 🎉</p>
+
+      <div class="action-row">
+        <a href="/home" class="btn-silver-jp">🎲 Ikut Giveaway Sekarang</a>
+        <a href="https://discord.gg/4vNhCF5EHw" target="_blank" class="btn-silver-jp">💬 Gabung Server Discord</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- 🔹 Footer ala Otakudesu -->
+  <footer class="otaku-footer">
+    <div class="footer-links">
+      <a href="/about">About</a>
+      <span>|</span>
+      <a href="/info">Tentang</a>
+      <span>|</span>
+      <a href="/event">Tips</a>
+    </div>
+    <div class="footer-copy">
+      &copy; rakanaditya 2026
+    </div>
+  </footer>
+
 </body>
 </html>
