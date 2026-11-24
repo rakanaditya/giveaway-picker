@@ -7,35 +7,61 @@
     });
   }
 
-  /* === 2. TOMBOL INSTALL KE LAYAR UTAMA (SEPERTI APK) === */
+/* === 2. TOMBOL INSTALL KE LAYAR UTAMA (SELALU TAMPIL DI BROWSER) === */
   let deferredPrompt = null;
   const installBtn = document.getElementById("installAppBtn");
   const iosHint = document.getElementById("iosInstallHint");
 
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true;
+
+  // Sembunyikan tombol hanya jika sudah dibuka sebagai aplikasi ter-install
+  if (installBtn) {
+    installBtn.style.display = isStandalone ? "none" : "inline-flex";
+  }
+
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    if (installBtn) installBtn.style.display = "inline-flex";
+    if (installBtn && !isStandalone) {
+      installBtn.style.display = "inline-flex";
+    }
+  });
+
+  window.addEventListener("appinstalled", () => {
+    deferredPrompt = null;
+    if (installBtn) installBtn.style.display = "none";
   });
 
   if (installBtn) {
     installBtn.addEventListener("click", async () => {
-      if (!deferredPrompt) return;
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === "accepted") {
-        installBtn.style.display = "none";
+      // Jika prompt otomatis dari browser tersedia, langsung munculkan
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === "accepted") {
+          installBtn.style.display = "none";
+        }
+        deferredPrompt = null;
+        return;
       }
-      deferredPrompt = null;
+
+      // Fallback jika baru saja uninstall (browser menahan prompt otomatis) atau di iOS
+      if (isIOS) {
+        alert('Cara Install di iPhone/iPad:\n1. Tekan ikon Bagikan (Share) di bawah browser Safari.\n2. Pilih "Tambah ke Layar Utama" (Add to Home Screen).');
+      } else {
+        alert('Cara Install Aplikasi:\n1. Tekan ikon titik tiga (⋮) di pojok kanan atas browser.\n2. Pilih "Tambahkan ke layar utama" atau "Install aplikasi".');
+      }
     });
   }
 
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
   if (isIOS && !isStandalone && iosHint) {
     iosHint.style.display = "block";
   }
 
+  
   /* === 3. DETEKSI ONLINE / OFFLINE & SINKRONISASI ANTREAN === */
   const netBadge = document.getElementById("networkStatusBadge");
 
