@@ -1,5 +1,7 @@
-/* === GLOBAL & JAPANESE SILVER BACKGROUND === */
-{
+/* public/css/admin.css */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -16,7 +18,7 @@ body {
   color: #1e293b;
 }
 
-/* === HEADER TITLE (STYLE OTAKUDESU) === */
+/* === HEADER ALA OTAKUDESU === */
 .site-header {
   background-color: #11161d;
   padding: 22px 20px 18px;
@@ -50,7 +52,7 @@ body {
   letter-spacing: 0.5px;
 }
 
-/* === NAVBAR MENU (STYLE OTAKUDESU) === */
+/* === NAVBAR ALA OTAKUDESU === */
 .otaku-navbar {
   background-color: #181f29;
   border-bottom: 3px solid #2563eb;
@@ -81,7 +83,7 @@ body {
   color: #ffffff;
 }
 
-/* === MAIN WRAPPER & CARD === */
+/* === MAIN CARD === */
 .main-wrapper {
   flex: 1;
   display: flex;
@@ -92,13 +94,13 @@ body {
 
 .container.giveaway-box {
   width: 100%;
-  max-width: 520px;
+  max-width: 500px;
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  padding: 35px 40px;
+  padding: 36px 36px 32px;
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.95);
   box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14), inset 0 1px 0 #ffffff;
   text-align: center;
   animation: fadeInUp 0.45s ease;
@@ -106,8 +108,7 @@ body {
 
 h2 {
   color: #0f172a;
-  margin-top: 0;
-  margin-bottom: 10px;
+  margin: 0 0 12px 0;
   font-weight: 700;
   font-size: 24px;
 }
@@ -116,45 +117,57 @@ h2 {
   display: inline-block;
   background: rgba(37, 99, 235, 0.1);
   color: #1e40af;
-  padding: 6px 14px;
+  padding: 6px 16px;
   border-radius: 20px;
-  font-size: 14px;
-  margin-bottom: 22px;
+  font-size: 13.5px;
+  margin: 0 0 22px 0;
   border: 1px solid rgba(37, 99, 235, 0.25);
 }
 
 .admin-section {
   text-align: left;
-  margin-bottom: 15px;
+  width: 100%;
 }
 
 .admin-section h3 {
   font-size: 16px;
   color: #0f172a;
-  margin-bottom: 12px;
+  margin: 0 0 12px 0;
   font-weight: 700;
 }
 
+/* === FORM & KOTAK INPUT SERAGAM === */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
 .form-group {
-  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
 }
 
 .form-group label {
-  display: block;
   font-size: 13px;
   font-weight: 600;
   color: #334155;
-  margin-bottom: 5px;
 }
 
 input[type="datetime-local"] {
+  display: block;
   width: 100%;
-  padding: 11px 14px;
-  font-size: 14px;
+  height: 46px;
+  padding: 0 15px;
+  margin: 0;
+  font-size: 14.5px;
   font-family: 'Poppins', sans-serif;
-  border: 1px solid #cbd5e1;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 8px;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  border-radius: 9px;
   color: #0f172a;
   transition: border-color 0.25s, box-shadow 0.25s;
 }
@@ -163,7 +176,7 @@ input[type="datetime-local"]:focus {
   border-color: #2563eb;
   background: #ffffff;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
 }
 
 .divider {
@@ -171,27 +184,74 @@ input[type="datetime-local"]:focus {
   height: 1px;
   background: #cbd5e1;
   margin: 22px 0;
+  width: 100%;
+}
+
+/* === DAFTAR PESERTA ADMIN === */
+.participants-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px 0;
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 9px;
+  background: #ffffff;
+}
+
+.participants-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #0f172a;
+}
+
+.participants-list li:last-child {
+  border-bottom: none;
+}
+
+.participants-list li.empty-text {
+  justify-content: center;
+  color: #64748b;
+  font-style: italic;
+}
+
+.badge-num {
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  border: 1px solid #bfdbfe;
 }
 
 /* === JAPANESE MODERN SILVER BUTTON === */
 .btn-silver-jp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   width: 100%;
+  min-height: 46px;
+  padding: 11px 18px;
   background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%);
   color: #0f172a;
   border: 1px solid rgba(255, 255, 255, 0.95);
-  padding: 12px 22px;
   font-family: 'Poppins', sans-serif;
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 600;
-  border-radius: 8px;
+  border-radius: 9px;
   cursor: pointer;
-  margin-top: 8px;
   box-shadow: 0 4px 14px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.85);
   transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  letter-spacing: 0.4px;
-  display: inline-block;
+  letter-spacing: 0.3px;
+  text-decoration: none;
   text-align: center;
 }
 
@@ -202,7 +262,7 @@ input[type="datetime-local"]:focus {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
   transition: 0.5s;
 }
 
@@ -222,6 +282,11 @@ input[type="datetime-local"]:focus {
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15);
 }
 
+.btn-silver-jp.btn-primary-accent {
+  border-color: rgba(37, 99, 235, 0.35);
+  color: #1e40af;
+}
+
 .btn-silver-jp.btn-danger {
   border-color: rgba(239, 68, 68, 0.4);
   color: #b91c1c;
@@ -235,11 +300,11 @@ input[type="datetime-local"]:focus {
 .status-message {
   margin-top: 16px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13.5px;
   min-height: 20px;
 }
 
-/* === FOOTER (STYLE OTAKUDESU) === */
+/* === FOOTER ALA OTAKUDESU === */
 .otaku-footer {
   background-color: #11161d;
   color: #94a3b8;
@@ -286,7 +351,7 @@ input[type="datetime-local"]:focus {
   }
 }
 
-/* === RESPONSIVE MOBILE & TABLET === */
+/* === RESPONSIVE MOBILE === */
 @media screen and (max-width: 768px) {
   .site-header {
     text-align: center;
@@ -307,7 +372,7 @@ input[type="datetime-local"]:focus {
   }
 
   .container.giveaway-box {
-    padding: 24px 18px;
+    padding: 26px 20px;
   }
 
   h2 {
