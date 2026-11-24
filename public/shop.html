@@ -2,385 +2,556 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Shop</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Giveaways Picker - Shop</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-   * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
 
-body {
-  background: radial-gradient(circle at top, #0f0f1a, #1a0033, #000);
-  animation: bgmove 10s infinite alternate;
-}
-@keyframes bgmove {
-  0% { background-position: top left; }
-  100% { background-position: bottom right; }
-}
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
+      background-attachment: fixed;
+      background-size: cover;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: #1e293b;
+    }
 
+    /* === HEADER ALA OTAKUDESU === */
+    .site-header {
+      background-color: #11161d;
+      padding: 22px 20px 18px;
+      text-align: left;
+      border-bottom: 1px solid #1e293b;
+    }
 
-  /* NAVBAR */
-  .navbar {
-    background: rgba(10, 10, 20, 0.9);
-    padding: 15px 25px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 0 20px #ff00ff;
-    position: sticky;
-    top: 0;
-    z-index: 999;
-  }
+    .header-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+    }
 
-  .navbar strong {
-    font-size: 20px;
-    color: #ff00ff;
-    text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
-  }
+    .site-title {
+      margin: 0;
+      font-size: 32px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 1.5px;
+      line-height: 1.1;
+    }
 
-  .navbar .nav-links a {
-    color: #fff;
-    margin-left: 20px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: 0.3s;
-    position: relative;
-  }
+    .site-subtitle {
+      display: inline-block;
+      margin-top: 4px;
+      background-color: #2563eb;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 3px;
+      letter-spacing: 0.5px;
+    }
 
-  .navbar .nav-links a:hover {
-    color: #00f7ff;
-    text-shadow: 0 0 5px #00f7ff, 0 0 10px #00f7ff;
-  }
+    /* === NAVBAR ALA OTAKUDESU === */
+    .otaku-navbar {
+      background-color: #181f29;
+      border-bottom: 3px solid #2563eb;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
 
-  /* CONTAINER */
-  .container {
-    max-width: 1000px;
-    margin: 30px auto;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0,255,255,0.3);
-    backdrop-filter: blur(12px);
-  }
+    .nav-container {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+    }
 
-  h2 {
-    font-size: 28px;
-    margin-bottom: 15px;
-    text-align: center;
-    color: #fff;
-    text-shadow: 0 0 10px #ff00ff, 0 0 20px #00f7ff;
-  }
+    .nav-container a {
+      color: #e2e8f0;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 13px 16px;
+      letter-spacing: 0.5px;
+      transition: background-color 0.2s, color 0.2s;
+    }
 
-  p {
-    text-align: center;
-    margin-bottom: 20px;
-    color: #ccc;
-  }
+    .nav-container a:hover,
+    .nav-container a.active {
+      background-color: #2563eb;
+      color: #ffffff;
+    }
 
-  /* SEARCH */
-  .search-box {
-    margin-bottom: 20px;
-    text-align: center;
-  }
+    /* === MAIN WRAPPER & CONTAINER === */
+    .main-wrapper {
+      flex: 1;
+      padding: 35px 16px;
+    }
 
-  .search-box input {
-    padding: 12px 12px;
-    width: 80%;
-    max-width: 420px;
-    border-radius: 8px;
-    border: none;
-    font-size: 16px;
-    outline: none;
-    background: #111;
-    color: #00f7ff;
-    box-shadow: 0 0 10px #00f7ff;
-    transition: 0.3s;
-  }
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 32px 28px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14), inset 0 1px 0 #ffffff;
+      animation: fadeInUp 0.45s ease;
+    }
 
-  .search-box input:focus {
-    box-shadow: 0 0 15px #ff00ff, 0 0 30px #00f7ff;
-  }
+    h2 {
+      font-size: 26px;
+      margin: 0 0 8px 0;
+      text-align: center;
+      color: #0f172a;
+      font-weight: 700;
+    }
 
-  /* GRID PRODUK */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 25px;
-    margin-top: 20px;
-  }
+    .subtitle-desc {
+      text-align: center;
+      margin: 0 0 22px 0;
+      color: #475569;
+      font-size: 14.5px;
+    }
 
-  
+    /* === SEARCH BOX === */
+    .search-box {
+      margin-bottom: 26px;
+      text-align: center;
+    }
 
-  .grid-item:hover {
-    transform: translateY(-8px) scale(1.03);
-    box-shadow: 0 0 20px #00f7ff, 0 0 40px #ff00ff;
-  }
+    .search-box input {
+      width: 100%;
+      max-width: 440px;
+      height: 46px;
+      padding: 0 16px;
+      border-radius: 9px;
+      border: 1.5px solid #cbd5e1;
+      font-size: 14.5px;
+      font-family: 'Poppins', sans-serif;
+      outline: none;
+      background: #ffffff;
+      color: #0f172a;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
 
-  .item-name {
-    font-weight: 500;
-    font-size: 18px;
-    margin-bottom: 10px;
-    color: #ff00ff;
-    text-shadow: 0 0 6px #ff00ff;
-    text-transform: uppercase;
-  }
+    .search-box input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+    }
 
+    /* === GRID PRODUK === */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 22px;
+    }
 
-.grid-item {
-  background: rgba(10,10,20,0.9);
-  border-radius: 12px;
-  padding: 15px;
-  text-align: center;
-  box-shadow: 0 0 12px #ff00ff80;
-  transition: 0.3s;
+    .grid-item {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+      border: 1.5px solid #e2e8f0;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
 
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between; /* biar tombol tetap di bawah */
-  height: auto; /* auto tinggi, gak kaku */
-  min-height: 320px; /* opsional: biar card seragam */
-}
+    .grid-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 26px rgba(37, 99, 235, 0.16);
+      border-color: #bfdbfe;
+    }
 
-.grid-item img {
-  width: 100%;
-  max-height: 500px; /* biar gak kepanjangan */
-  object-fit: contain; /* gambar tetap proporsional */
-  border-radius: 10px;
-  margin-bottom: 10px;
-  transition: transform 0.5s;
-}
+    .item-name {
+      font-weight: 700;
+      font-size: 16.5px;
+      margin-bottom: 12px;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
 
-  .grid-item img:hover {
-    transform: scale(1.05);
-  }
+    .grid-item img {
+      width: 100%;
+      height: 190px;
+      object-fit: contain;
+      border-radius: 10px;
+      background: #f8fafc;
+      padding: 8px;
+      margin-bottom: 12px;
+      cursor: zoom-in;
+      border: 1px solid #e2e8f0;
+      transition: transform 0.3s ease;
+    }
 
-  .item-price {
-    font-weight: 600;
-    color: #00f7ff;
-    margin-bottom: 12px;
-    text-shadow: 0 0 6px #00f7ff;
-  }
+    .grid-item img:hover {
+      transform: scale(1.03);
+    }
 
-  .grid-item a {
-    display: inline-block;
-    background: transparent;
-    border: 2px solid #ff00ff;
-    color: #ff00ff;
-    padding: 5px 5px;
-    border-radius: 6px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: 0.3s;
-    box-shadow: 0 0 8px #ff00ff;
-  }
+    .item-price {
+      display: inline-block;
+      font-weight: 700;
+      font-size: 13.5px;
+      color: #1d4ed8;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 5px 12px;
+      border-radius: 20px;
+      margin: 0 auto 12px auto;
+    }
 
-  .grid-item a:hover {
-    background: #ff00ff;
-    color: #000;
-    box-shadow: 0 0 15px #ff00ff, 0 0 30px #00f7ff;
-  }
+    .detail-text {
+      font-size: 13px;
+      color: #334155;
+      text-align: center;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin: 0 0 14px 0;
+      line-height: 1.6;
+      font-weight: 500;
+    }
 
-  /* MODAL */
-  .modal {
-    display: none;
-    position: fixed;
-    z-index: 999;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.9);
-    align-items: center;
-    justify-content: center;
-  }
+    /* === JAPANESE MODERN SILVER BUTTON === */
+    .btn-silver-jp {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 16px;
+      background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%);
+      color: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 9px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+    }
 
-  .modal-content {
-    max-width: 70%;
-    max-height: 70%;
-    border-radius: 15px;
-    border: 2px solid #ff00ff;
-    box-shadow: 0 0 30px #ff00ff, 0 0 60px #00f7ff;
-  }
+    .btn-silver-jp::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+      transition: 0.5s;
+    }
 
-  .close-btn {
-    position: absolute;
-    top: 25px;
-    right: 35px;
-    font-size: 32px;
-    color: #fff;
-    cursor: pointer;
-    font-weight: bold;
-    text-shadow: 0 0 10px #ff00ff;
-  }
+    .btn-silver-jp:hover::after {
+      left: 100%;
+    }
 
-  /* FOOTER */
-  .footer {
-    padding: 15px;
-    text-align: center;
-    background: rgba(10,10,20,0.9);
-    color: #00f7ff;
-    font-weight: 500;
-    text-shadow: 0 0 8px #00f7ff, 0 0 15px #ff00ff;
-    margin-top: 50px;
-  }
+    .btn-silver-jp:hover {
+      background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.22), inset 0 1px 0 #ffffff;
+      transform: translateY(-2px);
+      color: #020617;
+    }
 
-.detail-text {
-  font-size: 15px;
-  color: #fff; /* jadi lebih jelas */
-  text-align: center;
-  text-shadow: 0 0 5px #00f7ff, 0 0 10px #ff00ff; /* efek neon glow */
-  margin: 5px 5;
-  line-height: 1.5;
-}
+    /* === MODAL ZOOM GAMBAR === */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
 
+    .modal-content {
+      max-width: 90%;
+      max-height: 80vh;
+      border-radius: 14px;
+      border: 2px solid #ffffff;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+      background: #ffffff;
+    }
 
+    .close-btn {
+      position: absolute;
+      top: 22px;
+      right: 30px;
+      font-size: 34px;
+      color: #ffffff;
+      cursor: pointer;
+      font-weight: 700;
+      line-height: 1;
+    }
 
-  @media (max-width: 600px) {
-    h2 { font-size: 22px; }
-    .grid-item { padding: 15px; }
-    .navbar strong { font-size: 16px; }
-  }
+    .no-results {
+      display: none;
+      text-align: center;
+      margin-top: 24px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #dc2626;
+    }
 
-@keyframes glow {
-  0%, 100% { text-shadow: 0 0 5px #ff00ff, 0 0 10px #00f7ff; }
-  50% { text-shadow: 0 0 20px #ff00ff, 0 0 40px #00f7ff; }
-}
-.glow-text {
-  animation: glow 2s infinite;
-}
+    /* === FOOTER ALA OTAKUDESU === */
+    .otaku-footer {
+      background-color: #11161d;
+      color: #94a3b8;
+      text-align: center;
+      padding: 20px 15px;
+      border-top: 3px solid #2563eb;
+      font-size: 13px;
+    }
 
+    .footer-links {
+      margin-bottom: 8px;
+    }
+
+    .footer-links a {
+      color: #e2e8f0;
+      text-decoration: none;
+      font-weight: 600;
+      margin: 0 10px;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: #38bdf8;
+    }
+
+    .footer-links span {
+      color: #475569;
+    }
+
+    .footer-copy {
+      font-size: 12px;
+      color: #94a3b8;
+      letter-spacing: 0.3px;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* === RESPONSIVE MOBILE === */
+    @media screen and (max-width: 768px) {
+      .site-header {
+        text-align: center;
+        padding: 16px 12px;
+      }
+
+      .site-title {
+        font-size: 24px;
+      }
+
+      .nav-container {
+        justify-content: center;
+      }
+
+      .nav-container a {
+        font-size: 12px;
+        padding: 10px 12px;
+      }
+
+      .container {
+        padding: 22px 16px;
+      }
+
+      h2 {
+        font-size: 22px;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <!-- NAVBAR -->
-  <div class="navbar">
-    <div><strong>🎁 Giveaway</strong></div>
-    <div class="nav-links">
-      <a href="/">Beranda</a>
-      <a href="/shop.html">Shop</a>
-      <a href="/about.html">Tentang</a>
-      <a href="/login.html">Login</a>
-      <a href="/register.html">Register</a>
-      <a href="/event.html">Event</a>
-      <a href="/info.html">Info</a>
+  <!-- 🔹 Header Title ala Otakudesu -->
+  <header class="site-header">
+    <div class="header-inner">
+      <h1 class="site-title">GIVEAWAYS PICKER</h1>
+      <span class="site-subtitle">Platform Undian & Tebak Angka Komunitas</span>
     </div>
-  </div>
+  </header>
 
-  <!-- CONTENT -->
-  <div class="container">
-    <h2>🛍️ Shop</h2>
-    <p>Tempat jualan robux dan produk digital lainnya.</p>
-
-    <!-- SEARCH -->
-    <div class="search-box">
-      <input type="text" id="searchInput" placeholder="🔍 Cari nama barang..." />
+  <!-- 🔹 Menu Navbar ala Otakudesu -->
+  <nav class="otaku-navbar">
+    <div class="nav-container">
+      <a href="/home">HOME</a>
+      <a href="/shop" class="active">SHOP</a>
+      <a href="/about">TENTANG</a>
+      <a href="/login">LOGIN</a>
+      <a href="/register">REGISTER</a>
+      <a href="/event">EVENT</a>
+      <a href="/info">TENTANG WEBSITE</a>
+      <a href="/music">MUSIC</a>
     </div>
+  </nav>
 
-    <!-- GRID PRODUK -->
-    <div class="grid" id="shopGrid">
-      <!-- contoh produk -->
-      <div class="grid-item" data-name="Baju horror roblox">
-        <div class="item-name">Baju Horror Roblox</div>
-        <img src="https://tr.rbxcdn.com/180DAY-622dd36d631164ca00e6234fc4d16c1a/420/420/Shirt/Webp/noFilter" alt="5 Robux" />
-        <div class="item-price">5 ROBUX</div>
-        <a href="https://www.roblox.com/catalog/9024633327/Horror-Indonesia">Beli Sekarang</a>
+  <!-- 🔹 Main Content -->
+  <main class="main-wrapper">
+    <div class="container">
+      <h2>🛍️ Shop Robux & Produk Digital</h2>
+      <p class="subtitle-desc">Tempat jualan Robux dan item Roblox terpercaya. Klik gambar untuk memperbesar.</p>
+
+      <!-- Search -->
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="🔍 Cari nama barang (contoh: Robux, Baju, Premium)..." />
       </div>
 
-<div class="grid-item" data-name="Baju fans roblox">
-    <div class="item-name">Baju Fans Roblox</div>
-    <img src="https://tr.rbxcdn.com/180DAY-3ca2987cc13ef6fa5689f6dea22b0d39/420/420/Shirt/Webp/noFilter" alt="5 Robux" />
-    <div class="item-price">5 ROBUX</div>
-    <a href="https://www.roblox.com/catalog/82878625256710/Fans-Aditya">Beli Sekarang</a>
-  </div>
+      <!-- Grid Produk -->
+      <div class="grid" id="shopGrid">
+        <!-- Baju Horror -->
+        <div class="grid-item" data-name="Baju horror roblox">
+          <div>
+            <div class="item-name">Baju Horror Roblox</div>
+            <img src="https://tr.rbxcdn.com/180DAY-622dd36d631164ca00e6234fc4d16c1a/420/420/Shirt/Webp/noFilter" alt="Baju Horror Roblox" />
+            <div class="item-price">5 ROBUX</div>
+          </div>
+          <a href="https://www.roblox.com/catalog/9024633327/Horror-Indonesia" target="_blank" class="btn-silver-jp">🛒 Beli Sekarang</a>
+        </div>
 
-  <!-- 🔥 Produk RBX Pending -->
-  <div class="grid-item" data-name="Isi ROBUX Pending">
-    <div class="item-name">ISI ROBUX PENDING</div>
-    <img src="https://i.imgur.com/vP13rWk.png" alt="Isi ROBUX Pending" />
-    <div class="item-price">Estimasi 7 HARI</div>
-   <p class="detail-text">
-      Pending 2 HARI setelah order <br><br>
-      100 ROBUX = 14.000 <br>
-      200 ROBUX = 28.000 <br>
-      300 ROBUX = 40.000 <br>
-      400 ROBUX = 52.000 <br>
-      500 ROBUX = 63.000 <br>
-      600 ROBUX = 75.000 <br>
-      700 ROBUX = 87.000 <br>
-      800 ROBUX = 99.000 <br>
-      900 ROBUX = 111.000 <br>
-      1000 ROBUX = 123.000 <br>
-      5000 ROBUX = 602.000 <br>
-      10000 ROBUX = 1.202.000 <br>
-      50000 ROBUX = 6.002.000 <br>
-    </p>
-    <a href="https://discord.gg/invite/4vNhCF5EHw">Beli Sekarang</a>
-  </div>
+        <!-- Baju Fans -->
+        <div class="grid-item" data-name="Baju fans roblox">
+          <div>
+            <div class="item-name">Baju Fans Roblox</div>
+            <img src="https://tr.rbxcdn.com/180DAY-3ca2987cc13ef6fa5689f6dea22b0d39/420/420/Shirt/Webp/noFilter" alt="Baju Fans Roblox" />
+            <div class="item-price">5 ROBUX</div>
+          </div>
+          <a href="https://www.roblox.com/catalog/82878625256710/Fans-Aditya" target="_blank" class="btn-silver-jp">🛒 Beli Sekarang</a>
+        </div>
 
-  <!-- 💎 Upgrade Premium RBL -->
-  <div class="grid-item" data-name="Upgrade Premium Roblox">
-    <div class="item-name">UPGRADE PREMIUM ROBLOX</div>
-    <img src="https://i.imgur.com/gd8UFpq.png" alt="Premium Roblox" />
-    <div class="item-price">Topup 450 RBX = 105.000</div>
-    <a href="https://discord.gg/invite/4vNhCF5EHw">Beli Sekarang</a>
-  </div>
+        <!-- Isi ROBUX Pending -->
+        <div class="grid-item" data-name="Isi ROBUX Pending">
+          <div>
+            <div class="item-name">ISI ROBUX PENDING</div>
+            <img src="https://i.imgur.com/vP13rWk.png" alt="Isi ROBUX Pending" />
+            <div class="item-price">Estimasi 7 HARI</div>
+            <div class="detail-text">
+              <strong>Pending 2 HARI setelah order</strong><br>
+              100 ROBUX = Rp 14.000<br>
+              200 ROBUX = Rp 28.000<br>
+              300 ROBUX = Rp 40.000<br>
+              400 ROBUX = Rp 52.000<br>
+              500 ROBUX = Rp 63.000<br>
+              600 ROBUX = Rp 75.000<br>
+              700 ROBUX = Rp 87.000<br>
+              800 ROBUX = Rp 99.000<br>
+              900 ROBUX = Rp 111.000<br>
+              1.000 ROBUX = Rp 123.000<br>
+              5.000 ROBUX = Rp 602.000<br>
+              10.000 ROBUX = Rp 1.202.000<br>
+              50.000 ROBUX = Rp 6.002.000
+            </div>
+          </div>
+          <a href="https://discord.gg/invite/4vNhCF5EHw" target="_blank" class="btn-silver-jp">💬 Beli via Discord</a>
+        </div>
 
-  <!-- ⚡ RBX Instant -->
-  <div class="grid-item" data-name="ROBUX Instant">
-    <div class="item-name">ROBUX INSTANT</div>
-    <img src="https://i.imgur.com/vP13rWk.png" alt="ROBUX Instant" />
-    <div class="item-price">Langsung Masuk</div>
-    <p class="detail-text">
-      80 ROBUX = 28.000 <br>
-      160 ROBUX = 54.000 <br>
-      500 ROBUX = 105.000 <br>
-      1000 ROBUX = 205.000 <br>
-    </p>
-    <a href="https://discord.gg/invite/4vNhCF5EHw">Beli Sekarang</a>
-  </div>
+        <!-- Upgrade Premium Roblox -->
+        <div class="grid-item" data-name="Upgrade Premium Roblox">
+          <div>
+            <div class="item-name">UPGRADE PREMIUM ROBLOX</div>
+            <img src="https://i.imgur.com/gd8UFpq.png" alt="Upgrade Premium Roblox" />
+            <div class="item-price">Topup 450 RBX = Rp 105.000</div>
+          </div>
+          <a href="https://discord.gg/invite/4vNhCF5EHw" target="_blank" class="btn-silver-jp">💬 Beli via Discord</a>
+        </div>
 
-  <!-- ⏳ Pending 5 Hari -->
-  <div class="grid-item" data-name="ROBUX Pending 5 Hari">
-    <div class="item-name">ISI ROBUX PENDING</div>
-    <img src="https://i.imgur.com/vP13rWk.png" alt="ROBUX Pending 5 Hari" />
-    <div class="item-price">Instant proses 5 HARI</div>
-    <p class="detail-text">
-  100 ROBUX = 16.000
-</p>
-    <a href="https://discord.gg/invite/4vNhCF5EHw">Beli Sekarang</a>
-  </div>
+        <!-- ROBUX Instant -->
+        <div class="grid-item" data-name="ROBUX Instant">
+          <div>
+            <div class="item-name">ROBUX INSTANT</div>
+            <img src="https://i.imgur.com/vP13rWk.png" alt="ROBUX Instant" />
+            <div class="item-price">Langsung Masuk</div>
+            <div class="detail-text">
+              80 ROBUX = Rp 28.000<br>
+              160 ROBUX = Rp 54.000<br>
+              500 ROBUX = Rp 105.000<br>
+              1.000 ROBUX = Rp 205.000
+            </div>
+          </div>
+          <a href="https://discord.gg/invite/4vNhCF5EHw" target="_blank" class="btn-silver-jp">💬 Beli via Discord</a>
+        </div>
 
-  <!-- 📦 Stock Info -->
-  <div class="grid-item" data-name="Stock Robux">
-    <div class="item-name">Stock ROBUX </div>
-    <img src="https://i.imgur.com/96BIpch.png" alt="Stock Robux" />
-    <div class="item-price">83.000 ROBUX</div>
-   <p class="detail-text">STATUS: OPENED ✅</p>
-    <a href="https://discord.com/invite/5vHNQSFCby">Hubungi Admin</a>
-  </div>
-</div>
+        <!-- ROBUX Pending 5 Hari -->
+        <div class="grid-item" data-name="ROBUX Pending 5 Hari">
+          <div>
+            <div class="item-name">ISI ROBUX PENDING 5 HARI</div>
+            <img src="https://i.imgur.com/vP13rWk.png" alt="ROBUX Pending 5 Hari" />
+            <div class="item-price">Proses 5 HARI</div>
+            <div class="detail-text">
+              100 ROBUX = Rp 16.000
+            </div>
+          </div>
+          <a href="https://discord.gg/invite/4vNhCF5EHw" target="_blank" class="btn-silver-jp">💬 Beli via Discord</a>
+        </div>
 
+        <!-- Stock Info -->
+        <div class="grid-item" data-name="Stock Robux">
+          <div>
+            <div class="item-name">STOCK ROBUX</div>
+            <img src="https://i.imgur.com/96BIpch.png" alt="Stock Robux" />
+            <div class="item-price">83.000 ROBUX</div>
+            <div class="detail-text">
+              <strong>STATUS: OPENED ✅</strong>
+            </div>
+          </div>
+          <a href="https://discord.com/invite/5vHNQSFCby" target="_blank" class="btn-silver-jp">💬 Hubungi Admin</a>
+        </div>
+      </div>
 
-
-      <!-- tambahkan produk lain sama seperti versi kamu -->
+      <p id="noResultsMessage" class="no-results">❌ Produk tidak ditemukan.</p>
     </div>
+  </main>
 
-    <p id="noResultsMessage" style="display:none; text-align:center; margin-top:20px; font-size:16px; color:#ff4c4c;">
-      ❌ Produk tidak ditemukan.
-    </p>
-  </div>
-
-  <!-- FOOTER -->
-  <footer class="footer">
-    © 2025 Giveaways Picker
+  <!-- 🔹 Footer ala Otakudesu -->
+  <footer class="otaku-footer">
+    <div class="footer-links">
+      <a href="/about">About</a>
+      <span>|</span>
+      <a href="/info">Tentang</a>
+      <span>|</span>
+      <a href="/event">Tips</a>
+    </div>
+    <div class="footer-copy">
+      &copy; rakanaditya 2026
+    </div>
   </footer>
 
-  <!-- MODAL -->
+  <!-- Modal Zoom Gambar -->
   <div id="imgModal" class="modal">
-    <span class="close-btn" onclick="closeModal()">×</span>
-    <img class="modal-content" id="modalImg" />
+    <span class="close-btn" onclick="closeModal()">&times;</span>
+    <img class="modal-content" id="modalImg" alt="Preview Produk" />
   </div>
 
   <script>
@@ -415,13 +586,13 @@ body {
     const noResultsMessage = document.getElementById("noResultsMessage");
 
     searchInput.addEventListener("input", () => {
-      const query = searchInput.value.toLowerCase();
+      const query = searchInput.value.toLowerCase().trim();
       let anyVisible = false;
 
       gridItems.forEach(item => {
         const name = item.dataset.name.toLowerCase();
         if (name.includes(query)) {
-          item.style.display = "";
+          item.style.display = "flex";
           anyVisible = true;
         } else {
           item.style.display = "none";
