@@ -61,6 +61,11 @@
   </footer>
 
   <script>
+    const existingUser = JSON.parse(localStorage.getItem("giveawayUser"));
+    if (existingUser && existingUser.username) {
+      window.location.href = existingUser.isAdmin ? "/admin" : "/home";
+    }
+
     const form = document.getElementById("registerForm");
     const statusEl = document.getElementById("regStatus");
 
@@ -89,11 +94,17 @@
           })
         });
 
-        const data = await res.json();
+        const rawText = await res.text();
+        let data;
+        try {
+          data = JSON.parse(rawText);
+        } catch {
+          throw new Error("Server error: " + rawText.slice(0, 80));
+        }
 
         if (!data.success) {
           statusEl.style.color = "#dc2626";
-          statusEl.textContent = "❌ " + (data.message || "Gagal mendaftar");
+          statusEl.textContent = "❌ " + (data.message || data.details || "Gagal mendaftar");
           return;
         }
 
