@@ -16,11 +16,14 @@
 <body>
 
 
-<!-- Splash Loading dengan Nomor Versi di Bawah -->
+<!-- Splash Loading Progress Bar 0% - 100% dengan Nomor Versi -->
   <div id="appLoader" class="app-loader">
-    <div class="loader-spinner"></div>
     <div class="loader-title">GIVEAWAYS PICKER</div>
-    <div class="loader-version" id="appVersionText">Memuat... v1.0.1</div>
+    <div class="loader-progress-wrap">
+      <div id="loaderBarFill" class="loader-progress-fill"></div>
+    </div>
+    <div id="loaderPercentText" class="loader-percent">0%</div>
+    <div class="loader-version" id="appVersionText">Giveaways Picker • v1.0.1</div>
   </div>
 
   <!-- Banner Notifikasi Update Otomatis -->
