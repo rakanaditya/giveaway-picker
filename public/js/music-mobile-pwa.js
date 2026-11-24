@@ -1,5 +1,5 @@
 /* === 1. SPLASH LOADING & DETEKSI UPDATE OTOMATIS === */
-  const CURRENT_APP_VERSION = "v1.0.0"; // Samakan dengan APP_VERSION di sw.js
+  const CURRENT_APP_VERSION = "v1.0.1"; // Samakan dengan APP_VERSION di sw.js
   const loaderEl = document.getElementById("appLoader");
   const versionTextEl = document.getElementById("appVersionText");
   const updateToast = document.getElementById("updateToast");
