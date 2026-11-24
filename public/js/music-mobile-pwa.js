@@ -1,9 +1,56 @@
-// public/js/music-mobile-pwa.js
-(function () {
-  /* === 1. REGISTRASI SERVICE WORKER (MODE OFFLINE) === */
+/* === 1. SPLASH LOADING & DETEKSI UPDATE OTOMATIS === */
+  const CURRENT_APP_VERSION = "v1.0.0"; // Samakan dengan APP_VERSION di sw.js
+  const loaderEl = document.getElementById("appLoader");
+  const versionTextEl = document.getElementById("appVersionText");
+  const updateToast = document.getElementById("updateToast");
+  const reloadUpdateBtn = document.getElementById("reloadUpdateBtn");
+
+  if (versionTextEl) {
+    versionTextEl.textContent = `Giveaways Picker • ${CURRENT_APP_VERSION}`;
+  }
+
+  // Hilangkan layar loading setelah halaman siap
+  window.addEventListener("load", () => {
+    setTimeout(() => {
+      if (loaderEl) loaderEl.classList.add("hidden");
+    }, 650);
+  });
+
   if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    window.addEventListener("load", async () => {
+      try {
+        const reg = await navigator.serviceWorker.register("/sw.js");
+
+        // Cek update secara berkala setiap 60 detik saat aplikasi terbuka
+        setInterval(() => reg.update(), 60 * 1000);
+
+        // Deteksi jika ada Service Worker versi baru yang selesai terpasang
+        reg.addEventListener("updatefound", () => {
+          const newWorker = reg.installing;
+          if (!newWorker) return;
+
+          newWorker.addEventListener("statechange", () => {
+            if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+              if (updateToast) updateToast.classList.add("show");
+            }
+          });
+        });
+      } catch (_) {}
+    });
+
+    // Otomatis muat ulang halaman saat pengguna menekan "Perbarui"
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (!refreshing) {
+        refreshing = true;
+        window.location.reload();
+      }
+    });
+  }
+
+  if (reloadUpdateBtn) {
+    reloadUpdateBtn.addEventListener("click", () => {
+      window.location.reload();
     });
   }
 
