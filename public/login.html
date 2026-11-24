@@ -73,7 +73,7 @@
     </div>
   </footer>
 
-  <script>
+<script>
     const existingUser = JSON.parse(localStorage.getItem("giveawayUser"));
     if (existingUser && existingUser.username) {
       window.location.href = existingUser.isAdmin ? "/admin" : "/home";
@@ -84,12 +84,14 @@
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      statusEl.style.color = "#1e293b";
       statusEl.textContent = "🔄 Sedang memproses...";
 
       const username = document.getElementById("loginUsername").value.trim();
       const password = document.getElementById("loginPassword").value.trim();
 
       if (username.length < 3 || password.length < 4) {
+        statusEl.style.color = "#dc2626";
         statusEl.textContent = "❌ Username/password tidak valid!";
         return;
       }
@@ -105,22 +107,22 @@
           })
         });
 
-        const loginData = await loginRes.json();
+        const rawText = await loginRes.text();
+        let loginData;
+        try {
+          loginData = JSON.parse(rawText);
+        } catch {
+          throw new Error("Server error: " + rawText.slice(0, 80));
+        }
 
         if (!loginData.success) {
-          statusEl.textContent = "❌ " + (loginData.message || "Gagal login");
+          statusEl.style.color = "#dc2626";
+          statusEl.textContent = "❌ " + (loginData.message || loginData.details || "Gagal login");
           return;
         }
 
+        statusEl.style.color = "#16a34a";
         statusEl.textContent = "✅ " + loginData.message;
-
-        const adminRes = await fetch("/api/admin-auth", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password })
-        });
-
-        const result = await adminRes.json();
 
         localStorage.setItem("giveawayUser", JSON.stringify({
           username,
@@ -130,6 +132,7 @@
         window.location.href = loginData.isAdmin ? "/admin" : "/home";
 
       } catch (err) {
+        statusEl.style.color = "#dc2626";
         statusEl.textContent = "❌ Gagal login: " + err.message;
       }
     });
