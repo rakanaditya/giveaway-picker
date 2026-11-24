@@ -1,4 +1,4 @@
-const { connectDB, User, Participant, Config, Log } = require('./db');
+const { connectDB, User, Participant, Config, Log } = require('../db.js');
 
 async function sendDiscordWebhook(content) {
   const webhook = process.env.DISCORD_WEBHOOK;
