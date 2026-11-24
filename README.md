@@ -1,7 +1,7 @@
 # 🎁 Giveaway Picker - Discord Integration
 
 [Live Website 🌐](https://giveaway-picker-one.vercel.app/)  
-📦 Hosted on Vercel | ✨ Backend with Google Apps Script | 📊 Data via Google Sheets
+📦 Hosted on Vercel |  📊 Data via MONGODB
 
 ---
 
