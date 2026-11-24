@@ -11,813 +11,7 @@
   <link rel="apple-touch-icon" href="https://i.imgur.com/53m3Fo5.png" />
   <title>Giveaways Picker - Music & Video Player</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Poppins', sans-serif;
-      background-color: #090d16;
-      color: #ffffff;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* === HEADER ALA OTAKUDESU === */
-    .site-header {
-      background-color: #11161d;
-      padding: 18px 20px 14px;
-      text-align: left;
-      border-bottom: 1px solid #1e293b;
-      position: relative;
-      z-index: 20;
-    }
-
-    .header-inner {
-      max-width: 1120px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .site-title {
-      margin: 0;
-      font-size: 28px;
-      font-weight: 800;
-      color: #ffffff;
-      letter-spacing: 1.5px;
-      line-height: 1.1;
-    }
-
-    .site-subtitle {
-      display: inline-block;
-      margin-top: 4px;
-      background-color: #2563eb;
-      color: #ffffff;
-      font-size: 11px;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 3px;
-      letter-spacing: 0.5px;
-    }
-
-    /* === TOMBOL INSTALL APK & STATUS JARINGAN === */
-    .pwa-toolbar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .net-badge {
-      font-size: 11.5px;
-      font-weight: 600;
-      padding: 5px 10px;
-      border-radius: 20px;
-      background: #1e293b;
-      border: 1px solid #334155;
-    }
-
-    .net-badge.online {
-      color: #4ade80;
-      border-color: rgba(74, 222, 128, 0.4);
-    }
-
-    .net-badge.offline {
-      color: #fb923c;
-      border-color: rgba(251, 146, 60, 0.5);
-    }
-
-    .btn-install-apk {
-      display: none;
-      align-items: center;
-      gap: 6px;
-      padding: 7px 14px;
-      border-radius: 20px;
-      border: none;
-      background: linear-gradient(135deg, #1db954, #16a34a);
-      color: #000000;
-      font-family: 'Poppins', sans-serif;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(29, 185, 84, 0.35);
-    }
-
-    .ios-hint {
-      display: none;
-      background: #1e293b;
-      color: #e2e8f0;
-      font-size: 11.5px;
-      padding: 8px 14px;
-      text-align: center;
-      border-bottom: 1px solid #334155;
-    }
-
-    /* === NAVBAR ALA OTAKUDESU === */
-    .otaku-navbar {
-      background-color: #181f29;
-      border-bottom: 3px solid #2563eb;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-      position: relative;
-      z-index: 20;
-    }
-
-    .nav-container {
-      max-width: 1120px;
-      margin: 0 auto;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .nav-container a {
-      color: #e2e8f0;
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 700;
-      padding: 13px 16px;
-      letter-spacing: 0.5px;
-      transition: background-color 0.2s, color 0.2s;
-    }
-
-    .nav-container a:hover,
-    .nav-container a.active {
-      background-color: #2563eb;
-      color: #ffffff;
-    }
-
-    /* === SPOTIFY STYLE MAIN LAYOUT === */
-    .spotify-wrapper {
-      flex: 1;
-      max-width: 1120px;
-      width: 100%;
-      margin: 22px auto;
-      padding: 0 16px;
-      display: grid;
-      grid-template-columns: 340px 1fr;
-      gap: 20px;
-    }
-
-    /* === SIDEBAR PLAYLIST (KIRI) === */
-    .spotify-sidebar {
-      background: #121212;
-      border: 1px solid #242424;
-      border-radius: 14px;
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
-      max-height: 660px;
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
-    }
-
-    .sidebar-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid #282828;
-    }
-
-    .sidebar-header h3 {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 700;
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .badge-count {
-      background: #1db954;
-      color: #000000;
-      font-size: 11px;
-      font-weight: 800;
-      padding: 2px 8px;
-      border-radius: 12px;
-    }
-
-    .add-actions {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    .btn-spotify-add {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      width: 100%;
-      padding: 10px 14px;
-      background: #1db954;
-      color: #000000;
-      font-family: 'Poppins', sans-serif;
-      font-weight: 700;
-      font-size: 13px;
-      border: none;
-      border-radius: 24px;
-      cursor: pointer;
-      transition: transform 0.2s, background 0.2s;
-    }
-
-    .btn-spotify-add:hover {
-      background: #1ed760;
-      transform: scale(1.02);
-    }
-
-    .url-add-box {
-      display: flex;
-      gap: 6px;
-    }
-
-    .url-add-box input {
-      flex: 1;
-      height: 38px;
-      padding: 0 12px;
-      border-radius: 8px;
-      border: 1px solid #333;
-      background: #1e1e1e;
-      color: #ffffff;
-      font-size: 12px;
-      font-family: 'Poppins', sans-serif;
-      outline: none;
-    }
-
-    .url-add-box input:focus {
-      border-color: #1db954;
-    }
-
-    .url-add-box button {
-      padding: 0 14px;
-      height: 38px;
-      border-radius: 8px;
-      border: none;
-      background: #2a2a2a;
-      color: #ffffff;
-      font-weight: 600;
-      font-size: 12.5px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .url-add-box button:hover {
-      background: #1db954;
-      color: #000000;
-    }
-
-    .support-tags {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      font-size: 10.5px;
-      color: #9ca3af;
-    }
-
-    .support-tags span {
-      background: #1e1e1e;
-      padding: 2px 8px;
-      border-radius: 6px;
-      border: 1px solid #2c2c2c;
-    }
-
-    /* LIST LAGU */
-    .playlist-items {
-      flex: 1;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding-right: 4px;
-    }
-
-    .playlist-items::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .playlist-items::-webkit-scrollbar-thumb {
-      background: #333;
-      border-radius: 6px;
-    }
-
-    .track-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 10px 12px;
-      border-radius: 8px;
-      background: #181818;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .track-item:hover {
-      background: #282828;
-    }
-
-    .track-item.active {
-      background: rgba(29, 185, 84, 0.16);
-      border: 1px solid rgba(29, 185, 84, 0.45);
-    }
-
-    .track-info {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-      flex: 1;
-    }
-
-    .track-num {
-      font-size: 12px;
-      color: #9ca3af;
-      width: 18px;
-      text-align: center;
-      flex-shrink: 0;
-    }
-
-    .track-item.active .track-num,
-    .track-item.active .track-title {
-      color: #1db954;
-      font-weight: 700;
-    }
-
-    .track-meta {
-      min-width: 0;
-      flex: 1;
-    }
-
-    .track-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #ffffff;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .track-source {
-      font-size: 11px;
-      color: #9ca3af;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      margin-top: 2px;
-    }
-
-    .tag-pill {
-      font-size: 9.5px;
-      font-weight: 700;
-      padding: 1px 6px;
-      border-radius: 4px;
-      text-transform: uppercase;
-    }
-
-    .tag-spotify { background: rgba(29, 185, 84, 0.2); color: #1db954; }
-    .tag-youtube { background: rgba(239, 68, 68, 0.2); color: #f87171; }
-    .tag-local { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-    .tag-video { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
-    .tag-sync { background: rgba(251, 146, 60, 0.2); color: #fb923c; }
-
-    .btn-del-track {
-      background: transparent;
-      border: none;
-      color: #9ca3af;
-      font-size: 14px;
-      cursor: pointer;
-      padding: 4px 6px;
-      border-radius: 6px;
-      transition: color 0.2s, background 0.2s;
-    }
-
-    .btn-del-track:hover {
-      color: #ef4444;
-      background: rgba(239, 68, 68, 0.15);
-    }
-
-    .empty-playlist {
-      text-align: center;
-      color: #9ca3af;
-      font-size: 13px;
-      padding: 28px 12px;
-      line-height: 1.6;
-    }
-
-    .btn-reset-playlist {
-      margin-top: 12px;
-      width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid rgba(239, 68, 68, 0.45);
-      background: rgba(239, 68, 68, 0.12);
-      color: #f87171;
-      font-family: 'Poppins', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-    }
-
-    .btn-reset-playlist:hover {
-      background: #ef4444;
-      color: #ffffff;
-    }
-
-    /* === NOW PLAYING & STAGE (KANAN) === */
-    .spotify-main {
-      background: linear-gradient(180deg, #1e293b 0%, #121212 55%);
-      border: 1px solid #242424;
-      border-radius: 14px;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
-    }
-
-    .now-playing-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .now-left {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      min-width: 0;
-      flex: 1;
-    }
-
-    .album-art {
-      width: 68px;
-      height: 68px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #1db954, #2563eb);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffffff;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
-      flex-shrink: 0;
-    }
-
-    .now-playing-text {
-      min-width: 0;
-      flex: 1;
-    }
-
-    .now-playing-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #1db954;
-      font-weight: 700;
-    }
-
-    .now-playing-title {
-      margin: 4px 0;
-      font-size: 19px;
-      font-weight: 700;
-      color: #ffffff;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .now-playing-sub {
-      font-size: 12px;
-      color: #b3b3b3;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .btn-mode-toggle {
-      background: #282828;
-      color: #e2e8f0;
-      border: 1px solid #3f3f46;
-      padding: 7px 12px;
-      border-radius: 8px;
-      font-family: 'Poppins', sans-serif;
-      font-size: 11.5px;
-      font-weight: 600;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-
-    .btn-mode-toggle:hover {
-      background: #3f3f46;
-    }
-
-    /* STAGE AREA: VIDEO / VISUALIZER / YOUTUBE / SPOTIFY EMBED */
-    .stage-box {
-      position: relative;
-      width: 100%;
-      height: 290px;
-      border-radius: 12px;
-      overflow: hidden;
-      background:
-        linear-gradient(rgba(9, 13, 22, 0.65), rgba(9, 13, 22, 0.75)),
-        url("https://i.imgur.com/53m3Fo5.png") center/cover no-repeat;
-      border: 1px solid #2a2a2a;
-      margin-bottom: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    canvas#c {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    video#videoPlayer {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      background: #000000;
-      display: none;
-    }
-
-    #ytContainer,
-    #spotifyEmbedContainer {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: none;
-      background: #000000;
-    }
-
-    #spotifyEmbedContainer iframe,
-    #ytContainer iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-
-    /* === SPOTIFY VECTOR SVG CONTROLS === */
-    .player-controls-area {
-      background: #181818;
-      border: 1px solid #282828;
-      border-radius: 12px;
-      padding: 16px;
-    }
-
-    .progress-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-
-    .time-label {
-      font-size: 11.5px;
-      font-variant-numeric: tabular-nums;
-      color: #b3b3b3;
-      min-width: 38px;
-      text-align: center;
-    }
-
-    input[type="range"] {
-      -webkit-appearance: none;
-      appearance: none;
-      background: #4d4d4d;
-      height: 4px;
-      border-radius: 4px;
-      outline: none;
-      cursor: pointer;
-    }
-
-    input[type="range"]:hover {
-      background: #1db954;
-    }
-
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: #ffffff;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
-      cursor: pointer;
-      transition: transform 0.15s, background 0.15s;
-    }
-
-    input[type="range"]:hover::-webkit-slider-thumb {
-      background: #1db954;
-      transform: scale(1.2);
-    }
-
-    #seek {
-      flex: 1;
-    }
-
-    .main-buttons {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 18px;
-      margin-bottom: 16px;
-    }
-
-    .sp-btn {
-      background: transparent;
-      border: none;
-      color: #b3b3b3;
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: color 0.2s, transform 0.15s, background 0.2s;
-      padding: 0;
-    }
-
-    .sp-btn svg {
-      width: 18px;
-      height: 18px;
-      fill: currentColor;
-    }
-
-    .sp-btn:hover {
-      color: #ffffff;
-      transform: scale(1.08);
-    }
-
-    .sp-btn.active {
-      color: #1db954;
-      position: relative;
-    }
-
-    .sp-btn.active::after {
-      content: '';
-      position: absolute;
-      bottom: 2px;
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: #1db954;
-    }
-
-    .sp-btn.play-circle {
-      width: 50px;
-      height: 50px;
-      background: #ffffff;
-      color: #000000;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
-    }
-
-    .sp-btn.play-circle svg {
-      width: 20px;
-      height: 20px;
-    }
-
-    .sp-btn.play-circle:hover {
-      background: #1db954;
-      color: #000000;
-      transform: scale(1.07);
-    }
-
-    .sliders-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      padding-top: 12px;
-      border-top: 1px solid #282828;
-    }
-
-    .slider-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 12px;
-      color: #b3b3b3;
-    }
-
-    .slider-group svg {
-      width: 16px;
-      height: 16px;
-      fill: #b3b3b3;
-      flex-shrink: 0;
-    }
-
-    .slider-group input[type="range"] {
-      flex: 1;
-    }
-
-    /* === FOOTER ALA OTAKUDESU === */
-    .otaku-footer {
-      background-color: #11161d;
-      color: #94a3b8;
-      text-align: center;
-      padding: 20px 15px;
-      border-top: 3px solid #2563eb;
-      font-size: 13px;
-      margin-top: 24px;
-    }
-
-    .footer-links {
-      margin-bottom: 8px;
-    }
-
-    .footer-links a {
-      color: #e2e8f0;
-      text-decoration: none;
-      font-weight: 600;
-      margin: 0 10px;
-      transition: color 0.2s;
-    }
-
-    .footer-links a:hover {
-      color: #38bdf8;
-    }
-
-    .footer-links span {
-      color: #475569;
-    }
-
-    .footer-copy {
-      font-size: 12px;
-      color: #94a3b8;
-    }
-
-    /* === RESPONSIVE MOBILE === */
-    @media screen and (max-width: 820px) {
-      .header-inner {
-        flex-direction: column;
-        text-align: center;
-      }
-
-      .site-title {
-        font-size: 23px;
-      }
-
-      .pwa-toolbar {
-        justify-content: center;
-      }
-
-      .nav-container {
-        justify-content: center;
-      }
-
-      .nav-container a {
-        font-size: 12px;
-        padding: 10px 11px;
-      }
-
-      .spotify-wrapper {
-        grid-template-columns: 1fr;
-        margin: 14px auto;
-        padding: 0 12px;
-        gap: 14px;
-      }
-
-      .spotify-main {
-        order: 1;
-        padding: 14px;
-      }
-
-      .spotify-sidebar {
-        order: 2;
-        max-height: 400px;
-        padding: 14px;
-      }
-
-      .stage-box {
-        height: 220px;
-      }
-
-      .main-buttons {
-        gap: 14px;
-      }
-
-      .sliders-row {
-        grid-template-columns: 1fr;
-        gap: 10px;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="/css/music.css" />
 </head>
 <body>
 
@@ -826,7 +20,7 @@
     📲 Untuk iPhone: tekan ikon <strong>Bagikan (Share)</strong> di bawah lalu pilih <strong>"Tambah ke Layar Utama"</strong>.
   </div>
 
-  <!-- 🔹 Header Title ala Otakudesu + Tombol Install App -->
+  <!-- 🔹 Header Title ala Otakudesu + Tombol Install & Pengaturan -->
   <header class="site-header">
     <div class="header-inner">
       <div>
@@ -838,6 +32,9 @@
         <span id="networkStatusBadge" class="net-badge online">🟢 Online</span>
         <button type="button" id="installAppBtn" class="btn-install-apk">
           📲 Install Aplikasi (APK)
+        </button>
+        <button type="button" id="openSettingsBtn" class="btn-settings-open">
+          ⚙️ Pengaturan
         </button>
       </div>
     </div>
@@ -863,7 +60,7 @@
     <aside class="spotify-sidebar">
       <div class="sidebar-header">
         <h3>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="#1db954"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--accent)"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
           Playlist Saya
         </h3>
         <span class="badge-count" id="trackCount">0 Media</span>
@@ -890,7 +87,7 @@
 
       <div class="playlist-items" id="playlistContainer">
         <div class="empty-playlist">
-          Playlist masih kosong.<br>Tambahkan file lagu/video lokal atau tempel link <strong>Spotify</strong> / <strong>YouTube</strong> (tetap bisa ditambah saat Offline).
+          Playlist masih kosong.<br>Tambahkan file lagu/video lokal atau tempel link <strong>Spotify</strong> / <strong>YouTube</strong>.
         </div>
       </div>
 
@@ -937,32 +134,26 @@
         </div>
 
         <div class="main-buttons">
-          <!-- Shuffle -->
           <button type="button" class="sp-btn" id="shuffleBtn" title="Acak">
             <svg viewBox="0 0 16 16"><path d="M13.151.922a.75.75 0 1 0-1.06 1.06L13.109 3H11.16a3.75 3.75 0 0 0-2.873 1.34l-6.173 7.356A2.25 2.25 0 0 1 .39 12.5H0V14h.391a3.75 3.75 0 0 0 2.873-1.34l6.173-7.356a2.25 2.25 0 0 1 1.724-.804h1.947l-1.017 1.018a.75.75 0 0 0 1.06 1.06L15.98 3.75 13.15.922zM.391 3.5H0V2h.391c1.109 0 2.16.49 2.873 1.34L4.89 5.277l-.979 1.167-1.796-2.14A2.25 2.25 0 0 0 .39 3.5z"/><path d="m7.5 10.723.98-1.167.957 1.14a2.25 2.25 0 0 0 1.724.804h1.947l-1.017-1.018a.75.75 0 1 1 1.06-1.06l2.829 2.828-2.829 2.828a.75.75 0 1 1-1.06-1.06L13.109 13H11.16a3.75 3.75 0 0 1-2.873-1.34l-.787-.938z"/></svg>
           </button>
 
-          <!-- Previous -->
           <button type="button" class="sp-btn" id="prevBtn" title="Sebelumnya">
             <svg viewBox="0 0 16 16"><path d="M3.3 1a.7.7 0 0 1 .7.7v5.15l9.95-5.744a.7.7 0 0 1 1.05.606v12.575a.7.7 0 0 1-1.05.607L4 9.149V14.3a.7.7 0 0 1-.7.7H1.7a.7.7 0 0 1-.7-.7V1.7a.7.7 0 0 1 .7-.7h1.6z"/></svg>
           </button>
 
-          <!-- Play / Pause Circle -->
           <button type="button" class="sp-btn play-circle" id="playPauseBtn" title="Putar / Jeda">
             <svg id="playPauseIcon" viewBox="0 0 16 16"><path d="M3 1.713a.7.7 0 0 1 1.05-.607l10.89 6.288a.7.7 0 0 1 0 1.212L4.05 14.894A.7.7 0 0 1 3 14.288V1.713z"/></svg>
           </button>
 
-          <!-- Stop / Reset -->
           <button type="button" class="sp-btn" id="stopBtn" title="Stop & Reset">
             <svg viewBox="0 0 16 16"><path d="M2.5 2.5h11v11h-11v-11z"/></svg>
           </button>
 
-          <!-- Next -->
           <button type="button" class="sp-btn" id="nextBtn" title="Berikutnya">
             <svg viewBox="0 0 16 16"><path d="M12.7 1a.7.7 0 0 0-.7.7v5.15L2.05 1.107A.7.7 0 0 0 1 1.712v12.575a.7.7 0 0 0 1.05.607L12 9.149V14.3a.7.7 0 0 0 .7.7h1.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7h-1.6z"/></svg>
           </button>
 
-          <!-- Loop -->
           <button type="button" class="sp-btn" id="loopBtn" title="Ulangi">
             <svg viewBox="0 0 16 16"><path d="M0 4.75A3.75 3.75 0 0 1 3.75 1h8.5A3.75 3.75 0 0 1 16 4.75v5a3.75 3.75 0 0 1-3.75 3.75H9.81l1.018 1.018a.75.75 0 1 1-1.06 1.06L6.939 12.75l2.829-2.828a.75.75 0 1 1 1.06 1.06L9.811 12h2.439a2.25 2.25 0 0 0 2.25-2.25v-5a2.25 2.25 0 0 0-2.25-2.25h-8.5A2.25 2.25 0 0 0 1.5 4.75v5A2.25 2.25 0 0 0 3.75 12H5v1.5H3.75A3.75 3.75 0 0 1 0 9.75v-5z"/></svg>
           </button>
@@ -983,6 +174,95 @@
       </div>
     </section>
   </main>
+
+  <!-- 🔹 Modal Pengaturan Umum -->
+  <div id="settingsModal" class="settings-modal">
+    <div class="settings-card">
+      <div class="settings-header">
+        <h3>⚙️ Pengaturan Pemutar</h3>
+        <button type="button" id="closeSettingsBtn" class="btn-close-modal">✕</button>
+      </div>
+
+      <!-- 1. Custom Background -->
+      <div class="setting-group">
+        <span class="setting-label">🖼️ Edit Background</span>
+        <div class="bg-presets">
+          <button type="button" class="bg-preset-btn" data-bg="https://i.imgur.com/53m3Fo5.png">Default</button>
+          <button type="button" class="bg-preset-btn" data-bg="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1000&q=80">Konser</button>
+          <button type="button" class="bg-preset-btn" data-bg="https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=1000&q=80">Galaxy</button>
+          <button type="button" class="bg-preset-btn" data-bg="">Polos Gelap</button>
+        </div>
+
+        <input type="file" id="setBgFile" accept="image/*" hidden />
+        <button type="button" class="btn-spotify-add" style="border-radius:8px; padding:8px; font-size:12px;" onclick="document.getElementById('setBgFile').click()">
+          📁 Upload Gambar Background dari Perangkat
+        </button>
+
+        <div class="setting-row-inline">
+          <input type="text" id="setBgUrl" placeholder="Atau tempel URL gambar background..." />
+          <button type="button" id="applyBgUrlBtn" class="btn-mini">Pakai</button>
+        </div>
+
+        <label class="checkbox-row">
+          <span>Terapkan background ke seluruh layar</span>
+          <input type="checkbox" id="setApplyPageBg" />
+        </label>
+
+        <div class="slider-group" style="margin-top:10px;">
+          <span>Kegelapan Overlay</span>
+          <input type="range" id="setDimOpacity" min="0.2" max="0.92" step="0.05" value="0.65" />
+        </div>
+      </div>
+
+      <!-- 2. Warna Tema Aksen -->
+      <div class="setting-group">
+        <span class="setting-label">🎨 Warna Tema Aksen</span>
+        <div class="color-dots">
+          <button type="button" class="color-dot active" data-color="#1db954" style="background:#1db954;" title="Spotify Green"></button>
+          <button type="button" class="color-dot" data-color="#38bdf8" style="background:#38bdf8;" title="Neon Blue"></button>
+          <button type="button" class="color-dot" data-color="#a855f7" style="background:#a855f7;" title="Cyber Purple"></button>
+          <button type="button" class="color-dot" data-color="#f43f5e" style="background:#f43f5e;" title="Sakura Pink"></button>
+          <button type="button" class="color-dot" data-color="#eab308" style="background:#eab308;" title="Gold"></button>
+        </div>
+      </div>
+
+      <!-- 3. Gaya Visualizer & Pemutaran -->
+      <div class="setting-group">
+        <span class="setting-label">📊 Visualizer & Pemutaran</span>
+        <div class="setting-row-inline">
+          <select id="setVizStyle" class="setting-select">
+            <option value="bars">Gaya Visualizer: Spektrum Batang (Bars)</option>
+            <option value="wave">Gaya Visualizer: Gelombang (Wave)</option>
+          </select>
+        </div>
+
+        <label class="checkbox-row">
+          <span>Efek getar layar saat Bass tinggi</span>
+          <input type="checkbox" id="setBassShake" checked />
+        </label>
+
+        <label class="checkbox-row">
+          <span>Otomatis putar lagu berikutnya</span>
+          <input type="checkbox" id="setAutoNext" checked />
+        </label>
+      </div>
+
+      <!-- 4. Sleep Timer -->
+      <div class="setting-group" style="border-bottom:none; margin-bottom:6px;">
+        <span class="setting-label">⏲️ Sleep Timer (<span id="sleepTimerStatus">Nonaktif</span>)</span>
+        <select id="setSleepTimer" class="setting-select" style="width:100%;">
+          <option value="0">Nonaktif</option>
+          <option value="15">Berhenti otomatis dalam 15 menit</option>
+          <option value="30">Berhenti otomatis dalam 30 menit</option>
+          <option value="60">Berhenti otomatis dalam 60 menit</option>
+        </select>
+      </div>
+
+      <button type="button" id="resetSettingsBtn" class="btn-reset-playlist">
+        Kembalikan Pengaturan Default
+      </button>
+    </div>
+  </div>
 
   <!-- 🔹 Footer ala Otakudesu -->
   <footer class="otaku-footer">
@@ -1014,7 +294,7 @@
     const spotifyEmbedContainer = document.getElementById("spotifyEmbedContainer");
     const playPauseIcon = document.getElementById("playPauseIcon");
 
-    let activeMediaEl = audio; // bisa audio atau videoPlayer
+    let activeMediaEl = audio;
     let ctx, analyser, data, bassEQ, gainNode;
     let audioSrcNode, videoSrcNode;
     let tracks = [];
@@ -1042,10 +322,11 @@
             } else if (e.data === YT.PlayerState.PAUSED) {
               setPlayIcon(false);
             } else if (e.data === YT.PlayerState.ENDED) {
+              const autoNext = window.GP_PWA ? window.GP_PWA.getSettings().autoNext : true;
               if (isLoop) {
                 ytPlayer.seekTo(0);
                 ytPlayer.playVideo();
-              } else {
+              } else if (autoNext) {
                 playNext();
               }
             }
@@ -1226,8 +507,9 @@
       if (cvs.style.display === "none") return;
       analyser.getByteFrequencyData(data);
 
+      const settings = window.GP_PWA ? window.GP_PWA.getSettings() : { vizStyle: "bars", bassShake: true };
       const bassAvg = data.slice(0, 12).reduce((a, b) => a + b, 0) / 12;
-      if (bassAvg > 175) shake = 8;
+      if (settings.bassShake && bassAvg > 175) shake = 8;
 
       g.clearRect(0, 0, cvs.width, cvs.height);
       g.save();
@@ -1236,21 +518,38 @@
 
       const bars = data.length;
       const w = cvs.width / bars;
-      for (let i = 0; i < bars; i++) {
-        const v = data[i];
-        const h = (v / 255) * (cvs.height * 0.85);
-        const x = i * w;
-        const y = cvs.height / 2 - h / 2;
-        const hue = (140 + i * 1.8 + bassAvg * 0.6) % 360;
 
-        const grd = g.createLinearGradient(0, y, 0, y + h);
-        grd.addColorStop(0, `hsl(${hue}, 90%, 55%)`);
-        grd.addColorStop(1, `hsl(${(hue + 50) % 360}, 90%, 45%)`);
+      if (settings.vizStyle === "wave") {
+        g.beginPath();
+        g.lineWidth = 3;
+        g.strokeStyle = settings.accentColor || "#1db954";
+        g.shadowBlur = 14;
+        g.shadowColor = settings.accentColor || "#1db954";
+        for (let i = 0; i < bars; i++) {
+          const v = data[i] / 255;
+          const x = i * w;
+          const y = cvs.height / 2 + Math.sin(i * 0.25) * v * (cvs.height * 0.42);
+          if (i === 0) g.moveTo(x, y);
+          else g.lineTo(x, y);
+        }
+        g.stroke();
+      } else {
+        for (let i = 0; i < bars; i++) {
+          const v = data[i];
+          const h = (v / 255) * (cvs.height * 0.85);
+          const x = i * w;
+          const y = cvs.height / 2 - h / 2;
+          const hue = (140 + i * 1.8 + bassAvg * 0.6) % 360;
 
-        g.fillStyle = grd;
-        g.shadowBlur = 12;
-        g.shadowColor = `hsl(${hue}, 90%, 55%)`;
-        g.fillRect(x + 1, y, Math.max(w - 2, 1), h);
+          const grd = g.createLinearGradient(0, y, 0, y + h);
+          grd.addColorStop(0, `hsl(${hue}, 90%, 55%)`);
+          grd.addColorStop(1, `hsl(${(hue + 50) % 360}, 90%, 45%)`);
+
+          g.fillStyle = grd;
+          g.shadowBlur = 12;
+          g.shadowColor = `hsl(${hue}, 90%, 55%)`;
+          g.fillRect(x + 1, y, Math.max(w - 2, 1), h);
+        }
       }
       g.restore();
     }
@@ -1284,7 +583,7 @@
       if (tracks.length === 0) {
         container.innerHTML = `
           <div class="empty-playlist">
-            Playlist masih kosong.<br>Tambahkan file lagu/video lokal atau tempel link <strong>Spotify</strong> / <strong>YouTube</strong> (tetap bisa ditambah saat Offline).
+            Playlist masih kosong.<br>Tambahkan file lagu/video lokal atau tempel link <strong>Spotify</strong> / <strong>YouTube</strong>.
           </div>
         `;
         return;
@@ -1342,7 +641,6 @@
       document.getElementById("durTime").textContent = "0:00";
       document.getElementById("nowTitle").textContent = track.name;
 
-      // MODE 1: SPOTIFY EMBED
       if (track.type === "spotify") {
         if (!navigator.onLine) {
           document.getElementById("nowBadge").textContent = "OFFLINE - TERSIMPAN";
@@ -1360,7 +658,6 @@
         return;
       }
 
-      // MODE 2: YOUTUBE VIDEO + AUDIO
       if (track.type === "youtube") {
         if (!navigator.onLine) {
           document.getElementById("nowBadge").textContent = "OFFLINE - TERSIMPAN";
@@ -1380,7 +677,6 @@
         return;
       }
 
-      // MODE 3: FILE VIDEO LOKAL (.MP4 / .WEBM)
       if (activeBlobUrl) {
         URL.revokeObjectURL(activeBlobUrl);
         activeBlobUrl = null;
@@ -1406,7 +702,6 @@
         return;
       }
 
-      // MODE 4: FILE AUDIO LOKAL / DIRECT URL + VISUALIZER
       activeMediaEl = audio;
       if (track.type === "file" && track.blob) {
         activeBlobUrl = URL.createObjectURL(track.blob);
@@ -1437,7 +732,7 @@
       }
     }
 
-    /* === TAMBAH FILE LOKAL (AUDIO & VIDEO) === */
+    /* === TAMBAH FILE LOKAL === */
     document.getElementById("fileInput").onchange = async (e) => {
       const selected = [...e.target.files];
       if (!selected.length) return;
@@ -1457,7 +752,7 @@
       if (wasEmpty) playTrack(0);
     };
 
-    /* === TAMBAH LINK (BISA SAAT OFFLINE MAUPUN ONLINE) === */
+    /* === TAMBAH LINK === */
     document.getElementById("addUrlBtn").onclick = async () => {
       const urlEl = document.getElementById("urlInput");
       const rawUrl = urlEl.value.trim();
@@ -1466,7 +761,6 @@
       const wasEmpty = tracks.length === 0;
       const parsed = parseMediaLink(rawUrl);
 
-      // Jika sedang Online, ambil judul asli sekarang; jika Offline, tetap simpan ke IndexedDB lokal & tandai pendingSync
       if (navigator.onLine && (parsed.type === "spotify" || parsed.type === "youtube")) {
         try {
           const oembedEndpoint =
@@ -1612,7 +906,9 @@
         document.getElementById("durTime").textContent = formatTime(el.duration);
       };
       el.onended = () => {
-        if (!isLoop) playNext();
+        const autoNext = window.GP_PWA ? window.GP_PWA.getSettings().autoNext : true;
+        if (!isLoop && autoNext) playNext();
+        else setPlayIcon(false);
       };
     }
 
@@ -1632,7 +928,6 @@
       }
     };
 
-    // Muat playlist tersimpan saat halaman dibuka
     window.refreshPlaylist();
   </script>
 </body>
