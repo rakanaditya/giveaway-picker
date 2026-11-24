@@ -1,80 +1,54 @@
-/* === 1. SPLASH LOADING PROGRESS BAR & DETEKSI UPDATE OTOMATIS === */
-  const CURRENT_APP_VERSION = "v1.0.1"; // Samakan dengan APP_VERSION di sw.js
-  const loaderEl = document.getElementById("appLoader");
-  const loaderFillEl = document.getElementById("loaderBarFill");
-  const loaderPercentEl = document.getElementById("loaderPercentText");
-  const versionTextEl = document.getElementById("appVersionText");
+(function () {
+  /* === 1. DETEKSI & NOTIFIKASI UPDATE OTOMATIS === */
+  const CURRENT_APP_VERSION = "v1.0.1"; // Ubah setiap kali merilis update (v1.0.2, dst.)
+  const STORAGE_VER_KEY = "GP_MUSIC_INSTALLED_VER";
   const updateToast = document.getElementById("updateToast");
-  const reloadUpdateBtn = document.getElementById("reloadUpdateBtn");
+  const updateVersionLabel = document.getElementById("updateVersionLabel");
+  const closeUpdateToastBtn = document.getElementById("closeUpdateToastBtn");
 
-  if (versionTextEl) {
-    versionTextEl.textContent = `Giveaways Picker • ${CURRENT_APP_VERSION}`;
+  function showUpdatedNotification(version) {
+    if (!updateToast) return;
+    if (updateVersionLabel) {
+      updateVersionLabel.textContent = `App Version: ${version}`;
+    }
+    updateToast.classList.add("show");
+    // Otomatis hilang setelah 6 detik
+    setTimeout(() => {
+      updateToast.classList.remove("show");
+    }, 6000);
   }
 
-  let progress = 0;
-  let pageLoaded = false;
+  if (closeUpdateToastBtn && updateToast) {
+    closeUpdateToastBtn.addEventListener("click", () => {
+      updateToast.classList.remove("show");
+    });
+  }
 
-  const progressInterval = setInterval(() => {
-    if (!pageLoaded) {
-      // Naik bertahap hingga maksimal 90% sambil menunggu aset halaman siap
-      if (progress < 90) {
-        progress += Math.floor(Math.random() * 12) + 4;
-        if (progress > 90) progress = 90;
-      }
-    } else {
-      // Melaju cepat ke 100% setelah halaman selesai dimuat
-      progress += 10;
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(progressInterval);
-        setTimeout(() => {
-          if (loaderEl) loaderEl.classList.add("hidden");
-        }, 250);
-      }
-    }
+  // Cek apakah user baru saja mendapatkan versi terbaru saat membuka halaman
+  const lastSeenVersion = localStorage.getItem(STORAGE_VER_KEY);
+  if (lastSeenVersion && lastSeenVersion !== CURRENT_APP_VERSION) {
+    window.addEventListener("DOMContentLoaded", () => {
+      showUpdatedNotification(CURRENT_APP_VERSION);
+    });
+  }
+  localStorage.setItem(STORAGE_VER_KEY, CURRENT_APP_VERSION);
 
-    if (loaderFillEl) loaderFillEl.style.width = `${progress}%`;
-    if (loaderPercentEl) loaderPercentEl.textContent = `${progress}%`;
-  }, 60);
-
-  window.addEventListener("load", () => {
-    pageLoaded = true;
-  });
-
+  // Registrasi Service Worker & Auto-Update di latar belakang
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
       try {
         const reg = await navigator.serviceWorker.register("/sw.js");
-
-        // Cek update secara berkala setiap 60 detik
-        setInterval(() => reg.update(), 60 * 1000);
-
-        // Deteksi jika ada Service Worker versi baru yang selesai terpasang
-        reg.addEventListener("updatefound", () => {
-          const newWorker = reg.installing;
-          if (!newWorker) return;
-
-          newWorker.addEventListener("statechange", () => {
-            if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
-              if (updateToast) updateToast.classList.add("show");
-            }
-          });
-        });
+        reg.update();
       } catch (_) {}
     });
 
+    // Jika Service Worker baru mengambil alih saat halaman dibuka, reload otomatis agar langsung memakai versi baru
     let refreshing = false;
     navigator.serviceWorker.addEventListener("controllerchange", () => {
       if (!refreshing) {
         refreshing = true;
         window.location.reload();
       }
-    });
-  }
-
-  if (reloadUpdateBtn) {
-    reloadUpdateBtn.addEventListener("click", () => {
-      window.location.reload();
     });
   }
 /* === 2. TOMBOL INSTALL KE LAYAR UTAMA (SELALU TAMPIL DI BROWSER) === */
