@@ -37,30 +37,45 @@
       <h2>🎛️ Admin Panel Giveaway</h2>
       <p class="admin-badge">👤 Login sebagai: <strong id="adminUser"></strong></p>
 
+      <!-- Bagian 1: Jadwal -->
       <div class="admin-section">
         <h3>🕒 Atur Jadwal Giveaway</h3>
-        <div class="form-group">
-          <label for="startTimeInput">Waktu Mulai</label>
-          <input type="datetime-local" id="startTimeInput" />
+        <div class="form">
+          <div class="form-group">
+            <label for="startTimeInput">Waktu Mulai</label>
+            <input type="datetime-local" id="startTimeInput" />
+          </div>
+          <div class="form-group">
+            <label for="endTimeInput">Waktu Selesai</label>
+            <input type="datetime-local" id="endTimeInput" />
+          </div>
+          <button type="button" onclick="saveDeadline()" class="btn-silver-jp">💾 Simpan Jadwal</button>
         </div>
-        <div class="form-group">
-          <label for="endTimeInput">Waktu Selesai</label>
-          <input type="datetime-local" id="endTimeInput" />
-        </div>
-        <button onclick="saveDeadline()" class="btn-silver-jp">💾 Simpan Jadwal</button>
       </div>
 
       <hr class="divider" />
 
+      <!-- Bagian 2: Daftar Peserta & Undi Pemenang -->
       <div class="admin-section">
-        <h3>🧹 Manajemen Peserta & Reset</h3>
-        <button onclick="resetPeserta()" class="btn-silver-jp btn-danger">🚨 Reset Giveaway & Hapus Peserta</button>
+        <h3>👥 Peserta Terdaftar (<span id="participantCount">0</span>)</h3>
+        <ul id="adminParticipantsList" class="participants-list">
+          <li class="empty-text">Memuat data peserta...</li>
+        </ul>
+        <button type="button" onclick="pickWinner()" class="btn-silver-jp btn-primary-accent">🏆 Acak & Tetapkan Pemenang</button>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Bagian 3: Reset -->
+      <div class="admin-section">
+        <h3>🧹 Manajemen & Reset</h3>
+        <button type="button" onclick="resetPeserta()" class="btn-silver-jp btn-danger">🚨 Reset Giveaway & Hapus Peserta</button>
       </div>
 
       <div id="statusMsg" class="status-message"></div>
 
-      <div style="margin-top: 25px;">
-        <button onclick="logout()" class="btn-silver-jp">🔓 Logout</button>
+      <div style="margin-top: 20px;">
+        <button type="button" onclick="logout()" class="btn-silver-jp">🔓 Logout</button>
       </div>
     </div>
   </main>
@@ -88,31 +103,55 @@
 
     document.getElementById("adminUser").textContent = user.username;
     const statusMsg = document.getElementById("statusMsg");
+    const participantsUl = document.getElementById("adminParticipantsList");
+    const participantCount = document.getElementById("participantCount");
 
-    // Helper format Date ISO ke datetime-local sesuai zona waktu lokal
     function toLocalDatetimeInput(isoString) {
       const date = new Date(isoString);
       const offset = date.getTimezoneOffset() * 60000;
       return new Date(date.getTime() - offset).toISOString().slice(0, 16);
     }
 
-    // === Ambil waktu dari backend
-    fetch("/api/data")
-      .then(res => res.json())
-      .then(data => {
+    async function safeJson(res) {
+      const text = await res.text();
+      try {
+        return JSON.parse(text);
+      } catch {
+        throw new Error("Server error: " + text.slice(0, 80));
+      }
+    }
+
+    async function loadAdminData() {
+      try {
+        const res = await fetch("/api/data");
+        const data = await safeJson(res);
+
         if (data.startTime) {
           document.getElementById("startTimeInput").value = toLocalDatetimeInput(data.startTime);
         }
         if (data.endTime) {
           document.getElementById("endTimeInput").value = toLocalDatetimeInput(data.endTime);
         }
-      })
-      .catch(err => {
-        statusMsg.style.color = "#dc2626";
-        statusMsg.textContent = "⚠️ Gagal mengambil data waktu: " + err.message;
-      });
 
-    // === Simpan Deadline
+        const list = data.participants || [];
+        participantCount.textContent = list.length;
+        participantsUl.innerHTML = "";
+
+        if (list.length === 0) {
+          participantsUl.innerHTML = `<li class="empty-text">Belum ada peserta yang masuk.</li>`;
+        } else {
+          list.forEach((p, idx) => {
+            const li = document.createElement("li");
+            li.innerHTML = `<span>#${idx + 1} <strong>${p.username}</strong></span> <span class="badge-num">Angka: ${p.number}</span>`;
+            participantsUl.appendChild(li);
+          });
+        }
+      } catch (err) {
+        statusMsg.style.color = "#dc2626";
+        statusMsg.textContent = "⚠️ Gagal memuat data: " + err.message;
+      }
+    }
+
     async function saveDeadline() {
       const startRaw = document.getElementById("startTimeInput").value;
       const endRaw = document.getElementById("endTimeInput").value;
@@ -153,14 +192,14 @@
           })
         });
 
-        const data = await res.json();
+        const data = await safeJson(res);
 
         if (data.success) {
           statusMsg.style.color = "#16a34a";
           statusMsg.textContent = "✅ " + data.message;
         } else {
           statusMsg.style.color = "#dc2626";
-          statusMsg.textContent = "❌ Gagal menyimpan: " + (data.message || "Unknown error");
+          statusMsg.textContent = "❌ " + (data.message || "Gagal menyimpan jadwal");
         }
       } catch (err) {
         statusMsg.style.color = "#dc2626";
@@ -168,7 +207,37 @@
       }
     }
 
-    // === Reset Peserta
+    async function pickWinner() {
+      if (!confirm("🏆 Acak dan umumkan pemenang dari peserta saat ini?")) return;
+
+      statusMsg.style.color = "#1e293b";
+      statusMsg.textContent = "🎲 Mengundi pemenang...";
+
+      try {
+        const res = await fetch("/api/data", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "pickWinner",
+            username: user.username
+          })
+        });
+
+        const data = await safeJson(res);
+
+        if (data.success) {
+          statusMsg.style.color = "#16a34a";
+          statusMsg.textContent = "🎉 " + data.message;
+        } else {
+          statusMsg.style.color = "#dc2626";
+          statusMsg.textContent = "❌ " + (data.message || "Gagal memilih pemenang");
+        }
+      } catch (err) {
+        statusMsg.style.color = "#dc2626";
+        statusMsg.textContent = "❌ Error: " + err.message;
+      }
+    }
+
     async function resetPeserta() {
       if (!confirm("⚠️ Yakin ingin mereset seluruh peserta dan pemenang giveaway?")) return;
 
@@ -185,14 +254,15 @@
           })
         });
 
-        const data = await res.json();
+        const data = await safeJson(res);
 
         if (data.success) {
           statusMsg.style.color = "#16a34a";
           statusMsg.textContent = "✅ " + data.message;
+          loadAdminData();
         } else {
           statusMsg.style.color = "#dc2626";
-          statusMsg.textContent = "❌ Gagal reset: " + (data.message || "Unknown error");
+          statusMsg.textContent = "❌ " + (data.message || "Gagal reset");
         }
       } catch (err) {
         statusMsg.style.color = "#dc2626";
@@ -200,11 +270,12 @@
       }
     }
 
-    // === Logout
     function logout() {
       localStorage.removeItem("giveawayUser");
       window.location.href = "/login";
     }
+
+    loadAdminData();
   </script>
 </body>
 </html>
