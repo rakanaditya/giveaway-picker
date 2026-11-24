@@ -2,260 +2,487 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tentang Website</title>
-  <link rel="stylesheet" href="/style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Giveaways Picker - Tentang Website</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-  * { box-sizing: border-box; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
 
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #1f1c2c, #928dab);
-    background-size: cover;
-    color: #e0e0e0;
-    text-align: center;
-  }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
+      background-attachment: fixed;
+      background-size: cover;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: #1e293b;
+    }
 
-  .navbar {
-    background-color: #0f0f1a;
-    color: white;
-    padding: 15px 25px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-  }
+    /* === HEADER ALA OTAKUDESU === */
+    .site-header {
+      background-color: #11161d;
+      padding: 22px 20px 18px;
+      text-align: left;
+      border-bottom: 1px solid #1e293b;
+    }
 
-  .navbar .nav-links a {
-    color: white;
-    margin-left: 20px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: color .2s;
-  }
+    .header-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+    }
 
-  .navbar .nav-links a:hover {
-    color: #00f7ff;
-    text-shadow: 0 0 5px #00f7ff;
-  }
+    .site-title {
+      margin: 0;
+      font-size: 32px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 1.5px;
+      line-height: 1.1;
+    }
 
-  .container {
-    max-width: 1080px;
-    margin: 30px auto;
-    padding: 30px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    backdrop-filter: blur(12px);
-  }
+    .site-subtitle {
+      display: inline-block;
+      margin-top: 4px;
+      background-color: #2563eb;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 3px;
+      letter-spacing: 0.5px;
+    }
 
-  h2 {
-    color: #ffffff;
-    font-size: 26px;
-    margin-bottom: 15px;
-    text-shadow: 0 0 10px #00f7ff;
-  }
+    /* === NAVBAR ALA OTAKUDESU === */
+    .otaku-navbar {
+      background-color: #181f29;
+      border-bottom: 3px solid #2563eb;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
 
-  p, li {
-    font-size: 16px;
-    line-height: 1.7;
-    margin-bottom: 20px;
-  }
+    .nav-container {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+    }
 
-  ul { padding-left: 20px; }
+    .nav-container a {
+      color: #e2e8f0;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 13px 16px;
+      letter-spacing: 0.5px;
+      transition: background-color 0.2s, color 0.2s;
+    }
 
-  /* Carousel */
-  .carousel {
-    display: flex;
-    overflow-x: auto;
-    scroll-behavior: smooth;
-    gap: 10px;
-    margin-top: 20px;
-    scroll-snap-type: x mandatory;
-    padding-bottom: 10px;
-    align-items: center;
-  }
+    .nav-container a:hover,
+    .nav-container a.active {
+      background-color: #2563eb;
+      color: #ffffff;
+    }
 
-  .carousel img {
-    max-height: 300px;
-    max-width: 100%;
-    height: auto;
-    min-width: 280px;
-    border-radius: 10px;
-    flex-shrink: 0;
-    scroll-snap-align: center;
-    cursor: pointer;
-    transition: transform .3s;
-    object-fit: contain;
-  }
+    /* === MAIN WRAPPER & CARD === */
+    .main-wrapper {
+      flex: 1;
+      padding: 35px 16px;
+    }
 
-  .carousel img:hover { transform: scale(1.05); }
+    .container {
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 36px 34px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14), inset 0 1px 0 #ffffff;
+      text-align: center;
+      animation: fadeInUp 0.45s ease;
+    }
 
-  /* Modal */
-  .modal {
-    display: none;
-    position: fixed;
-    z-index: 999;
-    inset: 0;
-    background: rgba(0,0,0,.85);
-    align-items: center;
-    justify-content: center;
-  }
+    h2 {
+      color: #0f172a;
+      font-size: 26px;
+      margin: 0 0 16px 0;
+      font-weight: 700;
+    }
 
-  .modal-content {
-    max-width: 90%;
-    max-height: 90%;
-    border-radius: 12px;
-    box-shadow: 0 0 15px rgba(255,255,255,.2);
-  }
+    p {
+      font-size: 15.5px;
+      line-height: 1.75;
+      margin: 0 0 18px 0;
+      color: #334155;
+    }
 
-  .close-btn {
-    position: absolute;
-    top: 25px;
-    right: 35px;
-    font-size: 32px;
-    color: white;
-    cursor: pointer;
-    font-weight: bold;
-  }
+    /* === CAROUSEL BUKTI GIVEAWAY === */
+    .carousel-wrapper {
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid #cbd5e1;
+      border-radius: 14px;
+      padding: 18px;
+      margin: 22px 0 26px 0;
+    }
 
-  /* Mobile Responsive */
-  @media (max-width: 600px) {
-    .container { margin: 12px; padding: 20px; }
-    h2 { font-size: 22px; }
-    .navbar { flex-direction: column; gap: 6px; }
-    .navbar .nav-links { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-    .carousel img { max-height: 200px; }
-    .close-btn { top: 15px; right: 20px; font-size: 28px; }
-  }
+    .carousel {
+      display: flex;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      gap: 14px;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 10px;
+      align-items: center;
+    }
 
-/* === MOBILE FIX — layout lebih rapi & jelas === */
-@media (max-width: 600px) {
+    .carousel::-webkit-scrollbar {
+      height: 7px;
+    }
 
-  .container {
-    margin: 12px;
-    padding: 18px;
-    text-align: left;
-  }
+    .carousel::-webkit-scrollbar-track {
+      background: #e2e8f0;
+      border-radius: 10px;
+    }
 
-  h2 {
-    text-align: center;
-    font-size: 20px;
-  }
+    .carousel::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 10px;
+    }
 
-  /* teks paragraf lebih readable */
-  p {
-    font-size: 14px;
-    line-height: 1.6;
-  }
+    .carousel img {
+      height: 240px;
+      min-width: 260px;
+      max-width: 100%;
+      border-radius: 10px;
+      flex-shrink: 0;
+      scroll-snap-align: center;
+      cursor: zoom-in;
+      object-fit: cover;
+      border: 1.5px solid #cbd5e1;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
 
-  /* ubah carousel jadi grid stack */
-  .carousel {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-    overflow-x: hidden;   /* hilangkan scroll samping */
-    padding-bottom: 0;
-  }
+    .carousel img:hover {
+      transform: scale(1.03);
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
+    }
 
-  .carousel img {
-    width: 100%;
-    max-height: none;
-    min-width: auto;
-    border-radius: 12px;
-    object-fit: cover;
-    scroll-snap-align: unset;
-  }
+    .hint-text {
+      font-size: 12.5px;
+      color: #64748b;
+      margin: 8px 0 0 0;
+    }
 
-  /* modal tetap nyaman */
-  .modal-content {
-    max-width: 95%;
-    max-height: 85%;
-  }
-}
+    /* === JAPANESE MODERN SILVER BUTTON === */
+    .btn-silver-jp {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 11px 26px;
+      background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%);
+      color: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      font-family: 'Poppins', sans-serif;
+      font-size: 14.5px;
+      font-weight: 600;
+      border-radius: 9px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+    }
 
-    
+    .btn-silver-jp::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+      transition: 0.5s;
+    }
+
+    .btn-silver-jp:hover::after {
+      left: 100%;
+    }
+
+    .btn-silver-jp:hover {
+      background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.22), inset 0 1px 0 #ffffff;
+      transform: translateY(-2px);
+      color: #020617;
+    }
+
+    /* === MODAL ZOOM GAMBAR === */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-content {
+      max-width: 90%;
+      max-height: 82vh;
+      border-radius: 14px;
+      border: 2px solid #ffffff;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 22px;
+      right: 30px;
+      font-size: 34px;
+      color: #ffffff;
+      cursor: pointer;
+      font-weight: 700;
+      line-height: 1;
+      z-index: 1001;
+    }
+
+    /* === FOOTER ALA OTAKUDESU === */
+    .otaku-footer {
+      background-color: #11161d;
+      color: #94a3b8;
+      text-align: center;
+      padding: 20px 15px;
+      border-top: 3px solid #2563eb;
+      font-size: 13px;
+    }
+
+    .footer-links {
+      margin-bottom: 8px;
+    }
+
+    .footer-links a {
+      color: #e2e8f0;
+      text-decoration: none;
+      font-weight: 600;
+      margin: 0 10px;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: #38bdf8;
+    }
+
+    .footer-links span {
+      color: #475569;
+    }
+
+    .footer-copy {
+      font-size: 12px;
+      color: #94a3b8;
+      letter-spacing: 0.3px;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* === RESPONSIVE MOBILE === */
+    @media screen and (max-width: 768px) {
+      .site-header {
+        text-align: center;
+        padding: 16px 12px;
+      }
+
+      .site-title {
+        font-size: 24px;
+      }
+
+      .nav-container {
+        justify-content: center;
+      }
+
+      .nav-container a {
+        font-size: 12px;
+        padding: 10px 12px;
+      }
+
+      .container {
+        padding: 24px 18px;
+      }
+
+      h2 {
+        font-size: 21px;
+      }
+
+      p {
+        font-size: 14px;
+      }
+
+      .carousel-wrapper {
+        padding: 12px;
+      }
+
+      .carousel {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        overflow-x: hidden;
+        padding-bottom: 0;
+      }
+
+      .carousel img {
+        width: 100%;
+        height: auto;
+        min-width: auto;
+        scroll-snap-align: unset;
+      }
+
+      .btn-silver-jp {
+        width: 100%;
+      }
+
+      .close-btn {
+        top: 15px;
+        right: 20px;
+        font-size: 28px;
+      }
+    }
   </style>
 </head>
-
 <body>
 
-  <div class="navbar">
-    <div><strong>🎁 Giveaway</strong></div>
-    <div class="nav-links">
-      <a href="/">Beranda</a>
-      <a href="/shop.html">Shop</a>
-      <a href="/about.html">Tentang</a>
-      <a href="/login.html">Login</a>
-      <a href="/register.html">Register</a>
-      <a href="/event.html">Event</a>
-      <a href="/info.html">Tentang Website</a>
+  <!-- 🔹 Header Title ala Otakudesu -->
+  <header class="site-header">
+    <div class="header-inner">
+      <h1 class="site-title">GIVEAWAYS PICKER</h1>
+      <span class="site-subtitle">Platform Undian & Tebak Angka Komunitas</span>
     </div>
-  </div>
+  </header>
 
-  <div class="container">
-    <h2>ℹ️ Tentang Website Giveaway Picker</h2>
-
-    <p>
-      Website ini menggunakan HTML, CSS, dan JavaScript sebagai frontend,
-      serta Google Apps Script + Google Sheets sebagai backend.
-      Semua sistem validasi peserta, pengambilan pemenang, dan integrasi Discord berjalan otomatis.
-    </p>
-
-    <p>Berikut bukti giveaway nyata dari server <strong>Rakan Aditya Community</strong> 👇</p>
-
-    <div class="carousel" id="carousel">
-      <img src="https://i.imgur.com/xyq3S9A.jpeg" alt="bukti1">
-      <img src="https://i.imgur.com/ZoMCLdP.jpeg" alt="bukti2">
-      <img src="https://i.imgur.com/sInniAs.jpeg" alt="bukti3">
-      <img src="https://i.imgur.com/oI7nR6N.jpeg" alt="bukti4">
-      <img src="https://i.imgur.com/8Erz9g1.jpeg" alt="bukti5">
-      <img src="https://i.imgur.com/B8gboUY.jpeg" alt="bukti6">
-      <img src="https://i.imgur.com/DaaNYgS.jpeg" alt="bukti7">
-      <img src="https://i.imgur.com/mqo9IoH.jpeg" alt="bukti8">
+  <!-- 🔹 Menu Navbar ala Otakudesu -->
+  <nav class="otaku-navbar">
+    <div class="nav-container">
+      <a href="/home">HOME</a>
+      <a href="/shop">SHOP</a>
+      <a href="/about">TENTANG</a>
+      <a href="/login">LOGIN</a>
+      <a href="/register">REGISTER</a>
+      <a href="/event">EVENT</a>
+      <a href="/info" class="active">TENTANG WEBSITE</a>
+      <a href="/music">MUSIC</a>
     </div>
+  </nav>
 
-    <p style="margin-top: 40px;">
-      Jika menemukan bug atau ingin mengusulkan fitur baru,
-      silakan bergabung ke server Discord kami — komunitas aktif & ramah 😊
-    </p>
-  </div>
+  <!-- 🔹 Main Content -->
+  <main class="main-wrapper">
+    <div class="container">
+      <h2>ℹ️ Tentang Website Giveaways Picker</h2>
 
+      <p>
+        Website ini dibangun menggunakan HTML, CSS, dan JavaScript modern di sisi antarmuka,
+        serta ditenagai oleh <strong>Vercel Serverless Functions</strong>, database <strong>MongoDB Atlas</strong>, dan integrasi <strong>Discord Webhook</strong> di sisi backend.
+        Seluruh sistem validasi peserta, pengacakan pemenang, serta notifikasi hadiah berjalan secara otomatis dan transparan.
+      </p>
+
+      <p>Berikut dokumentasi bukti giveaway nyata dari server <strong>Rakan Aditya Community</strong> 👇</p>
+
+      <div class="carousel-wrapper">
+        <div class="carousel" id="carousel">
+          <img src="https://i.imgur.com/xyq3S9A.jpeg" alt="Bukti Giveaway 1" />
+          <img src="https://i.imgur.com/ZoMCLdP.jpeg" alt="Bukti Giveaway 2" />
+          <img src="https://i.imgur.com/sInniAs.jpeg" alt="Bukti Giveaway 3" />
+          <img src="https://i.imgur.com/oI7nR6N.jpeg" alt="Bukti Giveaway 4" />
+          <img src="https://i.imgur.com/8Erz9g1.jpeg" alt="Bukti Giveaway 5" />
+          <img src="https://i.imgur.com/B8gboUY.jpeg" alt="Bukti Giveaway 6" />
+          <img src="https://i.imgur.com/DaaNYgS.jpeg" alt="Bukti Giveaway 7" />
+          <img src="https://i.imgur.com/mqo9IoH.jpeg" alt="Bukti Giveaway 8" />
+        </div>
+        <p class="hint-text">💡 Klik gambar mana saja untuk memperbesar tampilan.</p>
+      </div>
+
+      <p>
+        Jika menemukan kendala atau ingin mengusulkan fitur baru,
+        silakan bergabung ke server Discord kami — komunitas aktif & ramah 😊
+      </p>
+
+      <a href="https://discord.gg/4vNhCF5EHw" target="_blank" class="btn-silver-jp">💬 Gabung Server Discord</a>
+    </div>
+  </main>
+
+  <!-- 🔹 Footer ala Otakudesu -->
+  <footer class="otaku-footer">
+    <div class="footer-links">
+      <a href="/about">About</a>
+      <span>|</span>
+      <a href="/info">Tentang</a>
+      <span>|</span>
+      <a href="/event">Tips</a>
+    </div>
+    <div class="footer-copy">
+      &copy; rakanaditya 2026
+    </div>
+  </footer>
+
+  <!-- Modal Zoom Gambar -->
   <div id="imgModal" class="modal">
-    <span class="close-btn" onclick="closeModal()">×</span>
-    <img class="modal-content" id="modalImg" />
+    <span class="close-btn" onclick="closeModal()">&times;</span>
+    <img class="modal-content" id="modalImg" alt="Preview Bukti Giveaway" />
   </div>
 
   <script>
-  const modal = document.getElementById("imgModal");
-  const modalImg = document.getElementById("modalImg");
+    const modal = document.getElementById("imgModal");
+    const modalImg = document.getElementById("modalImg");
 
-  document.querySelectorAll(".carousel img").forEach(img => {
-    img.addEventListener("click", () => {
-      modal.style.display = "flex";
-      modalImg.src = img.src;
-      modalImg.alt = img.alt;
+    document.querySelectorAll(".carousel img").forEach(img => {
+      img.addEventListener("click", () => {
+        modal.style.display = "flex";
+        modalImg.src = img.src;
+        modalImg.alt = img.alt;
+      });
     });
-  });
 
-  function closeModal() {
-    modal.style.display = "none";
-    modalImg.src = "";
-  }
+    function closeModal() {
+      modal.style.display = "none";
+      modalImg.src = "";
+    }
 
-  modal.addEventListener("click", e => { if (e.target === modal) closeModal(); });
-  window.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+    modal.addEventListener("click", e => {
+      if (e.target === modal) closeModal();
+    });
 
-  const carousel = document.getElementById("carousel");
-  let autoScroll = setInterval(() => {
-    const atEnd = carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 10;
-    if (atEnd) carousel.scrollTo({ left: 0, behavior: "smooth" });
-    else carousel.scrollBy({ left: 300, behavior: "smooth" });
-  }, 3000);
+    window.addEventListener("keydown", e => {
+      if (e.key === "Escape") closeModal();
+    });
+
+    const carousel = document.getElementById("carousel");
+    setInterval(() => {
+      if (window.innerWidth > 768) {
+        const atEnd = carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 10;
+        if (atEnd) carousel.scrollTo({ left: 0, behavior: "smooth" });
+        else carousel.scrollBy({ left: 300, behavior: "smooth" });
+      }
+    }, 3000);
   </script>
 
 </body>
