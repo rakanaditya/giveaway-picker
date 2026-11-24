@@ -1,6 +1,8 @@
-/* === 1. SPLASH LOADING & DETEKSI UPDATE OTOMATIS === */
+/* === 1. SPLASH LOADING PROGRESS BAR & DETEKSI UPDATE OTOMATIS === */
   const CURRENT_APP_VERSION = "v1.0.1"; // Samakan dengan APP_VERSION di sw.js
   const loaderEl = document.getElementById("appLoader");
+  const loaderFillEl = document.getElementById("loaderBarFill");
+  const loaderPercentEl = document.getElementById("loaderPercentText");
   const versionTextEl = document.getElementById("appVersionText");
   const updateToast = document.getElementById("updateToast");
   const reloadUpdateBtn = document.getElementById("reloadUpdateBtn");
@@ -9,11 +11,34 @@
     versionTextEl.textContent = `Giveaways Picker • ${CURRENT_APP_VERSION}`;
   }
 
-  // Hilangkan layar loading setelah halaman siap
+  let progress = 0;
+  let pageLoaded = false;
+
+  const progressInterval = setInterval(() => {
+    if (!pageLoaded) {
+      // Naik bertahap hingga maksimal 90% sambil menunggu aset halaman siap
+      if (progress < 90) {
+        progress += Math.floor(Math.random() * 12) + 4;
+        if (progress > 90) progress = 90;
+      }
+    } else {
+      // Melaju cepat ke 100% setelah halaman selesai dimuat
+      progress += 10;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(progressInterval);
+        setTimeout(() => {
+          if (loaderEl) loaderEl.classList.add("hidden");
+        }, 250);
+      }
+    }
+
+    if (loaderFillEl) loaderFillEl.style.width = `${progress}%`;
+    if (loaderPercentEl) loaderPercentEl.textContent = `${progress}%`;
+  }, 60);
+
   window.addEventListener("load", () => {
-    setTimeout(() => {
-      if (loaderEl) loaderEl.classList.add("hidden");
-    }, 650);
+    pageLoaded = true;
   });
 
   if ("serviceWorker" in navigator) {
@@ -21,7 +46,7 @@
       try {
         const reg = await navigator.serviceWorker.register("/sw.js");
 
-        // Cek update secara berkala setiap 60 detik saat aplikasi terbuka
+        // Cek update secara berkala setiap 60 detik
         setInterval(() => reg.update(), 60 * 1000);
 
         // Deteksi jika ada Service Worker versi baru yang selesai terpasang
@@ -38,7 +63,6 @@
       } catch (_) {}
     });
 
-    // Otomatis muat ulang halaman saat pengguna menekan "Perbarui"
     let refreshing = false;
     navigator.serviceWorker.addEventListener("controllerchange", () => {
       if (!refreshing) {
@@ -53,7 +77,6 @@
       window.location.reload();
     });
   }
-
 /* === 2. TOMBOL INSTALL KE LAYAR UTAMA (SELALU TAMPIL DI BROWSER) === */
   let deferredPrompt = null;
   const installBtn = document.getElementById("installAppBtn");
