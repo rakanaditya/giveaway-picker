@@ -1,0 +1,25 @@
+{
+  "name": "Giveaways Picker Music",
+  "short_name": "GP Music",
+  "description": "Pemutar Musik & Video ala Spotify dengan Mode Offline & Visualizer",
+  "start_url": "/music",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#090d16",
+  "theme_color": "#11161d",
+  "icons": [
+    {
+      "src": "https://i.imgur.com/53m3Fo5.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://i.imgur.com/53m3Fo5.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
