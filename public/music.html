@@ -15,14 +15,13 @@
 </head>
 <body>
 
-<!-- Splash Loading Progress Bar 0% - 100% dengan Nomor Versi -->
-  <div id="appLoader" class="app-loader">
-    <div class="loader-title">GIVEAWAYS PICKER</div>
-    <div class="loader-progress-wrap">
-      <div id="loaderBarFill" class="loader-progress-fill"></div>
+<!-- Notifikasi Otomatis Saat Versi Aplikasi Ter-update -->
+  <div id="updateToast" class="update-toast">
+    <div>
+      <div class="update-toast-title">✨ Aplikasi telah ter-update!</div>
+      <div class="update-toast-ver" id="updateVersionLabel">App Version: v1.0.1</div>
     </div>
-    <div id="loaderPercentText" class="loader-percent">0%</div>
-    <div class="loader-version" id="appVersionText">Giveaways Picker • v1.0.1</div>
+    <button type="button" id="closeUpdateToastBtn" class="btn-close-toast" title="Tutup">✕</button>
   </div>
   <!-- Petunjuk Install iOS Safari -->
   <div id="iosInstallHint" class="ios-hint">
