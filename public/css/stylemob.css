@@ -1,77 +1,139 @@
 /* === Japanese Silver Mobile Optimized Styles (/css/stylemob.css) === */
 @media screen and (max-width: 768px) {
   body {
-    padding: 10px !important;
+    padding: 0 !important;
     margin: 0 !important;
     background-attachment: scroll;
   }
 
-  .navbar {
-    padding: 12px 15px !important;
-    flex-direction: column;
-    gap: 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  /* === HEADER ALA OTAKUDESU (MOBILE) === */
+  .site-header {
+    padding: 16px 14px 14px !important;
+    text-align: center !important;
   }
 
-  .navbar .nav-links {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
+  .site-title {
+    font-size: 24px !important;
+    letter-spacing: 1px !important;
   }
 
-  .navbar .nav-links a {
-    margin-left: 0 !important;
-    font-size: 13px;
-    padding: 4px 8px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
+  .site-subtitle {
+    font-size: 10.5px !important;
+    padding: 2px 8px !important;
   }
 
-  .container {
+  /* === NAVBAR ALA OTAKUDESU (MOBILE) === */
+  .otaku-navbar {
+    padding: 4px 6px !important;
+  }
+
+  .nav-container {
+    justify-content: center !important;
+    gap: 2px;
+  }
+
+  .nav-container a {
+    font-size: 11.5px !important;
+    padding: 9px 10px !important;
+    letter-spacing: 0.3px !important;
+  }
+
+  /* === MAIN WRAPPER & CARD === */
+  .main-wrapper {
+    padding: 20px 12px !important;
+  }
+
+  .container,
+  .container.giveaway-box {
+    width: 100% !important;
     max-width: 100% !important;
-    margin: 15px 5px !important;
-    padding: 20px 15px !important;
-    backdrop-filter: blur(8px);
-    border-radius: 12px;
+    margin: 0 auto !important;
+    padding: 24px 18px !important;
+    border-radius: 14px !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
 
   h2 {
-    font-size: 20px !important;
-    margin-bottom: 12px !important;
+    font-size: 21px !important;
+    margin-bottom: 14px !important;
+  }
+
+  h3 {
+    font-size: 16.5px !important;
+    margin-bottom: 10px !important;
   }
 
   #statusText {
-    font-size: 24px !important;
-    line-height: 1.3;
+    font-size: 20px !important;
+    line-height: 1.35 !important;
   }
 
   #countdown {
-    font-size: 22px !important;
+    font-size: 17px !important;
+    margin: 6px 0 12px !important;
   }
 
-  form input[type="number"], 
-  form input[type="text"], 
+  #rollingText {
+    font-size: 18px !important;
+    margin-top: 10px !important;
+  }
+
+  /* === FORM & INPUT SERAGAM === */
+  form#numberForm {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
+  form input[type="number"],
+  form input[type="text"],
   form input[type="password"] {
-    font-size: 15px !important;
-    padding: 10px !important;
-  }
-
-  .btn-silver-jp, form button[type="submit"], #logoutBtn, .discord-button {
     width: 100% !important;
-    padding: 12px !important;
-    font-size: 15px !important;
-    margin-top: 8px !important;
+    height: 44px !important;
+    font-size: 14.5px !important;
+    padding: 0 14px !important;
+    margin: 0 !important;
+    border-radius: 9px !important;
   }
 
+  .btn-silver-jp,
+  form button[type="submit"],
+  #logoutBtn,
+  .discord-button {
+    width: 100% !important;
+    min-height: 44px !important;
+    padding: 10px 16px !important;
+    font-size: 14px !important;
+    margin-top: 6px !important;
+    border-radius: 9px !important;
+  }
+
+  /* === DAFTAR PESERTA === */
+  ul#participantsUl li {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 9px 12px !important;
+    font-size: 13.5px !important;
+  }
+
+  /* === WIDGET DISCORD === */
   iframe {
     width: 100% !important;
-    max-width: 320px !important;
-    height: 300px !important;
+    max-width: 100% !important;
+    height: 290px !important;
+    margin-top: 12px !important;
   }
 
-  ul#participantsUl li {
-    width: 95% !important;
-    font-size: 13px !important;
+  /* === FOOTER ALA OTAKUDESU (MOBILE) === */
+  .otaku-footer {
+    padding: 16px 12px !important;
+    font-size: 12px !important;
+  }
+
+  .footer-links a {
+    margin: 0 7px !important;
+    font-size: 12.5px !important;
   }
 }
