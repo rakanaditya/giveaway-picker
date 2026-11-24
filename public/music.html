@@ -15,6 +15,23 @@
 </head>
 <body>
 
+
+<!-- Splash Loading dengan Nomor Versi di Bawah -->
+  <div id="appLoader" class="app-loader">
+    <div class="loader-spinner"></div>
+    <div class="loader-title">GIVEAWAYS PICKER</div>
+    <div class="loader-version" id="appVersionText">Memuat... v1.0.1</div>
+  </div>
+
+  <!-- Banner Notifikasi Update Otomatis -->
+  <div id="updateToast" class="update-toast">
+    <div>
+      <strong>🚀 Update Baru Tersedia!</strong>
+      <div style="font-size:11px; color:#cbd5e1;" id="updateVersionLabel">Versi terbaru siap diterapkan.</div>
+    </div>
+    <button type="button" id="reloadUpdateBtn" class="btn-update-now">Perbarui</button>
+  </div>
+  
   <!-- Petunjuk Install iOS Safari -->
   <div id="iosInstallHint" class="ios-hint">
     📲 Untuk iPhone: tekan ikon <strong>Bagikan (Share)</strong> di bawah lalu pilih <strong>"Tambah ke Layar Utama"</strong>.
