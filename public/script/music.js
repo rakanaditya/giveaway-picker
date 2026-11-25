@@ -255,6 +255,7 @@
       spDeviceId = device_id;
     });
 
+    let spLastEndedTrackUri = null;
     spSdkPlayer.addListener("player_state_changed", (state) => {
       if (!state) return;
       spIsPlaying = !state.paused;
@@ -267,12 +268,20 @@
         setAlbumThumbnail(currentTrackMeta.album.images[0].url);
       }
 
+      if (!state.paused && state.position > 1000) {
+        spLastEndedTrackUri = null;
+      }
+
       if (
         state.paused &&
         state.position === 0 &&
         state.track_window?.previous_tracks?.length > 0 &&
         tracks[currentIndex]?.type === "spotify"
       ) {
+        const endedUri = currentTrackMeta?.uri || tracks[currentIndex]?.spotifyUri || String(currentIndex);
+        if (spLastEndedTrackUri === endedUri) return;
+        spLastEndedTrackUri = endedUri;
+
         const autoNext = window.GP_PWA ? window.GP_PWA.getSettings().autoNext : true;
         if (isLoop) {
           playTrack(currentIndex);
@@ -420,7 +429,7 @@
   let lyricsCache = JSON.parse(localStorage.getItem(LYRICS_CACHE_KEY) || "{}");
   let parsedLrcLines = [];
   let activeLyricIdx = -1;
-  let lyricTimeOffset = 0; // negatif = mundurkan lirik (cocok untuk MV YouTube ber-intro panjang)
+  let lyricTimeOffset = 0;
 
   function updateOffsetUI() {
     const lbl = document.getElementById("lyricOffsetLabel");
@@ -660,7 +669,6 @@
         }
       }
 
-      // Jalur 2 (Fallback ke /api/lyrics -> lyrics-finder)
       const apiParams = new URLSearchParams({
         artist: parsed.partB || "",
         title: parsed.partA || parsed.fullQuery
@@ -732,10 +740,33 @@
     }
   }
 
-  /* === YOUTUBE IFRAME PLAYER === */
+  /* === YOUTUBE IFRAME PLAYER (AUTO-QUEUE + RELIABLE AUTOPLAY NEXT) === */
   let ytPlayer = null;
   let ytReady = false;
   let ytTimer = null;
+  let pendingYtVideoId = null;
+  let ytEndHandled = false;
+
+  function handleCurrentTrackEnded() {
+    if (ytEndHandled) return;
+    ytEndHandled = true;
+    clearInterval(ytTimer);
+
+    const autoNext = window.GP_PWA ? window.GP_PWA.getSettings().autoNext : true;
+    if (isLoop) {
+      ytEndHandled = false;
+      if (ytReady && ytPlayer && typeof ytPlayer.seekTo === "function") {
+        ytPlayer.seekTo(0, true);
+        ytPlayer.playVideo();
+      } else {
+        playTrack(currentIndex);
+      }
+    } else if (autoNext) {
+      playNext();
+    } else {
+      setPlayIcon(false);
+    }
+  }
 
   function createYTPlayer() {
     if (ytPlayer || !window.YT || typeof window.YT.Player !== "function") return;
@@ -746,22 +777,32 @@
       events: {
         onReady: () => {
           ytReady = true;
+          if (pendingYtVideoId) {
+            const vid = pendingYtVideoId;
+            pendingYtVideoId = null;
+            const fallback = document.getElementById("ytFallbackFrame");
+            if (fallback) fallback.remove();
+            const ytPlayerDiv = document.getElementById("ytPlayer");
+            if (ytPlayerDiv) ytPlayerDiv.style.display = "block";
+            ytPlayer.loadVideoById(vid);
+            ytPlayer.setVolume((parseFloat(document.getElementById("vol").value) || 1) * 100);
+            ytPlayer.playVideo();
+          }
         },
         onStateChange: (e) => {
           if (e.data === YT.PlayerState.PLAYING) {
+            ytEndHandled = false;
             setPlayIcon(true);
             startYtProgress();
           } else if (e.data === YT.PlayerState.PAUSED) {
             setPlayIcon(false);
           } else if (e.data === YT.PlayerState.ENDED) {
-            const autoNext = window.GP_PWA ? window.GP_PWA.getSettings().autoNext : true;
-            if (isLoop) {
-              ytPlayer.seekTo(0);
-              ytPlayer.playVideo();
-            } else if (autoNext) {
-              playNext();
-            }
+            handleCurrentTrackEnded();
           }
+        },
+        onError: () => {
+          const autoNext = window.GP_PWA ? window.GP_PWA.getSettings().autoNext : true;
+          if (autoNext) setTimeout(() => playNext(), 1200);
         }
       }
     });
@@ -786,6 +827,10 @@
         document.getElementById("seek").value = (curr / dur) * 100;
         document.getElementById("currTime").textContent = formatTime(curr);
         document.getElementById("durTime").textContent = formatTime(dur);
+
+        if (curr >= dur - 0.5 && ytPlayer.getPlayerState() !== YT.PlayerState.PAUSED) {
+          handleCurrentTrackEnded();
+        }
       }
     }, 400);
   }
@@ -1030,6 +1075,8 @@
     videoPlayer.style.display = "none";
 
     clearInterval(ytTimer);
+    pendingYtVideoId = null;
+    ytEndHandled = false;
     if (ytReady && ytPlayer && typeof ytPlayer.stopVideo === "function") {
       ytPlayer.stopVideo();
     }
@@ -1347,6 +1394,7 @@
 
   function loadHybridYoutubeAudio(videoId, track, folderSubLabel) {
     isHybridAudioPlaying = true;
+    ytEndHandled = false;
     document.getElementById("nowBadge").textContent = "SPOTIFY FULL AUDIO" + folderSubLabel;
     document.getElementById("nowSub").textContent = track.url;
 
@@ -1362,15 +1410,12 @@
       const ytPlayerDiv = document.getElementById("ytPlayer");
       if (ytPlayerDiv) ytPlayerDiv.style.display = "block";
       ytPlayer.loadVideoById(videoId);
-      ytPlayer.setVolume(document.getElementById("vol").value * 100);
+      ytPlayer.setVolume((parseFloat(document.getElementById("vol").value) || 1) * 100);
+      ytPlayer.playVideo();
       setPlayIcon(true);
     } else {
-      const ytPlayerDiv = document.getElementById("ytPlayer");
-      if (ytPlayerDiv) ytPlayerDiv.style.display = "none";
-      ytContainer.insertAdjacentHTML(
-        "beforeend",
-        `<iframe id="ytFallbackFrame" src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1" allow="autoplay; encrypted-media" style="width:100%;height:100%;border:none;"></iframe>`
-      );
+      pendingYtVideoId = videoId;
+      createYTPlayer();
       setPlayIcon(true);
     }
   }
@@ -1400,7 +1445,6 @@
         return;
       }
 
-      // 1. Jika Owner Login Spotify Premium -> Putar via Spotify Web Playback SDK
       const playedViaSdk = await playSpotifyViaWebApi(track);
       if (playedViaSdk) {
         document.getElementById("nowBadge").textContent = "SPOTIFY WEB API" + folderSubLabel;
@@ -1412,7 +1456,6 @@
         return;
       }
 
-      // 2. Jika Non-Login / Free -> Cek Cache videoId Lokal dulu (0 API call)
       if (track.matchedVideoId) {
         loadHybridYoutubeAudio(track.matchedVideoId, track, folderSubLabel);
         window.refreshPlaylist();
@@ -1420,7 +1463,6 @@
         return;
       }
 
-      // 3. Cari Full Audio via /api/spotify (yt-search + Vercel CDN Cache)
       document.getElementById("nowBadge").textContent = "MENCARI FULL AUDIO...";
       document.getElementById("nowSub").textContent = track.url;
       try {
@@ -1443,7 +1485,6 @@
         }
       } catch (_) {}
 
-      // 4. Fallback terakhir ke Spotify Embed jika pencarian audio gagal
       document.getElementById("nowBadge").textContent = "SPOTIFY EMBED" + folderSubLabel;
       document.getElementById("nowSub").textContent = track.url;
       applyStageDisplayMode();
@@ -1469,20 +1510,18 @@
       document.getElementById("nowBadge").textContent = "YOUTUBE VIDEO" + folderSubLabel;
       document.getElementById("nowSub").textContent = track.url;
       applyStageDisplayMode();
+      ytEndHandled = false;
 
       if (ytReady && ytPlayer && typeof ytPlayer.loadVideoById === "function") {
         const ytPlayerDiv = document.getElementById("ytPlayer");
         if (ytPlayerDiv) ytPlayerDiv.style.display = "block";
         ytPlayer.loadVideoById(track.videoId);
-        ytPlayer.setVolume(document.getElementById("vol").value * 100);
+        ytPlayer.setVolume((parseFloat(document.getElementById("vol").value) || 1) * 100);
+        ytPlayer.playVideo();
         setPlayIcon(true);
       } else {
-        const ytPlayerDiv = document.getElementById("ytPlayer");
-        if (ytPlayerDiv) ytPlayerDiv.style.display = "none";
-        ytContainer.insertAdjacentHTML(
-          "beforeend",
-          `<iframe id="ytFallbackFrame" src="https://www.youtube.com/embed/${track.videoId}?autoplay=1&rel=0&playsinline=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen style="width:100%;height:100%;border:none;"></iframe>`
-        );
+        pendingYtVideoId = track.videoId;
+        createYTPlayer();
         setPlayIcon(true);
       }
 
@@ -1532,9 +1571,39 @@
     window.refreshPlaylist();
   }
 
-  /* === PUTAR OTOMATIS HANYA DI FOLDER YANG SEDANG DIBUKA === */
-  function playNext() {
+  /* === PUTAR OTOMATIS BERIKUTNYA (LOKAL, FOLDER, & SPOTIFY LIBRARY) === */
+  function getPlaybackPoolIndices() {
+    if (activeLibraryTab === "spotify" && spLibraryCache?.playlists?.length) {
+      const spItems = getFlattenedSpotifyTracks();
+      const spIndices = [];
+      for (const item of spItems) {
+        const folderId = `sp_fld_${item.playlistId}`;
+        const idx = tracks.findIndex(
+          (t) => t.folderId === folderId && (t.spotifyUri === item.spotifyUri || t.url === item.url)
+        );
+        if (idx !== -1) spIndices.push(idx);
+      }
+      if (spIndices.length > 0) return spIndices;
+    }
+
     const pool = getActiveFolderIndices();
+    if (pool.length > 0 && (currentIndex === -1 || pool.includes(currentIndex))) {
+      return pool;
+    }
+
+    const currTrack = currentIndex !== -1 ? tracks[currentIndex] : null;
+    if (currTrack?.folderId) {
+      const sameFolder = tracks
+        .map((t, i) => (t.folderId === currTrack.folderId ? i : -1))
+        .filter((i) => i !== -1);
+      if (sameFolder.length > 0) return sameFolder;
+    }
+
+    return tracks.map((_, i) => i);
+  }
+
+  function playNext() {
+    const pool = getPlaybackPoolIndices();
     if (!pool.length) return;
 
     if (isShuffle && pool.length > 1) {
@@ -1689,7 +1758,6 @@
       }
     }
 
-    // Fallback default (YouTube / MP3 URL)
     if (isCustom) parsed.folderId = activeFolder;
 
     if (navigator.onLine && parsed.type === "youtube") {
@@ -1758,7 +1826,7 @@
 
   /* === PLAY / PAUSE / STOP === */
   document.getElementById("playPauseBtn").onclick = () => {
-    const pool = getActiveFolderIndices();
+    const pool = getPlaybackPoolIndices();
     if (!pool.length) return;
 
     if (currentIndex === -1 || !pool.includes(currentIndex)) {
@@ -1838,7 +1906,7 @@
   };
 
   document.getElementById("prevBtn").onclick = () => {
-    const pool = getActiveFolderIndices();
+    const pool = getPlaybackPoolIndices();
     if (!pool.length) return;
 
     const posInPool = pool.indexOf(currentIndex);
