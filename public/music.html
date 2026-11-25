@@ -211,6 +211,30 @@
           </div>
         </div>
       </div>
+
+<!-- KANAN PALING UJUNG: Panel Mode Lyrics Otomatis -->
+    <aside class="spotify-lyrics" id="lyricsPanel">
+      <div class="sidebar-header">
+        <h3>
+          🎤 Mode Lyrics
+        </h3>
+        <span class="badge-count" id="lyricsStatusBadge">Auto</span>
+      </div>
+
+      <div class="lyrics-tools">
+        <input type="text" id="lyricsSearchInput" placeholder="Cari lirik manual..." />
+        <button type="button" id="searchLyricsBtn" title="Cari Lirik">🔍</button>
+        <input type="file" id="lrcFileInput" accept=".lrc,.txt" hidden />
+        <button type="button" id="uploadLrcBtn" title="Upload file .LRC / .TXT">📄</button>
+      </div>
+
+      <div class="lyrics-content" id="lyricsContent">
+        <div class="empty-playlist">
+          Putar lagu atau video untuk mendeteksi lirik otomatis (mendukung Synced Lyrics real-time).
+        </div>
+      </div>
+    </aside>
+      
     </section>
   </main>
 
