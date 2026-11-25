@@ -13,6 +13,7 @@
   <title>Giveaways Picker - Music & Video Player</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/music.css" />
+  <link rel="stylesheet" href="/css/musicmob.css" media="screen and (max-width: 1100px)" />
 </head>
 <body>
 
@@ -103,7 +104,7 @@
         </div>
       </div>
 
-      <!-- Switcher Halaman: Playlist Lokal vs Halaman Spotify Library (Muncul saat ada playlist Spotify atau login) -->
+      <!-- Switcher Halaman: Playlist Lokal vs Halaman Spotify Library -->
       <div class="library-view-tabs" id="libraryViewTabs" style="display:none;">
         <button type="button" class="lib-tab-btn active" id="tabLocalLibraryBtn">
           📂 Lokal (<span id="localTabCount">0</span>)
@@ -287,12 +288,12 @@
         <button type="button" id="uploadLrcBtn" title="Upload file .LRC / .TXT">📄</button>
       </div>
 
-      <div class="lyrics-offset-bar" style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:8px;font-size:11px;color:var(--text-muted);">
+      <div class="lyrics-offset-bar">
         <span>⏱️ Sinkronisasi: <strong id="lyricOffsetLabel">0.0s</strong></span>
-        <div style="display:flex;gap:4px;">
-          <button type="button" id="lyricOffsetMinusBtn" class="btn-mini" title="Perlambat lirik (-0.5 detik)">-0.5s</button>
-          <button type="button" id="lyricOffsetResetBtn" class="btn-mini" title="Reset ke 0.0 detik">0s</button>
-          <button type="button" id="lyricOffsetPlusBtn" class="btn-mini" title="Percepat lirik (+0.5 detik)">+0.5s</button>
+        <div class="lyrics-offset-btns">
+          <button type="button" id="lyricOffsetMinusBtn" class="btn-offset-mini" title="Perlambat lirik (-0.5 detik)">-0.5s</button>
+          <button type="button" id="lyricOffsetResetBtn" class="btn-offset-mini" title="Reset ke 0.0 detik">0s</button>
+          <button type="button" id="lyricOffsetPlusBtn" class="btn-offset-mini" title="Percepat lirik (+0.5 detik)">+0.5s</button>
         </div>
       </div>
 
