@@ -70,7 +70,7 @@
 
   <!-- 🔹 Spotify Style Music & Video Player (3 Kolom: Playlist | Player | Lyrics) -->
   <main class="spotify-wrapper">
-    <!-- KIRI: Playlist Lokal Browser -->
+    <!-- KIRI: Playlist Lokal & Halaman Spotify Library -->
     <aside class="spotify-sidebar">
       <div class="sidebar-header">
         <h3>
@@ -80,7 +80,7 @@
         <span class="badge-count" id="trackCount">0 Media</span>
       </div>
 
-     <div class="add-actions">
+      <div class="add-actions">
         <input type="file" id="fileInput" multiple accept="audio/*,video/*" hidden />
         <button type="button" class="btn-spotify-add" id="openFilePickerBtn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
@@ -112,9 +112,8 @@
         </button>
       </div>
 
-      <!-- HALAMAN 1: PLAYLIST LOKAL BROWSER (SISTEM LAMA UTUH) -->
+      <!-- HALAMAN 1: PLAYLIST LOKAL BROWSER -->
       <div id="localLibraryPage" class="library-page-pane">
-        <!-- Kotak Pencarian & Pengelola Folder Custom -->
         <div class="search-folder-box">
           <div class="playlist-search-wrap">
             <span class="playlist-search-icon">🔍</span>
@@ -156,7 +155,7 @@
         </button>
       </div>
 
-      <!-- HALAMAN 2: SPOTIFY LIBRARY & DAFTAR LAGU TERSEDIA (AKTIF SETELAH LOGIN) -->
+      <!-- HALAMAN 2: SPOTIFY LIBRARY & DAFTAR LAGU TERSEDIA -->
       <div id="spotifyLibraryPage" class="library-page-pane" style="display:none;">
         <div class="spotify-profile-banner" id="spotifyProfileBanner">
           <div class="sp-avatar-badge">🎧</div>
@@ -177,7 +176,7 @@
             <select id="spPlaylistFilter" title="Pilih Playlist Spotify">
               <option value="all">🎵 Semua Lagu Spotify</option>
             </select>
-            <button type="button" id="spPlayAllBtn" class="btn-folder-act play-fld" title="Putar Semua Lagu Halaman Ini">▶</button>
+            <button type="button" id="spPlayAllBtn" class="btn-folder-act play-fld" title="Putar Lagu Pertama di Halaman Ini">▶</button>
           </div>
         </div>
 
@@ -185,13 +184,13 @@
           <div class="empty-playlist">Memuat daftar lagu Spotify...</div>
         </div>
 
-        <!-- Pagination Halaman Lagu Spotify -->
         <div class="sp-pagination-bar" id="spPaginationBar">
           <button type="button" id="spPrevPageBtn" class="btn-page-nav" disabled>◀ Prev</button>
           <span class="sp-page-info" id="spPageInfo">Hal 1 / 1</span>
           <button type="button" id="spNextPageBtn" class="btn-page-nav" disabled>Next ▶</button>
         </div>
       </div>
+    </aside>
 
     <!-- TENGAH: Now Playing & Video/Visualizer Stage -->
     <section class="spotify-main">
@@ -398,7 +397,7 @@
     </div>
   </footer>
 
- <audio id="audio" crossorigin="anonymous"></audio>
+  <audio id="audio" crossorigin="anonymous"></audio>
   <script src="https://www.youtube.com/iframe_api"></script>
   <script src="https://sdk.scdn.co/spotify-player.js"></script>
   <script src="/js/music-mobile-pwa.js"></script>
