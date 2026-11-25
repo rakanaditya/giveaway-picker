@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.5, maximum-scale=5.0, user-scalable=yes" />
   <meta name="theme-color" content="#11161d" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -99,6 +99,21 @@
         </div>
       </div>
 
+<div class="backup-actions">
+     <button type="button" class="btn-backup" id="exportPlaylistBtn" title="Simpan semua lagu & video ke file cadangan">
+       📤 Export Playlist
+     </button>
+     <input type="file" id="importPlaylistInput" accept=".json,application/json" hidden />
+     <button type="button" class="btn-backup" onclick="document.getElementById('importPlaylistInput').click()" title="Muat ulang lagu & video dari file cadangan">
+       📥 Import Playlist
+     </button>
+   </div>
+
+   <button type="button" class="btn-reset-playlist" id="resetBtn">
+     Reset Semua Lagu & Video
+   </button>
+
+      
       <button type="button" class="btn-reset-playlist" id="resetBtn">
         Reset Semua Lagu & Video
       </button>
@@ -935,6 +950,130 @@
         activeMediaEl.currentTime = pct * activeMediaEl.duration;
       }
     };
+
+/* === EXPORT & IMPORT PLAYLIST (TERMASUK FILE LOKAL MP3/MP4) === */
+ function blobToBase64(blob) {
+   return new Promise((resolve, reject) => {
+     const reader = new FileReader();
+     reader.onloadend = () => resolve(reader.result);
+     reader.onerror = reject;
+     reader.readAsDataURL(blob);
+   });
+ }
+
+ function base64ToBlob(dataUrl) {
+   const [header, base64Data] = dataUrl.split(",");
+   const mimeMatch = header.match(/:(.*?);/);
+   const mime = mimeMatch ? mimeMatch[1] : "application/octet-stream";
+   const binary = atob(base64Data);
+   const len = binary.length;
+   const bytes = new Uint8Array(len);
+   for (let i = 0; i < len; i++) {
+     bytes[i] = binary.charCodeAt(i);
+   }
+   return new Blob([bytes], { type: mime });
+ }
+
+ document.getElementById("exportPlaylistBtn").onclick = async () => {
+   const allTracks = await window.getAllTracksDB();
+   if (!allTracks.length) {
+     alert("Playlist masih kosong, tidak ada yang bisa di-export.");
+     return;
+   }
+
+   const btn = document.getElementById("exportPlaylistBtn");
+   const oriText = btn.textContent;
+   btn.textContent = "⏳ Mengemas...";
+   btn.disabled = true;
+
+   try {
+     const exportedItems = [];
+     for (const item of allTracks) {
+       const copy = {
+         name: item.name,
+         type: item.type,
+         url: item.url || null,
+         embedUrl: item.embedUrl || null,
+         videoId: item.videoId || null,
+         pendingSync: item.pendingSync || false
+       };
+       if (item.blob instanceof Blob) {
+         copy.blobData = await blobToBase64(item.blob);
+       }
+       exportedItems.push(copy);
+     }
+
+     const payload = {
+       app: "GiveawaysPickerMusic",
+       exportedAt: new Date().toISOString(),
+       total: exportedItems.length,
+       tracks: exportedItems
+     };
+
+     const fileBlob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+     const downloadUrl = URL.createObjectURL(fileBlob);
+     const a = document.createElement("a");
+     const dateStr = new Date().toISOString().slice(0, 10);
+     a.href = downloadUrl;
+     a.download = `GP-Music-Playlist-${dateStr}.json`;
+     document.body.appendChild(a);
+     a.click();
+     a.remove();
+     URL.revokeObjectURL(downloadUrl);
+   } catch (err) {
+     alert("Gagal melakukan export playlist: " + err.message);
+   } finally {
+     btn.textContent = oriText;
+     btn.disabled = false;
+   }
+ };
+
+ document.getElementById("importPlaylistInput").onchange = async (e) => {
+   const file = e.target.files[0];
+   if (!file) return;
+
+   try {
+     const text = await file.text();
+     const parsed = JSON.parse(text);
+     const list = Array.isArray(parsed.tracks) ? parsed.tracks : Array.isArray(parsed) ? parsed : null;
+
+     if (!list || !list.length) {
+       alert("File backup playlist tidak valid atau kosong.");
+       e.target.value = "";
+       return;
+     }
+
+     const wasEmpty = tracks.length === 0;
+     let importedCount = 0;
+
+     for (const item of list) {
+       const trackRecord = {
+         name: item.name || "Media Imported",
+         type: item.type || "url",
+         url: item.url || null,
+         embedUrl: item.embedUrl || null,
+         videoId: item.videoId || null,
+         pendingSync: Boolean(item.pendingSync)
+       };
+
+       if (item.blobData && typeof item.blobData === "string" && item.blobData.startsWith("data:")) {
+         trackRecord.blob = base64ToBlob(item.blobData);
+       }
+
+       await addTrackDB(trackRecord);
+       importedCount++;
+     }
+
+     await window.refreshPlaylist();
+     if (wasEmpty && importedCount > 0) playTrack(0);
+     alert(`✅ Berhasil meng-import ${importedCount} lagu/video ke playlist!`);
+   } catch (err) {
+     alert("Gagal membaca file backup JSON: " + err.message);
+   } finally {
+     e.target.value = "";
+   }
+ };
+    
 
     window.refreshPlaylist();
   </script>
