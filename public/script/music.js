@@ -415,11 +415,64 @@
     };
   }
 
-/* === AUTO LYRICS ENGINE (PRESISI ARTIST/TITLE + DURATION SCORING + FALLBACK API) === */
+  /* === AUTO LYRICS ENGINE (PRESISI ARTIST/TITLE + DURATION SCORING + OFFSET + FALLBACK API) === */
   const LYRICS_CACHE_KEY = "gp_lyrics_cache_v1";
   let lyricsCache = JSON.parse(localStorage.getItem(LYRICS_CACHE_KEY) || "{}");
   let parsedLrcLines = [];
   let activeLyricIdx = -1;
+  let lyricTimeOffset = 0; // negatif = mundurkan lirik (cocok untuk MV YouTube ber-intro panjang)
+
+  function updateOffsetUI() {
+    const lbl = document.getElementById("lyricOffsetLabel");
+    if (lbl) {
+      const sign = lyricTimeOffset > 0 ? "+" : "";
+      lbl.textContent = `${sign}${lyricTimeOffset.toFixed(1)}s`;
+    }
+  }
+
+  function syncLyricsHighlight(currentSeconds) {
+    if (!parsedLrcLines.length) return;
+    const adjustedTime = currentSeconds + lyricTimeOffset;
+    let foundIdx = -1;
+    for (let i = 0; i < parsedLrcLines.length; i++) {
+      if (adjustedTime >= parsedLrcLines[i].time) {
+        foundIdx = i;
+      } else {
+        break;
+      }
+    }
+
+    if (foundIdx !== -1 && foundIdx !== activeLyricIdx) {
+      activeLyricIdx = foundIdx;
+      const container = document.getElementById("lyricsContent");
+      if (!container) return;
+      container.querySelectorAll(".lyric-line").forEach((el, idx) => {
+        el.classList.toggle("active", idx === foundIdx);
+      });
+      const activeEl = container.querySelector(`.lyric-line[data-idx="${foundIdx}"]`);
+      if (activeEl) {
+        activeEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  }
+
+  document.getElementById("lyricOffsetMinusBtn")?.addEventListener("click", () => {
+    lyricTimeOffset = Math.round((lyricTimeOffset - 0.5) * 10) / 10;
+    activeLyricIdx = -1;
+    updateOffsetUI();
+  });
+
+  document.getElementById("lyricOffsetPlusBtn")?.addEventListener("click", () => {
+    lyricTimeOffset = Math.round((lyricTimeOffset + 0.5) * 10) / 10;
+    activeLyricIdx = -1;
+    updateOffsetUI();
+  });
+
+  document.getElementById("lyricOffsetResetBtn")?.addEventListener("click", () => {
+    lyricTimeOffset = 0;
+    activeLyricIdx = -1;
+    updateOffsetUI();
+  });
 
   function saveLyricsCache(key, payload) {
     try {
@@ -438,7 +491,6 @@
       .replace(/\s+/g, " ")
       .trim();
 
-    // Pisahkan jika format "Bagian 1 - Bagian 2"
     const dashParts = cleaned.split(/\s+[-–—]\s+/);
     if (dashParts.length >= 2) {
       const partA = dashParts[0].replace(/\s+(feat|ft|prod)\.?\s+.*/i, "").trim();
@@ -465,7 +517,6 @@
     const a = parsed.partA.toLowerCase();
     const b = parsed.partB.toLowerCase();
 
-    // Cek kecocokan judul & artis (mendukung format "Title - Artist" dari Spotify maupun "Artist - Title" dari YouTube)
     if (b) {
       if (candTrack.includes(a) && candArtist.includes(b)) score += 60;
       else if (candTrack.includes(b) && candArtist.includes(a)) score += 60;
@@ -475,7 +526,6 @@
       score += 45;
     }
 
-    // Prioritaskan durasi yang paling mendekati media yang sedang diputar
     if (targetDurationSec > 0 && candidate.duration > 0) {
       const diff = Math.abs(candidate.duration - targetDurationSec);
       if (diff <= 3) score += 35;
@@ -483,7 +533,6 @@
       else if (diff > 20) score -= 25;
     }
 
-    // Bonus jika memiliki lirik tersinkronisasi (LRC)
     if (candidate.syncedLyrics) score += 15;
     else if (candidate.plainLyrics) score += 5;
 
@@ -539,7 +588,7 @@
 
       container.querySelectorAll(".lyric-line").forEach((el) => {
         el.onclick = () => {
-          const targetSec = parseFloat(el.dataset.time);
+          const targetSec = parseFloat(el.dataset.time) - lyricTimeOffset;
           const currentTrack = currentIndex !== -1 ? tracks[currentIndex] : null;
           if (
             (currentTrack?.type === "youtube" || isHybridAudioPlaying) &&
@@ -547,11 +596,11 @@
             ytPlayer &&
             typeof ytPlayer.seekTo === "function"
           ) {
-            ytPlayer.seekTo(targetSec, true);
+            ytPlayer.seekTo(Math.max(0, targetSec), true);
           } else if (currentTrack?.type === "spotify" && spSdkPlayer) {
-            spSdkPlayer.seek(Math.floor(targetSec * 1000));
+            spSdkPlayer.seek(Math.max(0, Math.floor(targetSec * 1000)));
           } else if (activeMediaEl) {
-            activeMediaEl.currentTime = targetSec;
+            activeMediaEl.currentTime = Math.max(0, targetSec);
           }
         };
       });
@@ -559,31 +608,6 @@
       container.innerHTML = `<div class="plain-lyrics">${plainText}</div>`;
     } else {
       container.innerHTML = `<div class="empty-playlist">Lirik tidak ditemukan untuk lagu ini.<br>Coba ubah kata kunci <strong>Artis - Judul</strong> di kotak atas atau upload file <strong>.LRC</strong>.</div>`;
-    }
-  }
-
-  function syncLyricsHighlight(currentSeconds) {
-    if (!parsedLrcLines.length) return;
-    let foundIdx = -1;
-    for (let i = 0; i < parsedLrcLines.length; i++) {
-      if (currentSeconds >= parsedLrcLines[i].time) {
-        foundIdx = i;
-      } else {
-        break;
-      }
-    }
-
-    if (foundIdx !== -1 && foundIdx !== activeLyricIdx) {
-      activeLyricIdx = foundIdx;
-      const container = document.getElementById("lyricsContent");
-      if (!container) return;
-      container.querySelectorAll(".lyric-line").forEach((el, idx) => {
-        el.classList.toggle("active", idx === foundIdx);
-      });
-      const activeEl = container.querySelector(`.lyric-line[data-idx="${foundIdx}"]`);
-      if (activeEl) {
-        activeEl.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
     }
   }
 
@@ -598,6 +622,8 @@
 
     if (searchInput) searchInput.value = parsed.fullQuery;
     parsedLrcLines = [];
+    lyricTimeOffset = 0;
+    updateOffsetUI();
 
     if (!forceRefresh && lyricsCache[cacheKey]) {
       const cached = lyricsCache[cacheKey];
@@ -1710,6 +1736,8 @@
     }
     currentIndex = -1;
     parsedLrcLines = [];
+    lyricTimeOffset = 0;
+    updateOffsetUI();
     applyStageDisplayMode();
     await clearTracksDB();
 
