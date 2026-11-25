@@ -80,67 +80,118 @@
         <span class="badge-count" id="trackCount">0 Media</span>
       </div>
 
-      <div class="add-actions">
+     <div class="add-actions">
         <input type="file" id="fileInput" multiple accept="audio/*,video/*" hidden />
         <button type="button" class="btn-spotify-add" id="openFilePickerBtn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
           Tambah Lagu / Video (MP3 & MP4)
         </button>
 
-      <div class="url-add-box">
+        <div class="url-add-box">
           <input type="text" id="urlInput" placeholder="Tempel link Spotify / YouTube / MP3..." />
           <button type="button" id="addUrlBtn">Add</button>
         </div>
 
-     <div class="spotify-auth-row">
-  <button type="button" id="spotifyLoginBtn" class="btn-spotify-login">
-    🎧 Login Spotify & Sync Folder
-  </button>
-  <button type="button" id="spotifySyncNowBtn" class="btn-spotify-sync" title="Sinkronkan ulang playlist Spotify">
-    🔄
-  </button>
-</div>
-      <!-- Kotak Pencarian & Pengelola Folder Custom -->
-      <div class="search-folder-box">
-        <div class="playlist-search-wrap">
-          <span class="playlist-search-icon">🔍</span>
-          <input type="text" id="playlistSearchInput" placeholder="Cari judul lagu atau folder..." />
-          <button type="button" id="clearSearchBtn" class="btn-clear-search" title="Hapus pencarian">✕</button>
-        </div>
-
-        <div class="folder-bar">
-          <select id="folderSelect" title="Pilih Folder Playlist">
-            <option value="all">📂 Semua Media</option>
-            <option value="mp3">🎵 Folder MP3 (Audio)</option>
-            <option value="mp4">🎬 Folder MP4 (Video)</option>
-          </select>
-          <button type="button" id="playFolderBtn" class="btn-folder-act play-fld" title="Putar Folder Ini" disabled>▶</button>
-          <button type="button" id="addFolderBtn" class="btn-folder-act" title="Buat Folder Baru">➕</button>
-          <button type="button" id="editFolderBtn" class="btn-folder-act" title="Ubah Nama Folder" disabled>✏️</button>
-          <button type="button" id="delFolderBtn" class="btn-folder-act del" title="Hapus Folder" disabled>🗑️</button>
+        <div class="spotify-auth-row">
+          <button type="button" id="spotifyLoginBtn" class="btn-spotify-login">
+            🎧 Login Spotify & Sync Folder
+          </button>
+          <button type="button" id="spotifySyncNowBtn" class="btn-spotify-sync" title="Sinkronkan ulang playlist Spotify">
+            🔄
+          </button>
         </div>
       </div>
 
-      <div class="playlist-items" id="playlistContainer">
-        <div class="empty-playlist">
-          Playlist masih kosong.<br>Tambahkan file lagu/video lokal atau tempel link <strong>Spotify</strong> / <strong>YouTube</strong>.
-        </div>
-      </div>
-
-      <div class="backup-actions">
-        <button type="button" class="btn-backup" id="exportPlaylistBtn" title="Simpan semua folder, lagu & video ke file cadangan">
-          📤 Export Playlist
+      <!-- Switcher Halaman: Playlist Lokal vs Halaman Spotify Library (Muncul setelah login) -->
+      <div class="library-view-tabs" id="libraryViewTabs" style="display:none;">
+        <button type="button" class="lib-tab-btn active" id="tabLocalLibraryBtn">
+          📂 Lokal (<span id="localTabCount">0</span>)
         </button>
-        <input type="file" id="importPlaylistInput" accept=".json,application/json" hidden />
-        <button type="button" class="btn-backup" id="triggerImportBtn" title="Muat ulang folder, lagu & video dari file cadangan">
-          📥 Import Playlist
+        <button type="button" class="lib-tab-btn" id="tabSpotifyLibraryBtn">
+          🎧 Spotify (<span id="spotifyTabCount">0</span>)
         </button>
       </div>
 
-      <button type="button" class="btn-reset-playlist" id="resetBtn">
-        Reset Semua Lagu & Video
-      </button>
-    </aside>
+      <!-- HALAMAN 1: PLAYLIST LOKAL BROWSER (SISTEM LAMA UTUH) -->
+      <div id="localLibraryPage" class="library-page-pane">
+        <!-- Kotak Pencarian & Pengelola Folder Custom -->
+        <div class="search-folder-box">
+          <div class="playlist-search-wrap">
+            <span class="playlist-search-icon">🔍</span>
+            <input type="text" id="playlistSearchInput" placeholder="Cari judul lagu atau folder..." />
+            <button type="button" id="clearSearchBtn" class="btn-clear-search" title="Hapus pencarian">✕</button>
+          </div>
+
+          <div class="folder-bar">
+            <select id="folderSelect" title="Pilih Folder Playlist">
+              <option value="all">📂 Semua Media</option>
+              <option value="mp3">🎵 Folder MP3 (Audio)</option>
+              <option value="mp4">🎬 Folder MP4 (Video)</option>
+            </select>
+            <button type="button" id="playFolderBtn" class="btn-folder-act play-fld" title="Putar Folder Ini" disabled>▶</button>
+            <button type="button" id="addFolderBtn" class="btn-folder-act" title="Buat Folder Baru">➕</button>
+            <button type="button" id="editFolderBtn" class="btn-folder-act" title="Ubah Nama Folder" disabled>✏️</button>
+            <button type="button" id="delFolderBtn" class="btn-folder-act del" title="Hapus Folder" disabled>🗑️</button>
+          </div>
+        </div>
+
+        <div class="playlist-items" id="playlistContainer">
+          <div class="empty-playlist">
+            Playlist masih kosong.<br>Tambahkan file lagu/video lokal atau tempel link <strong>Spotify</strong> / <strong>YouTube</strong>.
+          </div>
+        </div>
+
+        <div class="backup-actions">
+          <button type="button" class="btn-backup" id="exportPlaylistBtn" title="Simpan semua folder, lagu & video ke file cadangan">
+            📤 Export Playlist
+          </button>
+          <input type="file" id="importPlaylistInput" accept=".json,application/json" hidden />
+          <button type="button" class="btn-backup" id="triggerImportBtn" title="Muat ulang folder, lagu & video dari file cadangan">
+            📥 Import Playlist
+          </button>
+        </div>
+
+        <button type="button" class="btn-reset-playlist" id="resetBtn">
+          Reset Semua Lagu & Video
+        </button>
+      </div>
+
+      <!-- HALAMAN 2: SPOTIFY LIBRARY & DAFTAR LAGU TERSEDIA (AKTIF SETELAH LOGIN) -->
+      <div id="spotifyLibraryPage" class="library-page-pane" style="display:none;">
+        <div class="spotify-profile-banner" id="spotifyProfileBanner">
+          <div class="sp-avatar-badge">🎧</div>
+          <div class="sp-profile-meta">
+            <div class="sp-profile-name" id="spProfileName">Spotify User</div>
+            <div class="sp-profile-sub" id="spProfileSub">0 Playlist • 0 Lagu Tersedia</div>
+          </div>
+          <button type="button" id="spLogoutBtn" class="btn-sp-logout" title="Logout Akun Spotify">Logout</button>
+        </div>
+
+        <div class="search-folder-box">
+          <div class="playlist-search-wrap">
+            <span class="playlist-search-icon">🔍</span>
+            <input type="text" id="spTrackSearchInput" placeholder="Cari lagu Spotify tersedia..." />
+          </div>
+
+          <div class="folder-bar">
+            <select id="spPlaylistFilter" title="Pilih Playlist Spotify">
+              <option value="all">🎵 Semua Lagu Spotify</option>
+            </select>
+            <button type="button" id="spPlayAllBtn" class="btn-folder-act play-fld" title="Putar Semua Lagu Halaman Ini">▶</button>
+          </div>
+        </div>
+
+        <div class="playlist-items" id="spotifyTracksContainer">
+          <div class="empty-playlist">Memuat daftar lagu Spotify...</div>
+        </div>
+
+        <!-- Pagination Halaman Lagu Spotify -->
+        <div class="sp-pagination-bar" id="spPaginationBar">
+          <button type="button" id="spPrevPageBtn" class="btn-page-nav" disabled>◀ Prev</button>
+          <span class="sp-page-info" id="spPageInfo">Hal 1 / 1</span>
+          <button type="button" id="spNextPageBtn" class="btn-page-nav" disabled>Next ▶</button>
+        </div>
+      </div>
 
     <!-- TENGAH: Now Playing & Video/Visualizer Stage -->
     <section class="spotify-main">
