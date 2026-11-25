@@ -1,5 +1,5 @@
 // public/sw.js
-const APP_VERSION = "v1.0.1"; // Ubah ke v1.0.1, v1.1.0, dst. setiap kali update kode!
+const APP_VERSION = "v1.0.2"; // Ubah ke v1.0.1, v1.1.0, dst. setiap kali update kode!
 const CACHE_NAME = `gp-music-cache-${APP_VERSION}`;
 const ASSETS_TO_CACHE = [
   "/music",
