@@ -1,6 +1,6 @@
 (function () {
   /* === 1. DETEKSI & NOTIFIKASI UPDATE OTOMATIS === */
-  const CURRENT_APP_VERSION = "v1.0.1"; // Ubah setiap kali merilis update (v1.0.2, dst.)
+  const CURRENT_APP_VERSION = "v1.0.2"; // Ubah setiap kali merilis update (v1.0.2, dst.)
   const STORAGE_VER_KEY = "GP_MUSIC_INSTALLED_VER";
   const updateToast = document.getElementById("updateToast");
   const updateVersionLabel = document.getElementById("updateVersionLabel");
