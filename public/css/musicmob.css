@@ -145,6 +145,17 @@
   }
 }
 
+.floating-mini-player {
+    width: calc(100vw - 20px);
+    bottom: 10px;
+    border-radius: 12px;
+  }
+
+  .update-toast.show {
+    bottom: 78px;
+  }
+
+
 /* === MOBILE KECIL (<= 600px) === */
 @media screen and (max-width: 600px) {
   .update-toast {
