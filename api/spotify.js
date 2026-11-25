@@ -164,6 +164,135 @@ export default async function handler(req, res) {
       });
     }
 
+    // 5. Resolve URL Publik Spotify (Playlist / Album / Track) Tanpa Login User
+    if (body.action === "resolve_url") {
+      const { url } = body;
+      const match = String(url || "").match(
+        /open\.spotify\.com\/(?:intl-[a-z]+\/)?(playlist|album|track)\/([a-zA-Z0-9]+)/
+      );
+
+      if (!match) {
+        return res.status(400).json({ error: "Link Spotify tidak valid." });
+      }
+
+      const [, kind, id] = match;
+
+      // Client Credentials Token (tidak membutuhkan login user maupun kuota Development Mode)
+      const tokenRes = await fetch("https://accounts.spotify.com/api/token", {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${basicAuth}`,
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams({
+          grant_type: "client_credentials"
+        })
+      });
+
+      const tokenData = await tokenRes.json();
+      if (!tokenRes.ok || !tokenData.access_token) {
+        return res.status(tokenRes.status || 500).json({
+          error: "Gagal mendapatkan Client Credentials token Spotify."
+        });
+      }
+
+      const appHeaders = { Authorization: `Bearer ${tokenData.access_token}` };
+
+      if (kind === "playlist") {
+        const plRes = await fetch(`https://api.spotify.com/v1/playlists/${id}`, {
+          headers: appHeaders
+        });
+        const plData = await plRes.json();
+
+        if (!plRes.ok) {
+          return res.status(plRes.status).json({
+            error: plData.error?.message || "Playlist Spotify tidak ditemukan atau bersifat privat."
+          });
+        }
+
+        const plCover = plData.images?.[0]?.url || null;
+        const cleanTracks = (plData.tracks?.items || [])
+          .map((entry) => entry?.track)
+          .filter((t) => t && t.id && t.type === "track")
+          .map((t) => ({
+            spotifyTrackId: t.id,
+            spotifyUri: t.uri || `spotify:track:${t.id}`,
+            name: `${t.name} - ${(t.artists || []).map((a) => a.name).join(", ")}`,
+            url: t.external_urls?.spotify || `https://open.spotify.com/track/${t.id}`,
+            embedUrl: `https://open.spotify.com/embed/track/${t.id}?utm_source=generator&theme=0`,
+            thumbnail: t.album?.images?.[0]?.url || plCover,
+            durationMs: t.duration_ms || 0
+          }));
+
+        return res.status(200).json({
+          kind: "playlist",
+          folderName: plData.name,
+          thumbnail: plCover,
+          tracks: cleanTracks
+        });
+      }
+
+      if (kind === "album") {
+        const alRes = await fetch(`https://api.spotify.com/v1/albums/${id}`, {
+          headers: appHeaders
+        });
+        const alData = await alRes.json();
+
+        if (!alRes.ok) {
+          return res.status(alRes.status).json({
+            error: alData.error?.message || "Album Spotify tidak ditemukan."
+          });
+        }
+
+        const alCover = alData.images?.[0]?.url || null;
+        const cleanTracks = (alData.tracks?.items || [])
+          .filter((t) => t && t.id)
+          .map((t) => ({
+            spotifyTrackId: t.id,
+            spotifyUri: t.uri || `spotify:track:${t.id}`,
+            name: `${t.name} - ${(t.artists || []).map((a) => a.name).join(", ")}`,
+            url: t.external_urls?.spotify || `https://open.spotify.com/track/${t.id}`,
+            embedUrl: `https://open.spotify.com/embed/track/${t.id}?utm_source=generator&theme=0`,
+            thumbnail: alCover,
+            durationMs: t.duration_ms || 0
+          }));
+
+        return res.status(200).json({
+          kind: "album",
+          folderName: alData.name,
+          thumbnail: alCover,
+          tracks: cleanTracks
+        });
+      }
+
+      // Single Track
+      const trRes = await fetch(`https://api.spotify.com/v1/tracks/${id}`, {
+        headers: appHeaders
+      });
+      const trData = await trRes.json();
+
+      if (!trRes.ok) {
+        return res.status(trRes.status).json({
+          error: trData.error?.message || "Lagu Spotify tidak ditemukan."
+        });
+      }
+
+      return res.status(200).json({
+        kind: "track",
+        tracks: [
+          {
+            spotifyTrackId: trData.id,
+            spotifyUri: trData.uri || `spotify:track:${trData.id}`,
+            name: `${trData.name} - ${(trData.artists || []).map((a) => a.name).join(", ")}`,
+            url: trData.external_urls?.spotify || `https://open.spotify.com/track/${trData.id}`,
+            embedUrl: `https://open.spotify.com/embed/track/${trData.id}?utm_source=generator&theme=0`,
+            thumbnail: trData.album?.images?.[0]?.url || null,
+            durationMs: trData.duration_ms || 0
+          }
+        ]
+      });
+    }
+
     return res.status(400).json({ error: "Action tidak dikenali." });
   } catch (err) {
     return res.status(500).json({ error: err.message || "Internal Server Error" });
