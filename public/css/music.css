@@ -1337,6 +1337,11 @@ input[type="range"]:hover::-webkit-slider-thumb {
   background: var(--accent);
 }
 
+.btn-folder-act {
+  width: 28px;
+  height: 34px;
+  font-size: 12px;
+}
 
 @media screen and (max-width: 600px) {
   .update-toast {
