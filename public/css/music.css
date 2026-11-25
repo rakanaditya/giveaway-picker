@@ -201,6 +201,7 @@ body {
   padding: 18px;
   display: flex;
   flex-direction: column;
+  height: 740px;
   max-height: 740px;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
 }
@@ -212,6 +213,7 @@ body {
   margin-bottom: 12px;
   padding-bottom: 10px;
   border-bottom: 1px solid #282828;
+  flex-shrink: 0;
 }
 
 .sidebar-header h3 {
@@ -238,6 +240,7 @@ body {
   flex-direction: column;
   gap: 8px;
   margin-bottom: 12px;
+  flex-shrink: 0;
 }
 
 .btn-spotify-add {
@@ -359,6 +362,157 @@ body {
   transform: rotate(35deg);
 }
 
+/* === TABS & HALAMAN SPOTIFY LIBRARY === */
+.library-view-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  background: #141820;
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid #282f3d;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.lib-tab-btn {
+  padding: 7px 8px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: #94a3b8;
+  font-family: 'Poppins', sans-serif;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.lib-tab-btn.active {
+  background: var(--accent);
+  color: #041309;
+}
+
+.library-page-pane {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.spotify-profile-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(30, 215, 96, 0.16), rgba(20, 24, 32, 0.95));
+  border: 1px solid rgba(30, 215, 96, 0.35);
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+
+.sp-avatar-badge {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #1ed760;
+  color: #041309;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.sp-profile-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.sp-profile-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sp-profile-sub {
+  font-size: 10.5px;
+  color: #86efac;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-sp-logout {
+  padding: 5px 9px;
+  border-radius: 6px;
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  background: rgba(239, 68, 68, 0.14);
+  color: #fca5a5;
+  font-family: 'Poppins', sans-serif;
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.btn-sp-logout:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.sp-track-thumb {
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: #242424;
+}
+
+.sp-pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #262626;
+  flex-shrink: 0;
+}
+
+.btn-page-nav {
+  padding: 6px 12px;
+  border-radius: 7px;
+  border: 1px solid #334155;
+  background: #1e293b;
+  color: #e2e8f0;
+  font-family: 'Poppins', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-page-nav:hover:not(:disabled) {
+  border-color: #1ed760;
+  color: #ffffff;
+}
+
+.btn-page-nav:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.sp-page-info {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
 /* === FOLDER CUSTOM & PENCARIAN LAGU === */
 .search-folder-box {
   display: flex;
@@ -367,6 +521,7 @@ body {
   margin-bottom: 12px;
   padding-bottom: 10px;
   border-bottom: 1px solid #262626;
+  flex-shrink: 0;
 }
 
 .playlist-search-wrap {
@@ -490,6 +645,7 @@ body {
 /* LIST LAGU */
 .playlist-items {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -516,6 +672,7 @@ body {
   background: #181818;
   cursor: pointer;
   transition: background 0.2s;
+  flex-shrink: 0;
 }
 
 .track-item:hover {
@@ -640,6 +797,7 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   margin-top: 12px;
+  flex-shrink: 0;
 }
 
 .btn-backup {
@@ -679,6 +837,7 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
+  flex-shrink: 0;
 }
 
 .btn-reset-playlist:hover {
@@ -836,6 +995,7 @@ video#videoPlayer {
   padding: 18px;
   display: flex;
   flex-direction: column;
+  height: 740px;
   max-height: 740px;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
 }
@@ -844,6 +1004,7 @@ video#videoPlayer {
   display: flex;
   gap: 6px;
   margin-bottom: 12px;
+  flex-shrink: 0;
 }
 
 .lyrics-tools input[type="text"] {
@@ -883,6 +1044,7 @@ video#videoPlayer {
 
 .lyrics-content {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 10px 6px;
   scroll-behavior: smooth;
@@ -1355,6 +1517,12 @@ input[type="range"]:hover::-webkit-slider-thumb {
     grid-template-columns: 320px 1fr;
   }
 
+  .spotify-sidebar,
+  .spotify-lyrics {
+    height: auto;
+    max-height: 680px;
+  }
+
   .spotify-lyrics {
     grid-column: 1 / -1;
     max-height: 380px;
@@ -1398,12 +1566,14 @@ input[type="range"]:hover::-webkit-slider-thumb {
 
   .spotify-sidebar {
     order: 2;
-    max-height: 500px;
+    height: auto;
+    max-height: 520px;
     padding: 14px;
   }
 
   .spotify-lyrics {
     order: 3;
+    height: auto;
     max-height: 360px;
     padding: 14px;
   }
@@ -1420,150 +1590,6 @@ input[type="range"]:hover::-webkit-slider-thumb {
     grid-template-columns: 1fr;
     gap: 10px;
   }
-}
-
-/* === TABS & HALAMAN SPOTIFY LIBRARY === */
-.library-view-tabs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  background: #141820;
-  padding: 4px;
-  border-radius: 10px;
-  border: 1px solid #282f3d;
-  margin-bottom: 12px;
-}
-
-.lib-tab-btn {
-  padding: 7px 8px;
-  border: none;
-  border-radius: 7px;
-  background: transparent;
-  color: #94a3b8;
-  font-family: 'Poppins', sans-serif;
-  font-size: 11.5px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-}
-
-.lib-tab-btn.active {
-  background: var(--accent);
-  color: #041309;
-}
-
-.library-page-pane {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-}
-
-.spotify-profile-banner {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, rgba(30, 215, 96, 0.16), rgba(20, 24, 32, 0.95));
-  border: 1px solid rgba(30, 215, 96, 0.35);
-  margin-bottom: 10px;
-}
-
-.sp-avatar-badge {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: #1ed760;
-  color: #041309;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  flex-shrink: 0;
-}
-
-.sp-profile-meta {
-  flex: 1;
-  min-width: 0;
-}
-
-.sp-profile-name {
-  font-size: 12.5px;
-  font-weight: 700;
-  color: #ffffff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.sp-profile-sub {
-  font-size: 10.5px;
-  color: #86efac;
-}
-
-.btn-sp-logout {
-  padding: 5px 9px;
-  border-radius: 6px;
-  border: 1px solid rgba(239, 68, 68, 0.45);
-  background: rgba(239, 68, 68, 0.14);
-  color: #fca5a5;
-  font-family: 'Poppins', sans-serif;
-  font-size: 10.5px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-sp-logout:hover {
-  background: #ef4444;
-  color: #ffffff;
-}
-
-.sp-track-thumb {
-  width: 34px;
-  height: 34px;
-  border-radius: 6px;
-  object-fit: cover;
-  flex-shrink: 0;
-  background: #242424;
-}
-
-.sp-pagination-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid #262626;
-}
-
-.btn-page-nav {
-  padding: 6px 12px;
-  border-radius: 7px;
-  border: 1px solid #334155;
-  background: #1e293b;
-  color: #e2e8f0;
-  font-family: 'Poppins', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-page-nav:hover:not(:disabled) {
-  border-color: #1ed760;
-  color: #ffffff;
-}
-
-.btn-page-nav:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.sp-page-info {
-  font-size: 11px;
-  font-weight: 600;
-  color: #94a3b8;
 }
 
 @media screen and (max-width: 600px) {
