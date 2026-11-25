@@ -1564,11 +1564,52 @@ input[type="range"]:hover::-webkit-slider-thumb {
     padding: 14px;
   }
 
+  /* === RAPIKAN AREA PLAYLIST & FOLDER SCROLL DI MOBILE === */
   .spotify-sidebar {
     order: 2;
     height: auto;
-    max-height: 520px;
+    max-height: none; /* Bebaskan tinggi kartu agar tidak terpotong sempit */
     padding: 14px;
+  }
+
+  .spotify-sidebar .sidebar-header {
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+  }
+
+  .spotify-sidebar .add-actions {
+    gap: 7px;
+    margin-bottom: 10px;
+  }
+
+  .spotify-sidebar .btn-spotify-add {
+    padding: 9px 12px;
+    font-size: 12.5px;
+  }
+
+  .spotify-sidebar .search-folder-box {
+    gap: 7px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+  }
+
+  /* Area scroll daftar lagu & folder dibuat lega dan mulus disentuh */
+  .spotify-sidebar .playlist-items {
+    min-height: 240px;
+    max-height: 360px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    padding-right: 4px;
+    gap: 6px;
+  }
+
+  .spotify-sidebar .track-item {
+    padding: 9px 10px;
+  }
+
+  .spotify-sidebar .backup-actions {
+    margin-top: 10px;
   }
 
   .spotify-lyrics {
@@ -1576,6 +1617,10 @@ input[type="range"]:hover::-webkit-slider-thumb {
     height: auto;
     max-height: 360px;
     padding: 14px;
+  }
+
+  .spotify-lyrics .lyrics-content {
+    -webkit-overflow-scrolling: touch;
   }
 
   .stage-box {
