@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
- <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.5, maximum-scale=5.0, user-scalable=yes" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.5, maximum-scale=5.0, user-scalable=yes" />
   <meta name="theme-color" content="#11161d" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -14,7 +14,8 @@
   <link rel="stylesheet" href="/css/music.css" />
 </head>
 <body>
-<!-- Notifikasi Otomatis Saat Versi Aplikasi Ter-update -->
+
+  <!-- Notifikasi Otomatis Saat Versi Aplikasi Ter-update -->
   <div id="updateToast" class="update-toast" role="status" aria-live="polite">
     <div class="update-toast-icon">🚀</div>
     <div class="update-toast-body">
@@ -27,7 +28,7 @@
       </svg>
     </button>
   </div>
-  
+
   <!-- Petunjuk Install iOS Safari -->
   <div id="iosInstallHint" class="ios-hint">
     📲 Untuk iPhone: tekan ikon <strong>Bagikan (Share)</strong> di bawah lalu pilih <strong>"Tambah ke Layar Utama"</strong>.
@@ -90,11 +91,25 @@
           <input type="text" id="urlInput" placeholder="Tempel link Spotify / YouTube / MP3..." />
           <button type="button" id="addUrlBtn">Add</button>
         </div>
+      </div>
 
-        <div class="support-tags">
-          <span>✔ Spotify</span>
-          <span>✔ YouTube Video</span>
-          <span>✔ MP3 / MP4 Offline</span>
+      <!-- Kotak Pencarian & Pengelola Folder Custom -->
+      <div class="search-folder-box">
+        <div class="playlist-search-wrap">
+          <span class="playlist-search-icon">🔍</span>
+          <input type="text" id="playlistSearchInput" placeholder="Cari judul lagu atau folder..." />
+          <button type="button" id="clearSearchBtn" class="btn-clear-search" title="Hapus pencarian">✕</button>
+        </div>
+
+        <div class="folder-bar">
+          <select id="folderSelect" title="Pilih Folder Playlist">
+            <option value="all">📂 Semua Media</option>
+            <option value="mp3">🎵 Folder MP3 (Audio)</option>
+            <option value="mp4">🎬 Folder MP4 (Video)</option>
+          </select>
+          <button type="button" id="addFolderBtn" class="btn-folder-act" title="Buat Folder Baru">➕</button>
+          <button type="button" id="editFolderBtn" class="btn-folder-act" title="Ubah Nama Folder" disabled>✏️</button>
+          <button type="button" id="delFolderBtn" class="btn-folder-act del" title="Hapus Folder" disabled>🗑️</button>
         </div>
       </div>
 
@@ -104,12 +119,12 @@
         </div>
       </div>
 
-<div class="backup-actions">
-        <button type="button" class="btn-backup" id="exportPlaylistBtn" title="Simpan semua lagu & video ke file cadangan">
+      <div class="backup-actions">
+        <button type="button" class="btn-backup" id="exportPlaylistBtn" title="Simpan semua folder, lagu & video ke file cadangan">
           📤 Export Playlist
         </button>
         <input type="file" id="importPlaylistInput" accept=".json,application/json" hidden />
-        <button type="button" class="btn-backup" onclick="document.getElementById('importPlaylistInput').click()" title="Muat ulang lagu & video dari file cadangan">
+        <button type="button" class="btn-backup" onclick="document.getElementById('importPlaylistInput').click()" title="Muat ulang folder, lagu & video dari file cadangan">
           📥 Import Playlist
         </button>
       </div>
@@ -597,10 +612,152 @@
       setPlayIcon(false);
     }
 
+    /* === KELOLA FOLDER CUSTOM (LOCALSTORAGE) === */
+    const FOLDERS_KEY = "gp_custom_folders_v1";
+    let customFolders = JSON.parse(localStorage.getItem(FOLDERS_KEY) || "[]");
+    let activeFolder = "all";
+    let searchKeyword = "";
+
+    function saveCustomFolders() {
+      localStorage.setItem(FOLDERS_KEY, JSON.stringify(customFolders));
+    }
+
+    function renderFolderDropdown() {
+      const select = document.getElementById("folderSelect");
+      const editBtn = document.getElementById("editFolderBtn");
+      const delBtn = document.getElementById("delFolderBtn");
+
+      let html = `
+        <option value="all">📂 Semua Media</option>
+        <option value="mp3">🎵 Folder MP3 (Audio)</option>
+        <option value="mp4">🎬 Folder MP4 (Video)</option>
+      `;
+
+      customFolders.forEach((f) => {
+        html += `<option value="${f.id}">📁 ${f.name}</option>`;
+      });
+
+      select.innerHTML = html;
+
+      const isCustom = customFolders.some((f) => f.id === activeFolder);
+      if (activeFolder !== "all" && activeFolder !== "mp3" && activeFolder !== "mp4" && !isCustom) {
+        activeFolder = "all";
+      }
+      select.value = activeFolder;
+
+      editBtn.disabled = !isCustom;
+      delBtn.disabled = !isCustom;
+    }
+
+    document.getElementById("folderSelect").onchange = (e) => {
+      activeFolder = e.target.value;
+      renderFolderDropdown();
+      window.refreshPlaylist();
+    };
+
+    document.getElementById("addFolderBtn").onclick = () => {
+      const rawName = prompt("Masukkan nama folder playlist baru:");
+      if (!rawName || !rawName.trim()) return;
+      const cleanName = rawName.trim().slice(0, 32);
+
+      const newFolder = {
+        id: "fld_" + Date.now(),
+        name: cleanName
+      };
+      customFolders.push(newFolder);
+      saveCustomFolders();
+      activeFolder = newFolder.id;
+      renderFolderDropdown();
+      window.refreshPlaylist();
+    };
+
+    document.getElementById("editFolderBtn").onclick = () => {
+      const folder = customFolders.find((f) => f.id === activeFolder);
+      if (!folder) return;
+
+      const newName = prompt("Ubah nama folder:", folder.name);
+      if (!newName || !newName.trim()) return;
+      folder.name = newName.trim().slice(0, 32);
+      saveCustomFolders();
+      renderFolderDropdown();
+      window.refreshPlaylist();
+    };
+
+    document.getElementById("delFolderBtn").onclick = async () => {
+      const folder = customFolders.find((f) => f.id === activeFolder);
+      if (!folder) return;
+
+      if (!confirm(`Hapus folder "${folder.name}"?\n(Lagu di dalamnya tidak terhapus dan tetap ada di Semua Media)`)) {
+        return;
+      }
+
+      const all = await window.getAllTracksDB();
+      for (const item of all) {
+        if (item.folderId === folder.id) {
+          delete item.folderId;
+          await window.updateTrackDB(item);
+        }
+      }
+
+      customFolders = customFolders.filter((f) => f.id !== folder.id);
+      saveCustomFolders();
+      activeFolder = "all";
+      renderFolderDropdown();
+      await window.refreshPlaylist();
+    };
+
+    // Pencarian Lagu Real-time
+    const searchInputEl = document.getElementById("playlistSearchInput");
+    const clearSearchBtn = document.getElementById("clearSearchBtn");
+
+    searchInputEl.oninput = (e) => {
+      searchKeyword = e.target.value.trim().toLowerCase();
+      clearSearchBtn.style.display = searchKeyword ? "block" : "none";
+      window.refreshPlaylist();
+    };
+
+    clearSearchBtn.onclick = () => {
+      searchInputEl.value = "";
+      searchKeyword = "";
+      clearSearchBtn.style.display = "none";
+      window.refreshPlaylist();
+    };
+
+    function getActiveFolderIndices() {
+      const indices = [];
+      tracks.forEach((t, idx) => {
+        if (activeFolder === "all") {
+          indices.push(idx);
+        } else if (activeFolder === "mp3" && (t.type === "file" || t.type === "url")) {
+          indices.push(idx);
+        } else if (activeFolder === "mp4" && t.type === "video") {
+          indices.push(idx);
+        } else if (t.folderId === activeFolder) {
+          indices.push(idx);
+        }
+      });
+      return indices;
+    }
+
     /* === RENDER & PLAYBACK === */
     window.refreshPlaylist = async function () {
       tracks = await window.getAllTracksDB();
-      document.getElementById("trackCount").textContent = `${tracks.length} Media`;
+      renderFolderDropdown();
+
+      const folderIndices = getActiveFolderIndices();
+      const visibleTracks = folderIndices
+        .map((realIdx) => ({ track: tracks[realIdx], realIdx }))
+        .filter(({ track }) => {
+          if (!searchKeyword) return true;
+          const folderObj = customFolders.find((f) => f.id === track.folderId);
+          const folderLabel = folderObj ? folderObj.name : track.type === "video" ? "mp4" : "mp3";
+          return `${track.name} ${folderLabel}`.toLowerCase().includes(searchKeyword);
+        });
+
+      const isFiltered = activeFolder !== "all" || searchKeyword !== "";
+      document.getElementById("trackCount").textContent = isFiltered
+        ? `${visibleTracks.length}/${tracks.length} Media`
+        : `${tracks.length} Media`;
 
       const container = document.getElementById("playlistContainer");
       if (tracks.length === 0) {
@@ -612,38 +769,76 @@
         return;
       }
 
+      if (visibleTracks.length === 0) {
+        container.innerHTML = `
+          <div class="empty-playlist">
+            Tidak ada lagu di folder ini${searchKeyword ? ` dengan kata kunci "<strong>${searchKeyword}</strong>"` : ""}.
+          </div>
+        `;
+        return;
+      }
+
       container.innerHTML = "";
-      tracks.forEach((t, idx) => {
-        let badgeHtml = `<span class="tag-pill tag-local">Audio Lokal</span>`;
-        if (t.type === "video") badgeHtml = `<span class="tag-pill tag-video">Video Lokal</span>`;
+      visibleTracks.forEach(({ track: t, realIdx }, displayIdx) => {
+        let badgeHtml = `<span class="tag-pill tag-local">MP3</span>`;
+        if (t.type === "video") badgeHtml = `<span class="tag-pill tag-video">MP4</span>`;
         else if (t.type === "spotify") badgeHtml = `<span class="tag-pill tag-spotify">Spotify</span>`;
         else if (t.type === "youtube") badgeHtml = `<span class="tag-pill tag-youtube">YouTube</span>`;
 
+        const folderObj = customFolders.find((f) => f.id === t.folderId);
+        const folderTag = folderObj ? `<span class="tag-pill tag-folder">📁 ${folderObj.name}</span>` : "";
         const syncTag = t.pendingSync ? `<span class="tag-pill tag-sync">Antre Online</span>` : "";
 
         const div = document.createElement("div");
-        div.className = "track-item" + (idx === currentIndex ? " active" : "");
+        div.className = "track-item" + (realIdx === currentIndex ? " active" : "");
         div.innerHTML = `
           <div class="track-info">
-            <span class="track-num">${idx === currentIndex ? "▶" : idx + 1}</span>
+            <span class="track-num">${realIdx === currentIndex ? "▶" : displayIdx + 1}</span>
             <div class="track-meta">
               <div class="track-title">${t.name}</div>
-              <div class="track-source">${badgeHtml} ${syncTag}</div>
+              <div class="track-source">${badgeHtml} ${folderTag} ${syncTag}</div>
             </div>
           </div>
-          <button type="button" class="btn-del-track" title="Hapus">✕</button>
+          <div class="track-actions">
+            <button type="button" class="btn-move-track" title="Pindahkan ke Folder">📁</button>
+            <button type="button" class="btn-del-track" title="Hapus">✕</button>
+          </div>
         `;
 
-        div.querySelector(".track-info").onclick = () => playTrack(idx);
+        div.querySelector(".track-info").onclick = () => playTrack(realIdx);
+
+        div.querySelector(".btn-move-track").onclick = async (e) => {
+          e.stopPropagation();
+          if (!customFolders.length) {
+            alert("Belum ada folder custom. Klik tombol ➕ di atas untuk membuat folder dulu.");
+            return;
+          }
+          const listText = customFolders.map((f, i) => `${i + 1}. ${f.name}`).join("\n");
+          const choice = prompt(
+            `Pindahkan "${t.name}" ke folder:\n0. Keluarkan dari folder (Semua Media)\n${listText}\n\nKetik nomor pilihan:`
+          );
+          if (choice === null) return;
+          const num = parseInt(choice.trim(), 10);
+          if (num === 0) {
+            delete t.folderId;
+            await window.updateTrackDB(t);
+            await window.refreshPlaylist();
+          } else if (num >= 1 && num <= customFolders.length) {
+            t.folderId = customFolders[num - 1].id;
+            await window.updateTrackDB(t);
+            await window.refreshPlaylist();
+          }
+        };
+
         div.querySelector(".btn-del-track").onclick = async (e) => {
           e.stopPropagation();
           await deleteTrackDB(t.id);
-          if (idx === currentIndex) {
+          if (realIdx === currentIndex) {
             stopAllEngines();
             currentIndex = -1;
             document.getElementById("nowTitle").textContent = "Belum ada media dipilih";
             document.getElementById("nowBadge").textContent = "SIAP DIPUTAR";
-          } else if (idx < currentIndex) {
+          } else if (realIdx < currentIndex) {
             currentIndex--;
           }
           await window.refreshPlaylist();
@@ -657,6 +852,8 @@
       if (idx < 0 || idx >= tracks.length) return;
       currentIndex = idx;
       const track = tracks[idx];
+      const folderObj = customFolders.find((f) => f.id === track.folderId);
+      const folderSubLabel = folderObj ? ` • Folder: ${folderObj.name}` : "";
 
       stopAllEngines();
       document.getElementById("seek").value = 0;
@@ -671,7 +868,7 @@
           window.refreshPlaylist();
           return;
         }
-        document.getElementById("nowBadge").textContent = "SPOTIFY PLAYER";
+        document.getElementById("nowBadge").textContent = "SPOTIFY PLAYER" + folderSubLabel;
         document.getElementById("nowSub").textContent = track.url;
         cvs.style.display = "none";
         spotifyEmbedContainer.style.display = "block";
@@ -688,7 +885,7 @@
           window.refreshPlaylist();
           return;
         }
-        document.getElementById("nowBadge").textContent = "YOUTUBE VIDEO";
+        document.getElementById("nowBadge").textContent = "YOUTUBE VIDEO" + folderSubLabel;
         document.getElementById("nowSub").textContent = track.url;
         cvs.style.display = "none";
         ytContainer.style.display = "block";
@@ -716,7 +913,7 @@
         videoPlayer.style.display = showVid ? "block" : "none";
         cvs.style.display = showVid ? "none" : "block";
 
-        document.getElementById("nowBadge").textContent = "VIDEO OFFLINE LOKAL";
+        document.getElementById("nowBadge").textContent = "VIDEO OFFLINE LOKAL" + folderSubLabel;
         document.getElementById("nowSub").textContent = "Diputar dari Penyimpanan Lokal Browser";
 
         initAudioGraph(videoPlayer);
@@ -729,11 +926,11 @@
       if (track.type === "file" && track.blob) {
         activeBlobUrl = URL.createObjectURL(track.blob);
         audio.src = activeBlobUrl;
-        document.getElementById("nowBadge").textContent = "AUDIO OFFLINE LOKAL";
+        document.getElementById("nowBadge").textContent = "AUDIO OFFLINE LOKAL" + folderSubLabel;
         document.getElementById("nowSub").textContent = "Diputar dari Penyimpanan Lokal Browser";
       } else {
         audio.src = track.url;
-        document.getElementById("nowBadge").textContent = "STREAMING AUDIO";
+        document.getElementById("nowBadge").textContent = "STREAMING AUDIO" + folderSubLabel;
         document.getElementById("nowSub").textContent = track.url;
       }
 
@@ -743,15 +940,24 @@
       window.refreshPlaylist();
     }
 
+    /* === PUTAR OTOMATIS HANYA DI FOLDER YANG SEDANG DIBUKA === */
     function playNext() {
-      if (!tracks.length) return;
-      if (isShuffle && tracks.length > 1) {
-        let rand;
-        do { rand = Math.floor(Math.random() * tracks.length); } while (rand === currentIndex);
-        playTrack(rand);
+      const pool = getActiveFolderIndices();
+      if (!pool.length) return;
+
+      if (isShuffle && pool.length > 1) {
+        const candidates = pool.filter((idx) => idx !== currentIndex);
+        const randIdx = candidates[Math.floor(Math.random() * candidates.length)];
+        playTrack(randIdx);
+        return;
+      }
+
+      const posInPool = pool.indexOf(currentIndex);
+      if (posInPool === -1) {
+        playTrack(pool[0]);
       } else {
-        const nextIdx = currentIndex < tracks.length - 1 ? currentIndex + 1 : 0;
-        playTrack(nextIdx);
+        const nextPos = posInPool < pool.length - 1 ? posInPool + 1 : 0;
+        playTrack(pool[nextPos]);
       }
     }
 
@@ -759,20 +965,27 @@
     document.getElementById("fileInput").onchange = async (e) => {
       const selected = [...e.target.files];
       if (!selected.length) return;
-      const wasEmpty = tracks.length === 0;
+      const isCustom = customFolders.some((f) => f.id === activeFolder);
+      const beforeCount = getActiveFolderIndices().length;
 
       for (const file of selected) {
         const isVideoFile = file.type.startsWith("video/");
-        await addTrackDB({
+        const record = {
           name: file.name.replace(/\.[^/.]+$/, ""),
           type: isVideoFile ? "video" : "file",
           blob: file,
           pendingSync: false
-        });
+        };
+        if (isCustom) record.folderId = activeFolder;
+        await addTrackDB(record);
       }
       e.target.value = "";
       await window.refreshPlaylist();
-      if (wasEmpty) playTrack(0);
+
+      const updatedPool = getActiveFolderIndices();
+      if (beforeCount === 0 && updatedPool.length > 0) {
+        playTrack(updatedPool[0]);
+      }
     };
 
     /* === TAMBAH LINK === */
@@ -781,8 +994,10 @@
       const rawUrl = urlEl.value.trim();
       if (!rawUrl) return;
 
-      const wasEmpty = tracks.length === 0;
+      const isCustom = customFolders.some((f) => f.id === activeFolder);
+      const beforeCount = getActiveFolderIndices().length;
       const parsed = parseMediaLink(rawUrl);
+      if (isCustom) parsed.folderId = activeFolder;
 
       if (navigator.onLine && (parsed.type === "spotify" || parsed.type === "youtube")) {
         try {
@@ -804,7 +1019,11 @@
       await addTrackDB(parsed);
       urlEl.value = "";
       await window.refreshPlaylist();
-      if (wasEmpty) playTrack(0);
+
+      const updatedPool = getActiveFolderIndices();
+      if (beforeCount === 0 && updatedPool.length > 0) {
+        playTrack(updatedPool[0]);
+      }
     };
 
     /* === RESET SEMUA === */
@@ -830,9 +1049,10 @@
 
     /* === PLAY / PAUSE / STOP === */
     document.getElementById("playPauseBtn").onclick = () => {
-      if (!tracks.length) return;
+      const pool = getActiveFolderIndices();
+      if (!pool.length) return;
       if (currentIndex === -1) {
-        playTrack(0);
+        playTrack(pool[0]);
         return;
       }
       const track = tracks[currentIndex];
@@ -878,9 +1098,16 @@
     };
 
     document.getElementById("prevBtn").onclick = () => {
-      if (!tracks.length) return;
-      const prevIdx = currentIndex > 0 ? currentIndex - 1 : tracks.length - 1;
-      playTrack(prevIdx);
+      const pool = getActiveFolderIndices();
+      if (!pool.length) return;
+
+      const posInPool = pool.indexOf(currentIndex);
+      if (posInPool === -1) {
+        playTrack(pool[0]);
+      } else {
+        const prevPos = posInPool > 0 ? posInPool - 1 : pool.length - 1;
+        playTrack(pool[prevPos]);
+      }
     };
 
     document.getElementById("nextBtn").onclick = playNext;
@@ -951,129 +1178,167 @@
       }
     };
 
-/* === EXPORT & IMPORT PLAYLIST (TERMASUK FILE LOKAL MP3/MP4) === */
- function blobToBase64(blob) {
-   return new Promise((resolve, reject) => {
-     const reader = new FileReader();
-     reader.onloadend = () => resolve(reader.result);
-     reader.onerror = reject;
-     reader.readAsDataURL(blob);
-   });
- }
+    /* === EXPORT & IMPORT PLAYLIST (TERMASUK DAFTAR FOLDER CUSTOM & FILE MP3/MP4) === */
+    function blobToBase64(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
 
- function base64ToBlob(dataUrl) {
-   const [header, base64Data] = dataUrl.split(",");
-   const mimeMatch = header.match(/:(.*?);/);
-   const mime = mimeMatch ? mimeMatch[1] : "application/octet-stream";
-   const binary = atob(base64Data);
-   const len = binary.length;
-   const bytes = new Uint8Array(len);
-   for (let i = 0; i < len; i++) {
-     bytes[i] = binary.charCodeAt(i);
-   }
-   return new Blob([bytes], { type: mime });
- }
+    function base64ToBlob(dataUrl) {
+      const [header, base64Data] = dataUrl.split(",");
+      const mimeMatch = header.match(/:(.*?);/);
+      const mime = mimeMatch ? mimeMatch[1] : "application/octet-stream";
+      const binary = atob(base64Data);
+      const len = binary.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      return new Blob([bytes], { type: mime });
+    }
 
- document.getElementById("exportPlaylistBtn").onclick = async () => {
-   const allTracks = await window.getAllTracksDB();
-   if (!allTracks.length) {
-     alert("Playlist masih kosong, tidak ada yang bisa di-export.");
-     return;
-   }
+    document.getElementById("exportPlaylistBtn").onclick = async () => {
+      const allTracks = await window.getAllTracksDB();
+      if (!allTracks.length && !customFolders.length) {
+        alert("Playlist dan folder masih kosong, tidak ada yang bisa di-export.");
+        return;
+      }
 
-   const btn = document.getElementById("exportPlaylistBtn");
-   const oriText = btn.textContent;
-   btn.textContent = "⏳ Mengemas...";
-   btn.disabled = true;
+      const btn = document.getElementById("exportPlaylistBtn");
+      const oriText = btn.textContent;
+      btn.textContent = "⏳ Mengemas...";
+      btn.disabled = true;
 
-   try {
-     const exportedItems = [];
-     for (const item of allTracks) {
-       const copy = {
-         name: item.name,
-         type: item.type,
-         url: item.url || null,
-         embedUrl: item.embedUrl || null,
-         videoId: item.videoId || null,
-         pendingSync: item.pendingSync || false
-       };
-       if (item.blob instanceof Blob) {
-         copy.blobData = await blobToBase64(item.blob);
-       }
-       exportedItems.push(copy);
-     }
+      try {
+        const exportedItems = [];
+        for (const item of allTracks) {
+          const copy = {
+            name: item.name,
+            type: item.type,
+            url: item.url || null,
+            embedUrl: item.embedUrl || null,
+            videoId: item.videoId || null,
+            folderId: item.folderId || null,
+            pendingSync: item.pendingSync || false
+          };
+          if (item.blob instanceof Blob) {
+            copy.blobData = await blobToBase64(item.blob);
+          }
+          exportedItems.push(copy);
+        }
 
-     const payload = {
-       app: "GiveawaysPickerMusic",
-       exportedAt: new Date().toISOString(),
-       total: exportedItems.length,
-       tracks: exportedItems
-     };
+        const payload = {
+          app: "GiveawaysPickerMusic",
+          version: 2,
+          exportedAt: new Date().toISOString(),
+          totalFolders: customFolders.length,
+          totalTracks: exportedItems.length,
+          folders: customFolders,
+          tracks: exportedItems
+        };
 
-     const fileBlob = new Blob([JSON.stringify(payload)], { type: "application/json" });
-     const downloadUrl = URL.createObjectURL(fileBlob);
-     const a = document.createElement("a");
-     const dateStr = new Date().toISOString().slice(0, 10);
-     a.href = downloadUrl;
-     a.download = `GP-Music-Playlist-${dateStr}.json`;
-     document.body.appendChild(a);
-     a.click();
-     a.remove();
-     URL.revokeObjectURL(downloadUrl);
-   } catch (err) {
-     alert("Gagal melakukan export playlist: " + err.message);
-   } finally {
-     btn.textContent = oriText;
-     btn.disabled = false;
-   }
- };
+        const fileBlob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+        const downloadUrl = URL.createObjectURL(fileBlob);
+        const a = document.createElement("a");
+        const dateStr = new Date().toISOString().slice(0, 10);
+        a.href = downloadUrl;
+        a.download = `GP-Music-Playlist-${dateStr}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(downloadUrl);
+      } catch (err) {
+        alert("Gagal melakukan export playlist: " + err.message);
+      } finally {
+        btn.textContent = oriText;
+        btn.disabled = false;
+      }
+    };
 
- document.getElementById("importPlaylistInput").onchange = async (e) => {
-   const file = e.target.files[0];
-   if (!file) return;
+    document.getElementById("importPlaylistInput").onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
 
-   try {
-     const text = await file.text();
-     const parsed = JSON.parse(text);
-     const list = Array.isArray(parsed.tracks) ? parsed.tracks : Array.isArray(parsed) ? parsed : null;
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        const list = Array.isArray(parsed.tracks) ? parsed.tracks : Array.isArray(parsed) ? parsed : null;
+        const importedFolders = Array.isArray(parsed.folders) ? parsed.folders : [];
 
-     if (!list || !list.length) {
-       alert("File backup playlist tidak valid atau kosong.");
-       e.target.value = "";
-       return;
-     }
+        if (!list) {
+          alert("File backup playlist tidak valid.");
+          e.target.value = "";
+          return;
+        }
 
-     const wasEmpty = tracks.length === 0;
-     let importedCount = 0;
+        // Pulihkan daftar folder custom (hindari duplikat ID atau nama yang sama)
+        const folderIdMap = {};
+        let restoredFolderCount = 0;
 
-     for (const item of list) {
-       const trackRecord = {
-         name: item.name || "Media Imported",
-         type: item.type || "url",
-         url: item.url || null,
-         embedUrl: item.embedUrl || null,
-         videoId: item.videoId || null,
-         pendingSync: Boolean(item.pendingSync)
-       };
+        for (const f of importedFolders) {
+          if (!f || !f.name) continue;
+          const existingById = customFolders.find((cf) => cf.id === f.id);
+          const existingByName = customFolders.find(
+            (cf) => cf.name.toLowerCase() === f.name.trim().toLowerCase()
+          );
 
-       if (item.blobData && typeof item.blobData === "string" && item.blobData.startsWith("data:")) {
-         trackRecord.blob = base64ToBlob(item.blobData);
-       }
+          if (existingById) {
+            folderIdMap[f.id] = existingById.id;
+          } else if (existingByName) {
+            folderIdMap[f.id] = existingByName.id;
+          } else {
+            const newId = f.id || "fld_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+            customFolders.push({ id: newId, name: f.name.trim().slice(0, 32) });
+            folderIdMap[f.id] = newId;
+            restoredFolderCount++;
+          }
+        }
+        saveCustomFolders();
 
-       await addTrackDB(trackRecord);
-       importedCount++;
-     }
+        const beforePoolCount = getActiveFolderIndices().length;
+        let importedTrackCount = 0;
 
-     await window.refreshPlaylist();
-     if (wasEmpty && importedCount > 0) playTrack(0);
-     alert(`✅ Berhasil meng-import ${importedCount} lagu/video ke playlist!`);
-   } catch (err) {
-     alert("Gagal membaca file backup JSON: " + err.message);
-   } finally {
-     e.target.value = "";
-   }
- };
-    
+        for (const item of list) {
+          const trackRecord = {
+            name: item.name || "Media Imported",
+            type: item.type || "url",
+            url: item.url || null,
+            embedUrl: item.embedUrl || null,
+            videoId: item.videoId || null,
+            pendingSync: Boolean(item.pendingSync)
+          };
+
+          if (item.folderId && folderIdMap[item.folderId]) {
+            trackRecord.folderId = folderIdMap[item.folderId];
+          }
+
+          if (item.blobData && typeof item.blobData === "string" && item.blobData.startsWith("data:")) {
+            trackRecord.blob = base64ToBlob(item.blobData);
+          }
+
+          await addTrackDB(trackRecord);
+          importedTrackCount++;
+        }
+
+        await window.refreshPlaylist();
+        const updatedPool = getActiveFolderIndices();
+        if (beforePoolCount === 0 && updatedPool.length > 0) {
+          playTrack(updatedPool[0]);
+        }
+
+        alert(
+          `✅ Import selesai!\n• ${importedTrackCount} lagu/video berhasil dimuat\n• ${restoredFolderCount} folder baru dipulihkan`
+        );
+      } catch (err) {
+        alert("Gagal membaca file backup JSON: " + err.message);
+      } finally {
+        e.target.value = "";
+      }
+    };
 
     window.refreshPlaylist();
   </script>
