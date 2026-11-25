@@ -14,15 +14,20 @@
   <link rel="stylesheet" href="/css/music.css" />
 </head>
 <body>
-
 <!-- Notifikasi Otomatis Saat Versi Aplikasi Ter-update -->
-  <div id="updateToast" class="update-toast">
-    <div>
-      <div class="update-toast-title">✨ Aplikasi telah ter-update!</div>
+  <div id="updateToast" class="update-toast" role="status" aria-live="polite">
+    <div class="update-toast-icon">🚀</div>
+    <div class="update-toast-body">
+      <div class="update-toast-title">Aplikasi Telah Ter-update</div>
       <div class="update-toast-ver" id="updateVersionLabel">App Version: v1.0.1</div>
     </div>
-    <button type="button" id="closeUpdateToastBtn" class="btn-close-toast" title="Tutup">✕</button>
+    <button type="button" id="closeUpdateToastBtn" class="btn-close-toast" aria-label="Tutup notifikasi" title="Tutup">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </svg>
+    </button>
   </div>
+  
   <!-- Petunjuk Install iOS Safari -->
   <div id="iosInstallHint" class="ios-hint">
     📲 Untuk iPhone: tekan ikon <strong>Bagikan (Share)</strong> di bawah lalu pilih <strong>"Tambah ke Layar Utama"</strong>.
@@ -100,20 +105,15 @@
       </div>
 
 <div class="backup-actions">
-     <button type="button" class="btn-backup" id="exportPlaylistBtn" title="Simpan semua lagu & video ke file cadangan">
-       📤 Export Playlist
-     </button>
-     <input type="file" id="importPlaylistInput" accept=".json,application/json" hidden />
-     <button type="button" class="btn-backup" onclick="document.getElementById('importPlaylistInput').click()" title="Muat ulang lagu & video dari file cadangan">
-       📥 Import Playlist
-     </button>
-   </div>
+        <button type="button" class="btn-backup" id="exportPlaylistBtn" title="Simpan semua lagu & video ke file cadangan">
+          📤 Export Playlist
+        </button>
+        <input type="file" id="importPlaylistInput" accept=".json,application/json" hidden />
+        <button type="button" class="btn-backup" onclick="document.getElementById('importPlaylistInput').click()" title="Muat ulang lagu & video dari file cadangan">
+          📥 Import Playlist
+        </button>
+      </div>
 
-   <button type="button" class="btn-reset-playlist" id="resetBtn">
-     Reset Semua Lagu & Video
-   </button>
-
-      
       <button type="button" class="btn-reset-playlist" id="resetBtn">
         Reset Semua Lagu & Video
       </button>
