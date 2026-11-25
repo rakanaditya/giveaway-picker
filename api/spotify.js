@@ -1,3 +1,8 @@
+import spotifyUrlInfo from "spotify-url-info";
+import ytSearch from "yt-search";
+
+const { getData } = spotifyUrlInfo(fetch);
+
 export default async function handler(req, res) {
   const clientId = process.env.Client_ID_Spotify;
   const clientSecret = process.env.Client_ID_Secret_Spotify;
@@ -11,7 +16,7 @@ export default async function handler(req, res) {
   const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
 
   try {
-    // 1. Buat URL Login OAuth2 Spotify
+    // 1. Buat URL Login OAuth2 Spotify (Khusus Owner / Developer Mode)
     if (req.method === "GET" && req.query.action === "login") {
       const redirectUri = req.query.redirect_uri;
       if (!redirectUri) {
@@ -102,7 +107,7 @@ export default async function handler(req, res) {
       return res.status(200).json(refreshData);
     }
 
-    // 4. Sinkronisasi Profil, Playlist & Tracks Spotify User (OAuth Login)
+    // 4. Sinkronisasi Profil, Playlist & Tracks Spotify User (OAuth Login Owner)
     if (body.action === "sync") {
       const { access_token } = body;
       if (!access_token) {
@@ -162,7 +167,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // 5. Resolve URL Publik Spotify (Playlist / Album / Track) Tanpa Login User
+    // 5. Resolve URL Publik Spotify Anti-Limit (spotify-url-info + Fallback Embed & Web API)
     if (body.action === "resolve_url") {
       const { url } = body;
       const match = String(url || "").match(
@@ -174,194 +179,186 @@ export default async function handler(req, res) {
       }
 
       const [, kind, id] = match;
+      const normalizedUrl = `https://open.spotify.com/${kind}/${id}`;
 
-      // Helper Fallback: Ekstrak daftar lagu langsung dari halaman embed publik Spotify (tanpa perlu login OAuth)
-      async function resolveViaPublicEmbed(targetKind, targetId) {
-        const embedPageUrl = `https://open.spotify.com/embed/${targetKind}/${targetId}`;
-        const htmlRes = await fetch(embedPageUrl, {
-          headers: {
-            "User-Agent":
-              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-          }
-        });
-        if (!htmlRes.ok) return null;
+      let resolvedPayload = null;
 
-        const html = await htmlRes.text();
-        const nextDataMatch = html.match(
-          /<script id="__NEXT_DATA__" type="application\/json">([\s\S]*?)<\/script>/
-        );
-        if (!nextDataMatch) return null;
-
-        const nextJson = JSON.parse(nextDataMatch[1]);
-        const entity = nextJson?.props?.pageProps?.state?.data?.entity;
-        if (!entity) return null;
-
+      // Jalur 1 (Utama Anti-Limit): spotify-url-info (tanpa kuota API Spotify)
+      try {
+        const info = await getData(normalizedUrl);
+        const isCollection = info.type === "playlist" || info.type === "album";
+        const rawList = isCollection ? info.trackList || [] : [info];
         const cover =
-          entity.visualIdentity?.image?.[0]?.url ||
-          entity.coverArt?.sources?.[0]?.url ||
+          info.coverArt?.sources?.[0]?.url ||
+          info.visualIdentity?.image?.[0]?.url ||
           null;
 
-        if (targetKind === "track") {
-          const trackId = entity.id || targetId;
-          const artists = (entity.artists || []).map((a) => a.name).join(", ");
-          return {
-            kind: "track",
-            folderName: entity.name || "Spotify Track",
-            thumbnail: cover,
-            tracks: [
-              {
-                spotifyTrackId: trackId,
-                spotifyUri: `spotify:track:${trackId}`,
-                name: artists ? `${entity.name} - ${artists}` : entity.name,
-                url: `https://open.spotify.com/track/${trackId}`,
-                embedUrl: `https://open.spotify.com/embed/track/${trackId}?utm_source=generator&theme=0`,
-                thumbnail: cover,
-                durationMs: entity.duration || 0
-              }
-            ]
-          };
-        }
-
-        const trackList = entity.trackList || [];
-        const cleanTracks = trackList
+        const cleanTracks = rawList
           .map((t) => {
             const uriParts = String(t.uri || "").split(":");
-            const trId = uriParts[2] || t.uid;
+            const trId = uriParts[2] || t.id;
             if (!trId) return null;
+
             const title = t.title || t.name || "Unknown Track";
-            const artist = t.subtitle || "";
+            const artist =
+              t.subtitle ||
+              (Array.isArray(t.artists) ? t.artists.map((a) => a.name).join(", ") : "");
+
             return {
               spotifyTrackId: trId,
               spotifyUri: `spotify:track:${trId}`,
               name: artist ? `${title} - ${artist}` : title,
               url: `https://open.spotify.com/track/${trId}`,
               embedUrl: `https://open.spotify.com/embed/track/${trId}?utm_source=generator&theme=0`,
-              thumbnail: cover,
+              thumbnail: t.coverArt?.sources?.[0]?.url || cover,
               durationMs: t.duration || 0
             };
           })
           .filter(Boolean);
 
-        return {
-          kind: targetKind,
-          folderName: entity.name || entity.title || "Spotify Playlist",
-          thumbnail: cover,
-          tracks: cleanTracks
-        };
-      }
-
-      // Jalur Utama: Spotify Web API (Client Credentials)
-      let apiResult = null;
-      try {
-        const tokenRes = await fetch("https://accounts.spotify.com/api/token", {
-          method: "POST",
-          headers: {
-            Authorization: `Basic ${basicAuth}`,
-            "Content-Type": "application/x-www-form-urlencoded"
-          },
-          body: new URLSearchParams({ grant_type: "client_credentials" })
-        });
-        const tokenData = await tokenRes.json();
-
-        if (tokenRes.ok && tokenData.access_token) {
-          const appHeaders = { Authorization: `Bearer ${tokenData.access_token}` };
-
-          if (kind === "playlist") {
-            const plRes = await fetch(`https://api.spotify.com/v1/playlists/${id}`, {
-              headers: appHeaders
-            });
-            if (plRes.ok) {
-              const plData = await plRes.json();
-              const plCover = plData.images?.[0]?.url || null;
-              const cleanTracks = (plData.tracks?.items || [])
-                .map((entry) => entry?.track)
-                .filter((t) => t && t.id && t.type === "track")
-                .map((t) => ({
-                  spotifyTrackId: t.id,
-                  spotifyUri: t.uri || `spotify:track:${t.id}`,
-                  name: `${t.name} - ${(t.artists || []).map((a) => a.name).join(", ")}`,
-                  url: t.external_urls?.spotify || `https://open.spotify.com/track/${t.id}`,
-                  embedUrl: `https://open.spotify.com/embed/track/${t.id}?utm_source=generator&theme=0`,
-                  thumbnail: t.album?.images?.[0]?.url || plCover,
-                  durationMs: t.duration_ms || 0
-                }));
-
-              if (cleanTracks.length > 0) {
-                apiResult = {
-                  kind: "playlist",
-                  folderName: plData.name,
-                  thumbnail: plCover,
-                  tracks: cleanTracks
-                };
-              }
-            }
-          } else if (kind === "album") {
-            const alRes = await fetch(`https://api.spotify.com/v1/albums/${id}`, {
-              headers: appHeaders
-            });
-            if (alRes.ok) {
-              const alData = await alRes.json();
-              const alCover = alData.images?.[0]?.url || null;
-              const cleanTracks = (alData.tracks?.items || [])
-                .filter((t) => t && t.id)
-                .map((t) => ({
-                  spotifyTrackId: t.id,
-                  spotifyUri: t.uri || `spotify:track:${t.id}`,
-                  name: `${t.name} - ${(t.artists || []).map((a) => a.name).join(", ")}`,
-                  url: t.external_urls?.spotify || `https://open.spotify.com/track/${t.id}`,
-                  embedUrl: `https://open.spotify.com/embed/track/${t.id}?utm_source=generator&theme=0`,
-                  thumbnail: alCover,
-                  durationMs: t.duration_ms || 0
-                }));
-
-              if (cleanTracks.length > 0) {
-                apiResult = {
-                  kind: "album",
-                  folderName: alData.name,
-                  thumbnail: alCover,
-                  tracks: cleanTracks
-                };
-              }
-            }
-          } else if (kind === "track") {
-            const trRes = await fetch(`https://api.spotify.com/v1/tracks/${id}`, {
-              headers: appHeaders
-            });
-            if (trRes.ok) {
-              const trData = await trRes.json();
-              apiResult = {
-                kind: "track",
-                folderName: trData.album?.name || "Spotify Track",
-                thumbnail: trData.album?.images?.[0]?.url || null,
-                tracks: [
-                  {
-                    spotifyTrackId: trData.id,
-                    spotifyUri: trData.uri || `spotify:track:${trData.id}`,
-                    name: `${trData.name} - ${(trData.artists || []).map((a) => a.name).join(", ")}`,
-                    url: trData.external_urls?.spotify || `https://open.spotify.com/track/${trData.id}`,
-                    embedUrl: `https://open.spotify.com/embed/track/${trData.id}?utm_source=generator&theme=0`,
-                    thumbnail: trData.album?.images?.[0]?.url || null,
-                    durationMs: trData.duration_ms || 0
-                  }
-                ]
-              };
-            }
-          }
+        if (cleanTracks.length > 0) {
+          resolvedPayload = {
+            kind: info.type || kind,
+            folderName: info.name || info.title || "Spotify Playlist",
+            thumbnail: cover,
+            tracks: cleanTracks
+          };
         }
       } catch (_) {}
 
-      // Jika Spotify API menolak akses playlist tanpa login user, otomatis gunakan Public Embed Parser
-      const finalResolved = apiResult || (await resolveViaPublicEmbed(kind, id));
+      // Jalur 2 (Cadangan): Client Credentials Spotify Web API
+      if (!resolvedPayload) {
+        try {
+          const tokenRes = await fetch("https://accounts.spotify.com/api/token", {
+            method: "POST",
+            headers: {
+              Authorization: `Basic ${basicAuth}`,
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: new URLSearchParams({ grant_type: "client_credentials" })
+          });
+          const tokenData = await tokenRes.json();
 
-      if (!finalResolved || !finalResolved.tracks?.length) {
+          if (tokenRes.ok && tokenData.access_token) {
+            const appHeaders = { Authorization: `Bearer ${tokenData.access_token}` };
+
+            if (kind === "playlist") {
+              const plRes = await fetch(`https://api.spotify.com/v1/playlists/${id}`, {
+                headers: appHeaders
+              });
+              if (plRes.ok) {
+                const plData = await plRes.json();
+                const plCover = plData.images?.[0]?.url || null;
+                const cleanTracks = (plData.tracks?.items || [])
+                  .map((entry) => entry?.track)
+                  .filter((t) => t && t.id && t.type === "track")
+                  .map((t) => ({
+                    spotifyTrackId: t.id,
+                    spotifyUri: t.uri || `spotify:track:${t.id}`,
+                    name: `${t.name} - ${(t.artists || []).map((a) => a.name).join(", ")}`,
+                    url: t.external_urls?.spotify || `https://open.spotify.com/track/${t.id}`,
+                    embedUrl: `https://open.spotify.com/embed/track/${t.id}?utm_source=generator&theme=0`,
+                    thumbnail: t.album?.images?.[0]?.url || plCover,
+                    durationMs: t.duration_ms || 0
+                  }));
+
+                if (cleanTracks.length > 0) {
+                  resolvedPayload = {
+                    kind: "playlist",
+                    folderName: plData.name,
+                    thumbnail: plCover,
+                    tracks: cleanTracks
+                  };
+                }
+              }
+            } else if (kind === "album") {
+              const alRes = await fetch(`https://api.spotify.com/v1/albums/${id}`, {
+                headers: appHeaders
+              });
+              if (alRes.ok) {
+                const alData = await alRes.json();
+                const alCover = alData.images?.[0]?.url || null;
+                const cleanTracks = (alData.tracks?.items || [])
+                  .filter((t) => t && t.id)
+                  .map((t) => ({
+                    spotifyTrackId: t.id,
+                    spotifyUri: t.uri || `spotify:track:${t.id}`,
+                    name: `${t.name} - ${(t.artists || []).map((a) => a.name).join(", ")}`,
+                    url: t.external_urls?.spotify || `https://open.spotify.com/track/${t.id}`,
+                    embedUrl: `https://open.spotify.com/embed/track/${t.id}?utm_source=generator&theme=0`,
+                    thumbnail: alCover,
+                    durationMs: t.duration_ms || 0
+                  }));
+
+                if (cleanTracks.length > 0) {
+                  resolvedPayload = {
+                    kind: "album",
+                    folderName: alData.name,
+                    thumbnail: alCover,
+                    tracks: cleanTracks
+                  };
+                }
+              }
+            } else if (kind === "track") {
+              const trRes = await fetch(`https://api.spotify.com/v1/tracks/${id}`, {
+                headers: appHeaders
+              });
+              if (trRes.ok) {
+                const trData = await trRes.json();
+                resolvedPayload = {
+                  kind: "track",
+                  folderName: trData.album?.name || "Spotify Track",
+                  thumbnail: trData.album?.images?.[0]?.url || null,
+                  tracks: [
+                    {
+                      spotifyTrackId: trData.id,
+                      spotifyUri: trData.uri || `spotify:track:${trData.id}`,
+                      name: `${trData.name} - ${(trData.artists || []).map((a) => a.name).join(", ")}`,
+                      url: trData.external_urls?.spotify || `https://open.spotify.com/track/${trData.id}`,
+                      embedUrl: `https://open.spotify.com/embed/track/${trData.id}?utm_source=generator&theme=0`,
+                      thumbnail: trData.album?.images?.[0]?.url || null,
+                      durationMs: trData.duration_ms || 0
+                    }
+                  ]
+                };
+              }
+            }
+          }
+        } catch (_) {}
+      }
+
+      if (!resolvedPayload || !resolvedPayload.tracks?.length) {
         return res.status(404).json({
           error: "Playlist atau lagu Spotify tidak ditemukan / bersifat privat."
         });
       }
 
+      res.setHeader("Cache-Control", "s-maxage=3600, stale-while-revalidate=86400");
       return res.status(200).json({
         playlistId: id,
-        ...finalResolved
+        ...resolvedPayload
+      });
+    }
+
+    // 6. Match Full Audio via yt-search (Agar User Tanpa Login / Free Bisa Putar Full Lagu)
+    if (body.action === "match_audio") {
+      const { query } = body;
+      if (!query) {
+        return res.status(400).json({ error: "Query lagu wajib diisi." });
+      }
+
+      const searchRes = await ytSearch(`${query} official audio`);
+      const video = searchRes?.videos?.[0];
+
+      if (!video || !video.videoId) {
+        return res.status(404).json({ error: "Sumber audio tidak ditemukan." });
+      }
+
+      res.setHeader("Cache-Control", "s-maxage=86400, stale-while-revalidate=604800");
+      return res.status(200).json({
+        videoId: video.videoId,
+        title: video.title,
+        duration: video.seconds || 0
       });
     }
 
