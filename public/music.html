@@ -101,17 +101,17 @@
           <button type="button" id="clearSearchBtn" class="btn-clear-search" title="Hapus pencarian">✕</button>
         </div>
 
-        <div class="folder-bar">
+    <div class="folder-bar">
           <select id="folderSelect" title="Pilih Folder Playlist">
             <option value="all">📂 Semua Media</option>
             <option value="mp3">🎵 Folder MP3 (Audio)</option>
             <option value="mp4">🎬 Folder MP4 (Video)</option>
           </select>
+          <button type="button" id="playFolderBtn" class="btn-folder-act play-fld" title="Putar Folder Ini" disabled>▶</button>
           <button type="button" id="addFolderBtn" class="btn-folder-act" title="Buat Folder Baru">➕</button>
           <button type="button" id="editFolderBtn" class="btn-folder-act" title="Ubah Nama Folder" disabled>✏️</button>
           <button type="button" id="delFolderBtn" class="btn-folder-act del" title="Hapus Folder" disabled>🗑️</button>
         </div>
-      </div>
 
       <div class="playlist-items" id="playlistContainer">
         <div class="empty-playlist">
@@ -1081,6 +1081,24 @@
       }
     };
 
+
+// Tombol Play Folder Sekali Klik
+    document.getElementById("playFolderBtn").onclick = () => {
+      const pool = getActiveFolderIndices();
+      if (!pool.length) {
+        alert("Folder ini masih kosong, belum ada media yang bisa diputar.");
+        return;
+      }
+
+      if (isShuffle && pool.length > 1) {
+        const randIdx = pool[Math.floor(Math.random() * pool.length)];
+        playTrack(randIdx);
+      } else {
+        playTrack(pool[0]);
+      }
+    };
+    
+
     document.getElementById("stopBtn").onclick = () => {
       if (currentIndex === -1) return;
       const track = tracks[currentIndex];
@@ -1339,6 +1357,11 @@
         e.target.value = "";
       }
     };
+
+    const playFolderBtn = document.getElementById("playFolderBtn");
+      if (playFolderBtn) {
+        playFolderBtn.disabled = folderIndices.length === 0;
+      }
 
     window.refreshPlaylist();
   </script>
