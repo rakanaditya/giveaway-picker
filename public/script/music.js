@@ -22,15 +22,23 @@
   let isShuffle = false;
   let isVideoDisplayMode = true;
 
-  /* === SPOTIFY OAUTH & WEB PLAYBACK SDK STATE === */
+  /* === SPOTIFY OAUTH, WEB PLAYBACK SDK & LIBRARY STATE === */
   const SP_TOKEN_KEY = "gp_spotify_auth_v1";
+  const SP_LIBRARY_CACHE_KEY = "gp_spotify_library_cache_v1";
   let spAuth = JSON.parse(localStorage.getItem(SP_TOKEN_KEY) || "null");
+  let spLibraryCache = JSON.parse(localStorage.getItem(SP_LIBRARY_CACHE_KEY) || "null");
   let spDeviceId = null;
   let spSdkPlayer = null;
   let spIsPlaying = false;
   let spProgressTimer = null;
   let spCurrentPosition = 0;
   let spCurrentDuration = 0;
+
+  let activeLibraryTab = "local"; // "local" | "spotify"
+  let spSelectedPlaylistId = "all";
+  let spSearchQuery = "";
+  let spCurrentPage = 1;
+  const SP_ITEMS_PER_PAGE = 15;
 
   function saveSpotifyAuth(data) {
     spAuth = data;
@@ -42,9 +50,16 @@
   function updateSpotifyAuthUI() {
     const loginBtn = document.getElementById("spotifyLoginBtn");
     const syncBtn = document.getElementById("spotifySyncNowBtn");
+    const tabsWrap = document.getElementById("libraryViewTabs");
+    const isConnected = Boolean(spAuth && spAuth.access_token);
+
+    if (tabsWrap) {
+      tabsWrap.style.display = isConnected ? "grid" : "none";
+    }
+
     if (!loginBtn) return;
 
-    if (spAuth && spAuth.access_token) {
+    if (isConnected) {
       const userName = spAuth.profile?.display_name || "Terhubung";
       loginBtn.textContent = `✅ Spotify: ${userName}`;
       if (syncBtn) syncBtn.style.display = "inline-flex";
@@ -99,6 +114,7 @@
 
       if (res.status === 401) {
         saveSpotifyAuth(null);
+        switchLibraryTab("local");
         if (!silent) alert("Sesi Spotify berakhir, silakan klik Login Spotify lagi.");
         return;
       }
@@ -110,6 +126,13 @@
         ...spAuth,
         profile: data.profile
       });
+
+      // Simpan cache library untuk Halaman Spotify Library
+      spLibraryCache = {
+        profile: data.profile,
+        playlists: data.playlists || []
+      };
+      localStorage.setItem(SP_LIBRARY_CACHE_KEY, JSON.stringify(spLibraryCache));
 
       const existingTracks = await window.getAllTracksDB();
       let addedFolders = 0;
@@ -152,6 +175,9 @@
       saveCustomFolders();
       await window.refreshPlaylist();
       updateSpotifyAuthUI();
+
+      // Otomatis tampilkan halaman Spotify Library yang berisi lagu-lagu tersedia
+      switchLibraryTab("spotify");
 
       if (!silent) {
         alert(
@@ -199,6 +225,11 @@
     } else if (spAuth && spAuth.access_token) {
       updateSpotifyAuthUI();
       initSpotifyWebPlaybackSDK();
+      if (spLibraryCache && Array.isArray(spLibraryCache.playlists)) {
+        switchLibraryTab("spotify");
+      } else {
+        await syncSpotifyFoldersAndTracks(true);
+      }
     } else {
       updateSpotifyAuthUI();
     }
@@ -249,6 +280,7 @@
 
     spSdkPlayer.addListener("authentication_error", () => {
       saveSpotifyAuth(null);
+      switchLibraryTab("local");
     });
 
     spSdkPlayer.connect();
@@ -271,7 +303,10 @@
           if (spSdkPlayer) spSdkPlayer.disconnect();
           spSdkPlayer = null;
           spDeviceId = null;
+          localStorage.removeItem(SP_LIBRARY_CACHE_KEY);
+          spLibraryCache = null;
           saveSpotifyAuth(null);
+          switchLibraryTab("local");
         }
         return;
       }
@@ -998,10 +1033,13 @@
     return indices;
   }
 
-  /* === RENDER & PLAYBACK === */
+  /* === RENDER & PLAYBACK (PLAYLIST LOKAL) === */
   window.refreshPlaylist = async function () {
     tracks = await window.getAllTracksDB();
     renderFolderDropdown();
+
+    const localTabCount = document.getElementById("localTabCount");
+    if (localTabCount) localTabCount.textContent = tracks.length;
 
     const folderIndices = getActiveFolderIndices();
     const playFolderBtn = document.getElementById("playFolderBtn");
@@ -1018,10 +1056,12 @@
         return `${track.name} ${folderLabel}`.toLowerCase().includes(searchKeyword);
       });
 
-    const isFiltered = activeFolder !== "all" || searchKeyword !== "";
-    document.getElementById("trackCount").textContent = isFiltered
-      ? `${visibleTracks.length}/${tracks.length} Media`
-      : `${tracks.length} Media`;
+    if (activeLibraryTab === "local") {
+      const isFiltered = activeFolder !== "all" || searchKeyword !== "";
+      document.getElementById("trackCount").textContent = isFiltered
+        ? `${visibleTracks.length}/${tracks.length} Media`
+        : `${tracks.length} Media`;
+    }
 
     const container = document.getElementById("playlistContainer");
     if (tracks.length === 0) {
@@ -1107,6 +1147,7 @@
           currentIndex--;
         }
         await window.refreshPlaylist();
+        if (activeLibraryTab === "spotify") renderSpotifyLibraryPage();
       };
 
       container.appendChild(div);
@@ -1174,6 +1215,7 @@
         document.getElementById("nowBadge").textContent = "OFFLINE - TERSIMPAN";
         document.getElementById("nowSub").textContent = "Link Spotify tersimpan lokal, putar saat internet aktif";
         window.refreshPlaylist();
+        if (activeLibraryTab === "spotify") renderSpotifyLibraryPage();
         return;
       }
 
@@ -1192,6 +1234,7 @@
       }
 
       window.refreshPlaylist();
+      if (activeLibraryTab === "spotify") renderSpotifyLibraryPage();
       return;
     }
 
@@ -1328,6 +1371,7 @@
       await addTrackDB(record);
     }
     e.target.value = "";
+    switchLibraryTab("local");
     await window.refreshPlaylist();
 
     const updatedPool = getActiveFolderIndices();
@@ -1369,6 +1413,7 @@
 
     await addTrackDB(parsed);
     urlEl.value = "";
+    switchLibraryTab("local");
     await window.refreshPlaylist();
 
     if ((parsed.type === "youtube" || parsed.type === "spotify") && currentIndex === -1) {
@@ -1744,6 +1789,225 @@
       e.target.value = "";
     }
   };
+
+  /* === PENGELOLA HALAMAN TAB (LOKAL VS SPOTIFY LIBRARY) === */
+  function switchLibraryTab(tabName) {
+    activeLibraryTab = tabName;
+    const localPane = document.getElementById("localLibraryPage");
+    const spPane = document.getElementById("spotifyLibraryPage");
+    const tabLocalBtn = document.getElementById("tabLocalLibraryBtn");
+    const tabSpBtn = document.getElementById("tabSpotifyLibraryBtn");
+
+    if (!localPane || !spPane) return;
+
+    if (tabName === "spotify" && spAuth && spAuth.access_token) {
+      localPane.style.display = "none";
+      spPane.style.display = "flex";
+      tabLocalBtn?.classList.remove("active");
+      tabSpBtn?.classList.add("active");
+      renderSpotifyLibraryPage();
+    } else {
+      activeLibraryTab = "local";
+      spPane.style.display = "none";
+      localPane.style.display = "flex";
+      tabSpBtn?.classList.remove("active");
+      tabLocalBtn?.classList.add("active");
+      window.refreshPlaylist();
+    }
+  }
+
+  document.getElementById("tabLocalLibraryBtn")?.addEventListener("click", () => switchLibraryTab("local"));
+  document.getElementById("tabSpotifyLibraryBtn")?.addEventListener("click", () => switchLibraryTab("spotify"));
+
+  function getFlattenedSpotifyTracks() {
+    if (!spLibraryCache || !Array.isArray(spLibraryCache.playlists)) return [];
+    const list = [];
+    for (const pl of spLibraryCache.playlists) {
+      if (spSelectedPlaylistId !== "all" && pl.spotifyPlaylistId !== spSelectedPlaylistId) continue;
+      for (const tr of pl.tracks || []) {
+        list.push({
+          ...tr,
+          playlistId: pl.spotifyPlaylistId,
+          playlistName: pl.name
+        });
+      }
+    }
+    if (!spSearchQuery) return list;
+    return list.filter((item) =>
+      `${item.name} ${item.playlistName}`.toLowerCase().includes(spSearchQuery)
+    );
+  }
+
+  function renderSpotifyLibraryPage() {
+    const container = document.getElementById("spotifyTracksContainer");
+    const plSelect = document.getElementById("spPlaylistFilter");
+    const pageInfo = document.getElementById("spPageInfo");
+    const prevPageBtn = document.getElementById("spPrevPageBtn");
+    const nextPageBtn = document.getElementById("spNextPageBtn");
+    const profileNameEl = document.getElementById("spProfileName");
+    const profileSubEl = document.getElementById("spProfileSub");
+    const spTabCountEl = document.getElementById("spotifyTabCount");
+
+    if (!container) return;
+
+    const playlists = spLibraryCache?.playlists || [];
+    const totalAllSongs = playlists.reduce((acc, p) => acc + (p.tracks?.length || 0), 0);
+
+    if (spTabCountEl) spTabCountEl.textContent = totalAllSongs;
+    if (profileNameEl) {
+      profileNameEl.textContent = spAuth?.profile?.display_name || "Spotify Connected";
+    }
+    if (profileSubEl) {
+      const plan = (spAuth?.profile?.product || "free").toUpperCase();
+      profileSubEl.textContent = `${plan} • ${playlists.length} Playlist • ${totalAllSongs} Lagu`;
+    }
+
+    if (plSelect) {
+      let opts = `<option value="all">🎵 Semua Lagu Spotify (${totalAllSongs})</option>`;
+      playlists.forEach((pl) => {
+        opts += `<option value="${pl.spotifyPlaylistId}">📁 ${pl.name} (${pl.tracks.length})</option>`;
+      });
+      plSelect.innerHTML = opts;
+      plSelect.value = playlists.some((p) => p.spotifyPlaylistId === spSelectedPlaylistId)
+        ? spSelectedPlaylistId
+        : "all";
+    }
+
+    const filtered = getFlattenedSpotifyTracks();
+    if (activeLibraryTab === "spotify") {
+      document.getElementById("trackCount").textContent = `${filtered.length} Spotify`;
+    }
+
+    const totalPages = Math.max(1, Math.ceil(filtered.length / SP_ITEMS_PER_PAGE));
+    if (spCurrentPage > totalPages) spCurrentPage = totalPages;
+    if (spCurrentPage < 1) spCurrentPage = 1;
+
+    const startIdx = (spCurrentPage - 1) * SP_ITEMS_PER_PAGE;
+    const pageItems = filtered.slice(startIdx, startIdx + SP_ITEMS_PER_PAGE);
+
+    if (pageInfo) pageInfo.textContent = `Hal ${spCurrentPage} / ${totalPages}`;
+    if (prevPageBtn) prevPageBtn.disabled = spCurrentPage <= 1;
+    if (nextPageBtn) nextPageBtn.disabled = spCurrentPage >= totalPages;
+
+    if (pageItems.length === 0) {
+      container.innerHTML = `<div class="empty-playlist">Tidak ada lagu Spotify yang ditemukan.</div>`;
+      return;
+    }
+
+    container.innerHTML = "";
+    pageItems.forEach((item, idx) => {
+      const globalNum = startIdx + idx + 1;
+      const isCurrentlyPlaying =
+        currentIndex !== -1 &&
+        tracks[currentIndex]?.type === "spotify" &&
+        (tracks[currentIndex]?.spotifyUri === item.spotifyUri || tracks[currentIndex]?.url === item.url);
+
+      const row = document.createElement("div");
+      row.className = "track-item" + (isCurrentlyPlaying ? " active" : "");
+      row.innerHTML = `
+        <div class="track-info">
+          <span class="track-num">${isCurrentlyPlaying ? "▶" : globalNum}</span>
+          ${item.thumbnail ? `<img src="${item.thumbnail}" class="sp-track-thumb" alt="" />` : ""}
+          <div class="track-meta">
+            <div class="track-title">${item.name}</div>
+            <div class="track-source">
+              <span class="tag-pill tag-spotify">Spotify</span>
+              <span class="tag-pill tag-folder">📁 ${item.playlistName}</span>
+            </div>
+          </div>
+        </div>
+        <div class="track-actions">
+          <button type="button" class="btn-move-track" title="Simpan ke Playlist Lokal">➕</button>
+        </div>
+      `;
+
+      // Klik lagu: langsung putar (otomatis masuk ke playlist lokal jika belum ada)
+      row.querySelector(".track-info").onclick = async () => {
+        const folderId = `sp_fld_${item.playlistId}`;
+        let idxInTracks = tracks.findIndex(
+          (t) => t.folderId === folderId && (t.spotifyUri === item.spotifyUri || t.url === item.url)
+        );
+        if (idxInTracks === -1) {
+          await addTrackDB({
+            name: item.name,
+            type: "spotify",
+            spotifyUri: item.spotifyUri,
+            url: item.url,
+            embedUrl: item.embedUrl,
+            thumbnail: item.thumbnail,
+            folderId,
+            pendingSync: false
+          });
+          tracks = await window.getAllTracksDB();
+          idxInTracks = tracks.findIndex(
+            (t) => t.folderId === folderId && (t.spotifyUri === item.spotifyUri || t.url === item.url)
+          );
+        }
+        if (idxInTracks !== -1) {
+          await playTrack(idxInTracks);
+          renderSpotifyLibraryPage();
+        }
+      };
+
+      // Tombol ➕: simpan salinan ke folder lokal utama tanpa berpindah halaman
+      row.querySelector(".btn-move-track").onclick = async (e) => {
+        e.stopPropagation();
+        await addTrackDB({
+          name: item.name,
+          type: "spotify",
+          spotifyUri: item.spotifyUri,
+          url: item.url,
+          embedUrl: item.embedUrl,
+          thumbnail: item.thumbnail,
+          pendingSync: false
+        });
+        await window.refreshPlaylist();
+        alert(`✅ "${item.name}" ditambahkan ke Playlist Lokal!`);
+      };
+
+      container.appendChild(row);
+    });
+  }
+
+  document.getElementById("spPlaylistFilter")?.addEventListener("change", (e) => {
+    spSelectedPlaylistId = e.target.value;
+    spCurrentPage = 1;
+    renderSpotifyLibraryPage();
+  });
+
+  document.getElementById("spTrackSearchInput")?.addEventListener("input", (e) => {
+    spSearchQuery = e.target.value.trim().toLowerCase();
+    spCurrentPage = 1;
+    renderSpotifyLibraryPage();
+  });
+
+  document.getElementById("spPrevPageBtn")?.addEventListener("click", () => {
+    if (spCurrentPage > 1) {
+      spCurrentPage--;
+      renderSpotifyLibraryPage();
+    }
+  });
+
+  document.getElementById("spNextPageBtn")?.addEventListener("click", () => {
+    spCurrentPage++;
+    renderSpotifyLibraryPage();
+  });
+
+  document.getElementById("spPlayAllBtn")?.addEventListener("click", () => {
+    const firstRowInfo = document.querySelector("#spotifyTracksContainer .track-info");
+    if (firstRowInfo) firstRowInfo.click();
+  });
+
+  document.getElementById("spLogoutBtn")?.addEventListener("click", () => {
+    if (!confirm("Logout dari akun Spotify? (Playlist & folder lokal tetap aman tersimpan)")) return;
+    if (spSdkPlayer) spSdkPlayer.disconnect();
+    spSdkPlayer = null;
+    spDeviceId = null;
+    localStorage.removeItem(SP_LIBRARY_CACHE_KEY);
+    spLibraryCache = null;
+    saveSpotifyAuth(null);
+    switchLibraryTab("local");
+  });
 
   window.refreshPlaylist();
   initSpotifyFlow();
