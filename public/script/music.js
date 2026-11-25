@@ -10,6 +10,7 @@
   const ytContainer = document.getElementById("ytContainer");
   const spotifyEmbedContainer = document.getElementById("spotifyEmbedContainer");
   const playPauseIcon = document.getElementById("playPauseIcon");
+  const toggleVideoBtn = document.getElementById("toggleVideoBtn");
 
   let activeMediaEl = audio;
   let ctx, analyser, data, bassEQ, gainNode;
@@ -19,6 +20,63 @@
   let activeBlobUrl = null;
   let isLoop = false;
   let isShuffle = false;
+  let isVideoDisplayMode = true;
+
+  function ensureVisualizerBuffer() {
+    if (!data) {
+      data = new Uint8Array(128);
+    }
+  }
+  ensureVisualizerBuffer();
+
+  function applyStageDisplayMode() {
+    if (toggleVideoBtn) {
+      toggleVideoBtn.textContent = isVideoDisplayMode ? "🎬 Mode: Video" : "📊 Mode: Visualizer";
+    }
+
+    if (currentIndex === -1 || !tracks[currentIndex]) {
+      videoPlayer.style.display = "none";
+      ytContainer.style.display = "none";
+      cvs.style.display = "block";
+      resizeCanvas();
+      return;
+    }
+
+    const track = tracks[currentIndex];
+
+    if (track.type === "video") {
+      videoPlayer.style.display = isVideoDisplayMode ? "block" : "none";
+      cvs.style.display = isVideoDisplayMode ? "none" : "block";
+    } else if (track.type === "youtube") {
+      ytContainer.style.display = "block";
+      if (isVideoDisplayMode) {
+        ytContainer.style.opacity = "1";
+        ytContainer.style.pointerEvents = "auto";
+        ytContainer.style.zIndex = "2";
+        cvs.style.display = "none";
+      } else {
+        ytContainer.style.opacity = "0";
+        ytContainer.style.pointerEvents = "none";
+        ytContainer.style.zIndex = "0";
+        cvs.style.display = "block";
+      }
+    } else if (track.type === "spotify") {
+      cvs.style.display = "none";
+    } else {
+      videoPlayer.style.display = "none";
+      ytContainer.style.display = "none";
+      cvs.style.display = "block";
+    }
+
+    resizeCanvas();
+  }
+
+  if (toggleVideoBtn) {
+    toggleVideoBtn.onclick = () => {
+      isVideoDisplayMode = !isVideoDisplayMode;
+      applyStageDisplayMode();
+    };
+  }
 
   /* === AUTO LYRICS ENGINE (LRCLIB + SYNCED LRC) === */
   let parsedLrcLines = [];
@@ -366,6 +424,7 @@
   /* === AUDIO GRAPH & VISUALIZER === */
   function resizeCanvas() {
     const box = cvs.parentElement;
+    if (!box) return;
     cvs.width = box.clientWidth;
     cvs.height = box.clientHeight;
   }
@@ -390,8 +449,6 @@
       bassEQ.connect(gainNode);
       gainNode.connect(analyser);
       analyser.connect(ctx.destination);
-
-      drawVisualizer();
     }
 
     if (ctx.state === "suspended") ctx.resume();
@@ -409,7 +466,28 @@
   function drawVisualizer() {
     requestAnimationFrame(drawVisualizer);
     if (cvs.style.display === "none") return;
-    analyser.getByteFrequencyData(data);
+
+    const currentTrack = currentIndex !== -1 ? tracks[currentIndex] : null;
+    const isYtPlaying =
+      currentTrack &&
+      currentTrack.type === "youtube" &&
+      ytReady &&
+      ytPlayer &&
+      typeof ytPlayer.getPlayerState === "function" &&
+      ytPlayer.getPlayerState() === YT.PlayerState.PLAYING;
+
+    if (isYtPlaying) {
+      const t = performance.now() * 0.006;
+      for (let i = 0; i < data.length; i++) {
+        const wave = Math.sin(t + i * 0.22) * 0.5 + 0.5;
+        const pulse = Math.cos(t * 1.7 - i * 0.1) * 0.35 + 0.65;
+        data[i] = Math.floor(wave * pulse * 210);
+      }
+    } else if (analyser) {
+      analyser.getByteFrequencyData(data);
+    } else {
+      data.fill(0);
+    }
 
     const settings = window.GP_PWA ? window.GP_PWA.getSettings() : { vizStyle: "bars", bassShake: true };
     const bassAvg = data.slice(0, 12).reduce((a, b) => a + b, 0) / 12;
@@ -457,6 +535,7 @@
     }
     g.restore();
   }
+  drawVisualizer();
 
   /* === RESET SEMUA ENGINE PEMUTAR === */
   function stopAllEngines() {
@@ -476,7 +555,12 @@
 
     spotifyEmbedContainer.innerHTML = "";
     spotifyEmbedContainer.style.display = "none";
+
+    ytContainer.style.opacity = "1";
+    ytContainer.style.pointerEvents = "auto";
+    ytContainer.style.zIndex = "2";
     ytContainer.style.display = "none";
+
     cvs.style.display = "block";
     setAlbumThumbnail(null);
     setPlayIcon(false);
@@ -710,6 +794,7 @@
         if (realIdx === currentIndex) {
           stopAllEngines();
           currentIndex = -1;
+          applyStageDisplayMode();
           document.getElementById("nowTitle").textContent = "Belum ada media dipilih";
           document.getElementById("nowBadge").textContent = "SIAP DIPUTAR";
         } else if (realIdx < currentIndex) {
@@ -766,8 +851,7 @@
 
       document.getElementById("nowBadge").textContent = "YOUTUBE VIDEO" + folderSubLabel;
       document.getElementById("nowSub").textContent = track.url;
-      cvs.style.display = "none";
-      ytContainer.style.display = "block";
+      applyStageDisplayMode();
 
       if (ytReady && ytPlayer && typeof ytPlayer.loadVideoById === "function") {
         const ytPlayerDiv = document.getElementById("ytPlayer");
@@ -801,9 +885,7 @@
       videoPlayer.loop = isLoop;
       videoPlayer.dataset.hasVideo = "true";
 
-      const showVid = window.GP_PWA ? window.GP_PWA.isVideoMode() : true;
-      videoPlayer.style.display = showVid ? "block" : "none";
-      cvs.style.display = showVid ? "none" : "block";
+      applyStageDisplayMode();
 
       document.getElementById("nowBadge").textContent = "VIDEO OFFLINE LOKAL" + folderSubLabel;
       document.getElementById("nowSub").textContent = "Diputar dari Penyimpanan Lokal Browser";
@@ -826,6 +908,7 @@
       document.getElementById("nowSub").textContent = track.url;
     }
 
+    applyStageDisplayMode();
     audio.loop = isLoop;
     initAudioGraph(audio);
     audio.play().then(() => setPlayIcon(true)).catch(() => setPlayIcon(false));
@@ -954,6 +1037,7 @@
     }
     currentIndex = -1;
     parsedLrcLines = [];
+    applyStageDisplayMode();
     await clearTracksDB();
 
     document.getElementById("nowBadge").textContent = "SIAP DIPUTAR";
