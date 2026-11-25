@@ -1267,13 +1267,13 @@ input[type="range"]:hover::-webkit-slider-thumb {
 }
 
 .btn-folder-act {
-  width: 32px;
+  width: 28px;
   height: 34px;
   border-radius: 8px;
   border: 1px solid #334155;
   background: #1e293b;
   color: #e2e8f0;
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
