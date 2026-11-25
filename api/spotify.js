@@ -1,21 +1,16 @@
-import spotifyUrlInfo from "spotify-url-info";
-import ytSearch from "yt-search";
-
-const { getData } = spotifyUrlInfo(fetch);
-
 export default async function handler(req, res) {
-  const clientId = process.env.Client_ID_Spotify;
-  const clientSecret = process.env.Client_ID_Secret_Spotify;
-
-  if (!clientId || !clientSecret) {
-    return res.status(500).json({
-      error: "Environment variable Client_ID_Spotify atau Client_ID_Secret_Spotify belum diatur di Vercel."
-    });
-  }
-
-  const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
-
   try {
+    const clientId = process.env.Client_ID_Spotify;
+    const clientSecret = process.env.Client_ID_Secret_Spotify;
+
+    if (!clientId || !clientSecret) {
+      return res.status(500).json({
+        error: "Environment variable Client_ID_Spotify atau Client_ID_Secret_Spotify belum diatur di Vercel."
+      });
+    }
+
+    const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
+
     // 1. Buat URL Login OAuth2 Spotify (Khusus Owner / Developer Mode)
     if (req.method === "GET" && req.query.action === "login") {
       const redirectUri = req.query.redirect_uri;
@@ -167,7 +162,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // 5. Resolve URL Publik Spotify Anti-Limit (spotify-url-info + Fallback Embed & Web API)
+    // 5. Resolve URL Publik Spotify Anti-Limit (Embed JSON Scraper + Optional spotify-url-info + Web API)
     if (body.action === "resolve_url") {
       const { url } = body;
       const match = String(url || "").match(
@@ -180,53 +175,104 @@ export default async function handler(req, res) {
 
       const [, kind, id] = match;
       const normalizedUrl = `https://open.spotify.com/${kind}/${id}`;
-
       let resolvedPayload = null;
 
-      // Jalur 1 (Utama Anti-Limit): spotify-url-info (tanpa kuota API Spotify)
+      // Jalur 1 (Anti-Limit & Zero-Dependency): Ekstrak __NEXT_DATA__ dari halaman Embed Spotify
       try {
-        const info = await getData(normalizedUrl);
-        const isCollection = info.type === "playlist" || info.type === "album";
-        const rawList = isCollection ? info.trackList || [] : [info];
-        const cover =
-          info.coverArt?.sources?.[0]?.url ||
-          info.visualIdentity?.image?.[0]?.url ||
-          null;
+        const embedPageRes = await fetch(`https://open.spotify.com/embed/${kind}/${id}`, {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36"
+          }
+        });
+        if (embedPageRes.ok) {
+          const html = await embedPageRes.text();
+          const nextDataMatch = html.match(/<script id="__NEXT_DATA__" type="application\/json">([\s\S]*?)<\/script>/);
+          if (nextDataMatch) {
+            const nextJson = JSON.parse(nextDataMatch[1]);
+            const entity = nextJson?.props?.pageProps?.state?.data?.entity;
+            if (entity) {
+              const cover =
+                entity.coverArt?.sources?.[0]?.url ||
+                entity.visualIdentity?.image?.[0]?.url ||
+                null;
+              const rawList = kind === "track" ? [entity] : entity.trackList || [];
 
-        const cleanTracks = rawList
-          .map((t) => {
-            const uriParts = String(t.uri || "").split(":");
-            const trId = uriParts[2] || t.id;
-            if (!trId) return null;
+              const cleanTracks = rawList
+                .map((t) => {
+                  const uriParts = String(t.uri || "").split(":");
+                  const trId = uriParts[2] || t.id;
+                  if (!trId) return null;
+                  const title = t.title || t.name || "Unknown Track";
+                  const artist = t.subtitle || "";
+                  return {
+                    spotifyTrackId: trId,
+                    spotifyUri: `spotify:track:${trId}`,
+                    name: artist ? `${title} - ${artist}` : title,
+                    url: `https://open.spotify.com/track/${trId}`,
+                    embedUrl: `https://open.spotify.com/embed/track/${trId}?utm_source=generator&theme=0`,
+                    thumbnail: t.coverArt?.sources?.[0]?.url || cover,
+                    durationMs: t.duration || 0
+                  };
+                })
+                .filter(Boolean);
 
-            const title = t.title || t.name || "Unknown Track";
-            const artist =
-              t.subtitle ||
-              (Array.isArray(t.artists) ? t.artists.map((a) => a.name).join(", ") : "");
-
-            return {
-              spotifyTrackId: trId,
-              spotifyUri: `spotify:track:${trId}`,
-              name: artist ? `${title} - ${artist}` : title,
-              url: `https://open.spotify.com/track/${trId}`,
-              embedUrl: `https://open.spotify.com/embed/track/${trId}?utm_source=generator&theme=0`,
-              thumbnail: t.coverArt?.sources?.[0]?.url || cover,
-              durationMs: t.duration || 0
-            };
-          })
-          .filter(Boolean);
-
-        if (cleanTracks.length > 0) {
-          resolvedPayload = {
-            kind: info.type || kind,
-            folderName: info.name || info.title || "Spotify Playlist",
-            thumbnail: cover,
-            tracks: cleanTracks
-          };
+              if (cleanTracks.length > 0) {
+                resolvedPayload = {
+                  kind,
+                  folderName: entity.name || entity.title || "Spotify Playlist",
+                  thumbnail: cover,
+                  tracks: cleanTracks
+                };
+              }
+            }
+          }
         }
       } catch (_) {}
 
-      // Jalur 2 (Cadangan): Client Credentials Spotify Web API
+      // Jalur 2 (Dynamic Import spotify-url-info jika terpasang)
+      if (!resolvedPayload) {
+        try {
+          const mod = await import("spotify-url-info");
+          const factory = mod.default || mod;
+          if (typeof factory === "function") {
+            const { getData } = factory(fetch);
+            const info = await getData(normalizedUrl);
+            const isCollection = info.type === "playlist" || info.type === "album";
+            const rawList = isCollection ? info.trackList || [] : [info];
+            const cover = info.coverArt?.sources?.[0]?.url || null;
+
+            const cleanTracks = rawList
+              .map((t) => {
+                const uriParts = String(t.uri || "").split(":");
+                const trId = uriParts[2] || t.id;
+                if (!trId) return null;
+                const title = t.title || t.name || "Unknown Track";
+                const artist = t.subtitle || "";
+                return {
+                  spotifyTrackId: trId,
+                  spotifyUri: `spotify:track:${trId}`,
+                  name: artist ? `${title} - ${artist}` : title,
+                  url: `https://open.spotify.com/track/${trId}`,
+                  embedUrl: `https://open.spotify.com/embed/track/${trId}?utm_source=generator&theme=0`,
+                  thumbnail: t.coverArt?.sources?.[0]?.url || cover,
+                  durationMs: t.duration || 0
+                };
+              })
+              .filter(Boolean);
+
+            if (cleanTracks.length > 0) {
+              resolvedPayload = {
+                kind: info.type || kind,
+                folderName: info.name || info.title || "Spotify Playlist",
+                thumbnail: cover,
+                tracks: cleanTracks
+              };
+            }
+          }
+        } catch (_) {}
+      }
+
+      // Jalur 3 (Cadangan): Client Credentials Spotify Web API
       if (!resolvedPayload) {
         try {
           const tokenRes = await fetch("https://accounts.spotify.com/api/token", {
@@ -340,26 +386,62 @@ export default async function handler(req, res) {
       });
     }
 
-    // 6. Match Full Audio via yt-search (Agar User Tanpa Login / Free Bisa Putar Full Lagu)
+    // 6. Match Full Audio (Dynamic yt-search + Fallback Direct YouTube Search Scraper)
     if (body.action === "match_audio") {
       const { query } = body;
       if (!query) {
         return res.status(400).json({ error: "Query lagu wajib diisi." });
       }
 
-      const searchRes = await ytSearch(`${query} official audio`);
-      const video = searchRes?.videos?.[0];
+      let matchedVideo = null;
 
-      if (!video || !video.videoId) {
+      // Jalur 1: Dynamic import yt-search jika tersedia di node_modules
+      try {
+        const ytMod = await import("yt-search");
+        const ytSearchFn = ytMod.default || ytMod;
+        if (typeof ytSearchFn === "function") {
+          const searchRes = await ytSearchFn(`${query} official audio`);
+          const video = searchRes?.videos?.[0];
+          if (video?.videoId) {
+            matchedVideo = {
+              videoId: video.videoId,
+              title: video.title,
+              duration: video.seconds || 0
+            };
+          }
+        }
+      } catch (_) {}
+
+      // Jalur 2 (Zero-Dependency Fallback): Ekstrak videoId langsung dari halaman pencarian YouTube
+      if (!matchedVideo) {
+        const ytPageRes = await fetch(
+          `https://www.youtube.com/results?search_query=${encodeURIComponent(`${query} official audio`)}`,
+          {
+            headers: {
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36",
+              "Accept-Language": "en-US,en;q=0.9"
+            }
+          }
+        );
+        if (ytPageRes.ok) {
+          const html = await ytPageRes.text();
+          const vidMatch = html.match(/"videoRenderer":\{"videoId":"([a-zA-Z0-9_-]{11})"/);
+          if (vidMatch && vidMatch[1]) {
+            matchedVideo = {
+              videoId: vidMatch[1],
+              title: query,
+              duration: 0
+            };
+          }
+        }
+      }
+
+      if (!matchedVideo) {
         return res.status(404).json({ error: "Sumber audio tidak ditemukan." });
       }
 
       res.setHeader("Cache-Control", "s-maxage=86400, stale-while-revalidate=604800");
-      return res.status(200).json({
-        videoId: video.videoId,
-        title: video.title,
-        duration: video.seconds || 0
-      });
+      return res.status(200).json(matchedVideo);
     }
 
     return res.status(400).json({ error: "Action tidak dikenali." });
