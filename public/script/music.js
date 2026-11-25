@@ -21,6 +21,7 @@
   let isLoop = false;
   let isShuffle = false;
   let isVideoDisplayMode = true;
+  let isHybridAudioPlaying = false;
 
   /* === SPOTIFY OAUTH, WEB PLAYBACK SDK & LIBRARY STATE === */
   const SP_TOKEN_KEY = "gp_spotify_auth_v1";
@@ -47,12 +48,14 @@
     updateSpotifyAuthUI();
   }
 
-function updateSpotifyAuthUI() {
+  function updateSpotifyAuthUI() {
     const loginBtn = document.getElementById("spotifyLoginBtn");
     const syncBtn = document.getElementById("spotifySyncNowBtn");
     const tabsWrap = document.getElementById("libraryViewTabs");
     const isConnected = Boolean(spAuth && spAuth.access_token);
-    const hasPublicLibrary = Boolean(spLibraryCache && Array.isArray(spLibraryCache.playlists) && spLibraryCache.playlists.length > 0);
+    const hasPublicLibrary = Boolean(
+      spLibraryCache && Array.isArray(spLibraryCache.playlists) && spLibraryCache.playlists.length > 0
+    );
 
     if (tabsWrap) {
       tabsWrap.style.display = isConnected || hasPublicLibrary ? "grid" : "none";
@@ -128,7 +131,6 @@ function updateSpotifyAuthUI() {
         profile: data.profile
       });
 
-      // Simpan cache library untuk Halaman Spotify Library
       spLibraryCache = {
         profile: data.profile,
         playlists: data.playlists || []
@@ -176,8 +178,6 @@ function updateSpotifyAuthUI() {
       saveCustomFolders();
       await window.refreshPlaylist();
       updateSpotifyAuthUI();
-
-      // Otomatis tampilkan halaman Spotify Library yang berisi lagu-lagu tersedia
       switchLibraryTab("spotify");
 
       if (!silent) {
@@ -191,7 +191,7 @@ function updateSpotifyAuthUI() {
     }
   }
 
- async function initSpotifyFlow() {
+  async function initSpotifyFlow() {
     const redirectUri = window.location.origin + window.location.pathname;
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get("code");
@@ -375,8 +375,14 @@ function updateSpotifyAuthUI() {
         cvs.style.display = "block";
       }
     } else if (track.type === "spotify") {
-      if (spDeviceId && spAuth?.profile?.product === "premium") {
+      if ((spDeviceId && spAuth?.profile?.product === "premium") || isHybridAudioPlaying) {
         spotifyEmbedContainer.style.display = "none";
+        if (isHybridAudioPlaying) {
+          ytContainer.style.display = "block";
+          ytContainer.style.opacity = "0";
+          ytContainer.style.pointerEvents = "none";
+          ytContainer.style.zIndex = "0";
+        }
         cvs.style.display = "block";
       } else {
         spotifyEmbedContainer.style.display = "block";
@@ -457,7 +463,12 @@ function updateSpotifyAuthUI() {
         el.onclick = () => {
           const targetSec = parseFloat(el.dataset.time);
           const currentTrack = currentIndex !== -1 ? tracks[currentIndex] : null;
-          if (currentTrack?.type === "youtube" && ytReady && ytPlayer && typeof ytPlayer.seekTo === "function") {
+          if (
+            (currentTrack?.type === "youtube" || isHybridAudioPlaying) &&
+            ytReady &&
+            ytPlayer &&
+            typeof ytPlayer.seekTo === "function"
+          ) {
             ytPlayer.seekTo(targetSec, true);
           } else if (currentTrack?.type === "spotify" && spSdkPlayer) {
             spSdkPlayer.seek(Math.floor(targetSec * 1000));
@@ -805,7 +816,7 @@ function updateSpotifyAuthUI() {
     const currentTrack = currentIndex !== -1 ? tracks[currentIndex] : null;
     const isYtPlaying =
       currentTrack &&
-      currentTrack.type === "youtube" &&
+      (currentTrack.type === "youtube" || isHybridAudioPlaying) &&
       ytReady &&
       ytPlayer &&
       typeof ytPlayer.getPlayerState === "function" &&
@@ -892,6 +903,7 @@ function updateSpotifyAuthUI() {
 
     clearInterval(spProgressTimer);
     spIsPlaying = false;
+    isHybridAudioPlaying = false;
     if (spSdkPlayer && typeof spSdkPlayer.pause === "function") {
       spSdkPlayer.pause().catch(() => {});
     }
@@ -1198,6 +1210,36 @@ function updateSpotifyAuthUI() {
     return true;
   }
 
+  function loadHybridYoutubeAudio(videoId, track, folderSubLabel) {
+    isHybridAudioPlaying = true;
+    document.getElementById("nowBadge").textContent = "SPOTIFY FULL AUDIO" + folderSubLabel;
+    document.getElementById("nowSub").textContent = track.url;
+
+    ytContainer.style.display = "block";
+    ytContainer.style.opacity = "0";
+    ytContainer.style.pointerEvents = "none";
+    ytContainer.style.zIndex = "0";
+    spotifyEmbedContainer.style.display = "none";
+    cvs.style.display = "block";
+    resizeCanvas();
+
+    if (ytReady && ytPlayer && typeof ytPlayer.loadVideoById === "function") {
+      const ytPlayerDiv = document.getElementById("ytPlayer");
+      if (ytPlayerDiv) ytPlayerDiv.style.display = "block";
+      ytPlayer.loadVideoById(videoId);
+      ytPlayer.setVolume(document.getElementById("vol").value * 100);
+      setPlayIcon(true);
+    } else {
+      const ytPlayerDiv = document.getElementById("ytPlayer");
+      if (ytPlayerDiv) ytPlayerDiv.style.display = "none";
+      ytContainer.insertAdjacentHTML(
+        "beforeend",
+        `<iframe id="ytFallbackFrame" src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1" allow="autoplay; encrypted-media" style="width:100%;height:100%;border:none;"></iframe>`
+      );
+      setPlayIcon(true);
+    }
+  }
+
   async function playTrack(idx) {
     if (idx < 0 || idx >= tracks.length) return;
     currentIndex = idx;
@@ -1223,19 +1265,55 @@ function updateSpotifyAuthUI() {
         return;
       }
 
+      // 1. Jika Owner Login Spotify Premium -> Putar via Spotify Web Playback SDK
       const playedViaSdk = await playSpotifyViaWebApi(track);
       if (playedViaSdk) {
         document.getElementById("nowBadge").textContent = "SPOTIFY WEB API" + folderSubLabel;
         document.getElementById("nowSub").textContent = track.url;
         applyStageDisplayMode();
         setPlayIcon(true);
-      } else {
-        document.getElementById("nowBadge").textContent = "SPOTIFY EMBED" + folderSubLabel;
-        document.getElementById("nowSub").textContent = track.url;
-        applyStageDisplayMode();
-        spotifyEmbedContainer.innerHTML = `<iframe src="${track.embedUrl}" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
-        setPlayIcon(false);
+        window.refreshPlaylist();
+        if (activeLibraryTab === "spotify") renderSpotifyLibraryPage();
+        return;
       }
+
+      // 2. Jika Non-Login / Free -> Cek Cache videoId Lokal dulu (0 API call)
+      if (track.matchedVideoId) {
+        loadHybridYoutubeAudio(track.matchedVideoId, track, folderSubLabel);
+        window.refreshPlaylist();
+        if (activeLibraryTab === "spotify") renderSpotifyLibraryPage();
+        return;
+      }
+
+      // 3. Cari Full Audio via /api/spotify (yt-search + Vercel CDN Cache)
+      document.getElementById("nowBadge").textContent = "MENCARI FULL AUDIO...";
+      document.getElementById("nowSub").textContent = track.url;
+      try {
+        const matchRes = await fetch("/api/spotify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "match_audio", query: track.name })
+        });
+        const matched = await matchRes.json();
+
+        if (matchRes.ok && matched.videoId) {
+          track.matchedVideoId = matched.videoId;
+          if (track.id) {
+            await window.updateTrackDB(track);
+          }
+          loadHybridYoutubeAudio(matched.videoId, track, folderSubLabel);
+          window.refreshPlaylist();
+          if (activeLibraryTab === "spotify") renderSpotifyLibraryPage();
+          return;
+        }
+      } catch (_) {}
+
+      // 4. Fallback terakhir ke Spotify Embed jika pencarian audio gagal
+      document.getElementById("nowBadge").textContent = "SPOTIFY EMBED" + folderSubLabel;
+      document.getElementById("nowSub").textContent = track.url;
+      applyStageDisplayMode();
+      spotifyEmbedContainer.innerHTML = `<iframe src="${track.embedUrl}" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+      setPlayIcon(false);
 
       window.refreshPlaylist();
       if (activeLibraryTab === "spotify") renderSpotifyLibraryPage();
@@ -1384,8 +1462,7 @@ function updateSpotifyAuthUI() {
     }
   };
 
-
-  /* === TAMBAH LINK (OTOMATIS PECAH FOLDER & LAGU SPOTIFY TANPA LOGIN) === */
+  /* === TAMBAH LINK (OTOMATIS PECAH FOLDER & LAGU SPOTIFY ANTI-LIMIT) === */
   document.getElementById("addUrlBtn").onclick = async () => {
     const urlEl = document.getElementById("urlInput");
     const addBtn = document.getElementById("addUrlBtn");
@@ -1417,7 +1494,6 @@ function updateSpotifyAuthUI() {
             const folderId = `sp_fld_${plId}`;
             const folderLabel = `Spotify • ${folderName}`.slice(0, 32);
 
-            // 1. Masukkan ke spLibraryCache agar Tab "🎧 Spotify" tampil persis seperti gambar kedua
             if (!spLibraryCache || !Array.isArray(spLibraryCache.playlists)) {
               spLibraryCache = { profile: spAuth?.profile || null, playlists: [] };
             }
@@ -1431,7 +1507,6 @@ function updateSpotifyAuthUI() {
             else spLibraryCache.playlists.push(plPayload);
             localStorage.setItem(SP_LIBRARY_CACHE_KEY, JSON.stringify(spLibraryCache));
 
-            // 2. Buat folder lokal & simpan setiap lagu terpisah (Judul - Artist)
             let targetFolder = customFolders.find((f) => f.id === folderId);
             if (!targetFolder) {
               targetFolder = { id: folderId, name: folderLabel, isSpotifySynced: true };
@@ -1440,8 +1515,6 @@ function updateSpotifyAuthUI() {
             }
 
             const existingTracks = await window.getAllTracksDB();
-            let firstTrackIndex = -1;
-
             for (const item of resolved.tracks) {
               const duplicate = existingTracks.some(
                 (t) => t.folderId === targetFolder.id && t.spotifyUri === item.spotifyUri
@@ -1467,7 +1540,7 @@ function updateSpotifyAuthUI() {
             await window.refreshPlaylist();
             switchLibraryTab("spotify");
 
-            firstTrackIndex = tracks.findIndex((t) => t.folderId === targetFolder.id);
+            const firstTrackIndex = tracks.findIndex((t) => t.folderId === targetFolder.id);
             if (firstTrackIndex !== -1) {
               await playTrack(firstTrackIndex);
             }
@@ -1517,6 +1590,7 @@ function updateSpotifyAuthUI() {
       playTrack(updatedPool[0]);
     }
   };
+
   /* === RESET SEMUA === */
   document.getElementById("resetBtn").onclick = async () => {
     if (!confirm("Reset dan hapus semua lagu & video dari playlist lokal browser?")) return;
@@ -1557,7 +1631,7 @@ function updateSpotifyAuthUI() {
 
     const track = tracks[currentIndex];
 
-    if (track.type === "youtube") {
+    if (track.type === "youtube" || (track.type === "spotify" && isHybridAudioPlaying)) {
       if (ytReady && ytPlayer && typeof ytPlayer.getPlayerState === "function") {
         const state = ytPlayer.getPlayerState();
         if (state === YT.PlayerState.PLAYING) {
@@ -1610,7 +1684,7 @@ function updateSpotifyAuthUI() {
     if (currentIndex === -1) return;
     const track = tracks[currentIndex];
 
-    if (track.type === "youtube" && ytReady && ytPlayer) {
+    if ((track.type === "youtube" || isHybridAudioPlaying) && ytReady && ytPlayer) {
       ytPlayer.seekTo(0);
       ytPlayer.pauseVideo();
     } else if (track.type === "spotify" && spSdkPlayer) {
@@ -1703,7 +1777,7 @@ function updateSpotifyAuthUI() {
     const track = tracks[currentIndex];
     const pct = parseFloat(e.target.value) / 100;
 
-    if (track.type === "youtube" && ytReady && ytPlayer) {
+    if ((track.type === "youtube" || isHybridAudioPlaying) && ytReady && ytPlayer) {
       const dur = ytPlayer.getDuration();
       if (dur) ytPlayer.seekTo(pct * dur, true);
     } else if (track.type === "spotify" && spSdkPlayer && spCurrentDuration > 0) {
@@ -1758,6 +1832,7 @@ function updateSpotifyAuthUI() {
           spotifyUri: item.spotifyUri || null,
           embedUrl: item.embedUrl || null,
           videoId: item.videoId || null,
+          matchedVideoId: item.matchedVideoId || null,
           thumbnail: item.thumbnail || null,
           folderId: item.folderId || null,
           pendingSync: item.pendingSync || false
@@ -1846,6 +1921,7 @@ function updateSpotifyAuthUI() {
           spotifyUri: item.spotifyUri || null,
           embedUrl: item.embedUrl || null,
           videoId: item.videoId || null,
+          matchedVideoId: item.matchedVideoId || null,
           thumbnail: item.thumbnail || null,
           pendingSync: Boolean(item.pendingSync)
         };
@@ -1879,14 +1955,16 @@ function updateSpotifyAuthUI() {
   };
 
   /* === PENGELOLA HALAMAN TAB (LOKAL VS SPOTIFY LIBRARY) === */
-function switchLibraryTab(tabName) {
+  function switchLibraryTab(tabName) {
     activeLibraryTab = tabName;
     const localPane = document.getElementById("localLibraryPage");
     const spPane = document.getElementById("spotifyLibraryPage");
     const tabLocalBtn = document.getElementById("tabLocalLibraryBtn");
     const tabSpBtn = document.getElementById("tabSpotifyLibraryBtn");
     const isConnected = Boolean(spAuth && spAuth.access_token);
-    const hasPublicLibrary = Boolean(spLibraryCache && Array.isArray(spLibraryCache.playlists) && spLibraryCache.playlists.length > 0);
+    const hasPublicLibrary = Boolean(
+      spLibraryCache && Array.isArray(spLibraryCache.playlists) && spLibraryCache.playlists.length > 0
+    );
 
     if (!localPane || !spPane) return;
 
@@ -1944,8 +2022,8 @@ function switchLibraryTab(tabName) {
     const totalAllSongs = playlists.reduce((acc, p) => acc + (p.tracks?.length || 0), 0);
 
     if (spTabCountEl) spTabCountEl.textContent = totalAllSongs;
-    
-  if (profileNameEl) {
+
+    if (profileNameEl) {
       profileNameEl.textContent = spAuth?.profile?.display_name || "Spotify Public Library";
     }
     if (profileSubEl) {
@@ -2012,7 +2090,6 @@ function switchLibraryTab(tabName) {
         </div>
       `;
 
-      // Klik lagu: langsung putar (otomatis masuk ke playlist lokal jika belum ada)
       row.querySelector(".track-info").onclick = async () => {
         const folderId = `sp_fld_${item.playlistId}`;
         let idxInTracks = tracks.findIndex(
@@ -2040,7 +2117,6 @@ function switchLibraryTab(tabName) {
         }
       };
 
-      // Tombol ➕: simpan salinan ke folder lokal utama tanpa berpindah halaman
       row.querySelector(".btn-move-track").onclick = async (e) => {
         e.stopPropagation();
         await addTrackDB({
