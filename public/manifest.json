@@ -10,21 +10,21 @@
   "theme_color": "#11161d",
   "icons": [
     {
-      "src": "https://i.imgur.com/53m3Fo5.png",
+      "src": "/icon/gpmusic.jpg",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "any"
     },
     {
-      "src": "https://i.imgur.com/53m3Fo5.png",
+      "src": "/icon/gpmusic.jpg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "any"
     },
     {
-      "src": "https://i.imgur.com/53m3Fo5.png",
+      "src": "/icon/gpmusic.jpg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "maskable"
     }
   ]
