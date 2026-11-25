@@ -320,7 +320,7 @@
   <script src="https://www.youtube.com/iframe_api"></script>
   <script src="/js/music-mobile-pwa.js"></script>
 
-  <script>
+<script>
     const ICON_PLAY = '<path d="M3 1.713a.7.7 0 0 1 1.05-.607l10.89 6.288a.7.7 0 0 1 0 1.212L4.05 14.894A.7.7 0 0 1 3 14.288V1.713z"/>';
     const ICON_PAUSE = '<path d="M2.7 1a.7.7 0 0 0-.7.7v12.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7H2.7zm8 0a.7.7 0 0 0-.7.7v12.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7h-2.6z"/>';
 
@@ -745,6 +745,11 @@
       renderFolderDropdown();
 
       const folderIndices = getActiveFolderIndices();
+      const playFolderBtn = document.getElementById("playFolderBtn");
+      if (playFolderBtn) {
+        playFolderBtn.disabled = folderIndices.length === 0;
+      }
+
       const visibleTracks = folderIndices
         .map((realIdx) => ({ track: tracks[realIdx], realIdx }))
         .filter(({ track }) => {
@@ -1081,8 +1086,7 @@
       }
     };
 
-
-// Tombol Play Folder Sekali Klik
+    // Tombol Play Folder Sekali Klik
     document.getElementById("playFolderBtn").onclick = () => {
       const pool = getActiveFolderIndices();
       if (!pool.length) {
@@ -1097,7 +1101,6 @@
         playTrack(pool[0]);
       }
     };
-    
 
     document.getElementById("stopBtn").onclick = () => {
       if (currentIndex === -1) return;
@@ -1357,11 +1360,6 @@
         e.target.value = "";
       }
     };
-
-    const playFolderBtn = document.getElementById("playFolderBtn");
-      if (playFolderBtn) {
-        playFolderBtn.disabled = folderIndices.length === 0;
-      }
 
     window.refreshPlaylist();
   </script>
