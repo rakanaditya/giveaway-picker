@@ -87,12 +87,19 @@
           Tambah Lagu / Video (MP3 & MP4)
         </button>
 
-        <div class="url-add-box">
+      <div class="url-add-box">
           <input type="text" id="urlInput" placeholder="Tempel link Spotify / YouTube / MP3..." />
           <button type="button" id="addUrlBtn">Add</button>
         </div>
-      </div>
 
+        <div style="display:flex; gap:6px; margin-top:8px;">
+          <button type="button" id="spotifyLoginBtn" class="btn-spotify-add" style="flex:1; background:#1ed760; color:#000; font-weight:700;">
+            🎧 Login Spotify & Sync Folder
+          </button>
+          <button type="button" id="spotifySyncNowBtn" class="btn-folder-act" title="Sinkronkan ulang playlist Spotify" style="display:none; width:38px;">
+            🔄
+          </button>
+        </div>
       <!-- Kotak Pencarian & Pengelola Folder Custom -->
       <div class="search-folder-box">
         <div class="playlist-search-wrap">
@@ -340,8 +347,9 @@
     </div>
   </footer>
 
-  <audio id="audio" crossorigin="anonymous"></audio>
+ <audio id="audio" crossorigin="anonymous"></audio>
   <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="https://sdk.scdn.co/spotify-player.js"></script>
   <script src="/js/music-mobile-pwa.js"></script>
   <script src="/script/music.js"></script>
 </body>
