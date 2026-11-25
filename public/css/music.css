@@ -1,5 +1,6 @@
 :root {
   --accent: #1db954;
+  --text-muted: #94a3b8;
 }
 
 *,
@@ -179,7 +180,7 @@ body {
   color: #ffffff;
 }
 
-/* === SPOTIFY STYLE 3-COLUMN MAIN LAYOUT === */
+/* === SPOTIFY STYLE 3-COLUMN DESKTOP LAYOUT === */
 .spotify-wrapper {
   flex: 1;
   max-width: 1380px;
@@ -1003,7 +1004,7 @@ video#videoPlayer {
 .lyrics-tools {
   display: flex;
   gap: 6px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   flex-shrink: 0;
 }
 
@@ -1040,6 +1041,47 @@ video#videoPlayer {
 .lyrics-tools button:hover {
   border-color: var(--accent);
   background: #283548;
+}
+
+.lyrics-offset-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #262626;
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.lyrics-offset-bar strong {
+  color: #ffffff;
+}
+
+.lyrics-offset-btns {
+  display: flex;
+  gap: 4px;
+}
+
+.btn-offset-mini {
+  height: 24px;
+  padding: 0 7px;
+  border-radius: 6px;
+  border: 1px solid #334155;
+  background: #1e293b;
+  color: #e2e8f0;
+  font-family: 'Poppins', sans-serif;
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.btn-offset-mini:hover {
+  border-color: var(--accent);
+  color: #ffffff;
 }
 
 .lyrics-content {
@@ -1509,139 +1551,4 @@ input[type="range"]:hover::-webkit-slider-thumb {
   background: #ef4444;
   border-color: #ef4444;
   color: #ffffff;
-}
-
-/* === RESPONSIVE TABLET & MOBILE === */
-@media screen and (max-width: 1100px) {
-  .spotify-wrapper {
-    grid-template-columns: 320px 1fr;
-  }
-
-  .spotify-sidebar,
-  .spotify-lyrics {
-    height: auto;
-    max-height: 680px;
-  }
-
-  .spotify-lyrics {
-    grid-column: 1 / -1;
-    max-height: 380px;
-  }
-}
-
-@media screen and (max-width: 820px) {
-  .header-inner {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .site-title {
-    font-size: 23px;
-  }
-
-  .pwa-toolbar {
-    justify-content: center;
-  }
-
-  .nav-container {
-    justify-content: center;
-  }
-
-  .nav-container a {
-    font-size: 12px;
-    padding: 10px 11px;
-  }
-
-  .spotify-wrapper {
-    grid-template-columns: 1fr;
-    margin: 14px auto;
-    padding: 0 12px;
-    gap: 14px;
-  }
-
-  .spotify-main {
-    order: 1;
-    padding: 14px;
-  }
-
-  /* === RAPIKAN AREA PLAYLIST & FOLDER SCROLL DI MOBILE === */
-  .spotify-sidebar {
-    order: 2;
-    height: auto;
-    max-height: none; /* Bebaskan tinggi kartu agar tidak terpotong sempit */
-    padding: 14px;
-  }
-
-  .spotify-sidebar .sidebar-header {
-    margin-bottom: 10px;
-    padding-bottom: 8px;
-  }
-
-  .spotify-sidebar .add-actions {
-    gap: 7px;
-    margin-bottom: 10px;
-  }
-
-  .spotify-sidebar .btn-spotify-add {
-    padding: 9px 12px;
-    font-size: 12.5px;
-  }
-
-  .spotify-sidebar .search-folder-box {
-    gap: 7px;
-    margin-bottom: 10px;
-    padding-bottom: 8px;
-  }
-
-  /* Area scroll daftar lagu & folder dibuat lega dan mulus disentuh */
-  .spotify-sidebar .playlist-items {
-    min-height: 240px;
-    max-height: 360px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
-    padding-right: 4px;
-    gap: 6px;
-  }
-
-  .spotify-sidebar .track-item {
-    padding: 9px 10px;
-  }
-
-  .spotify-sidebar .backup-actions {
-    margin-top: 10px;
-  }
-
-  .spotify-lyrics {
-    order: 3;
-    height: auto;
-    max-height: 360px;
-    padding: 14px;
-  }
-
-  .spotify-lyrics .lyrics-content {
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .stage-box {
-    height: 220px;
-  }
-
-  .main-buttons {
-    gap: 14px;
-  }
-
-  .sliders-row {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-}
-
-@media screen and (max-width: 600px) {
-  .update-toast {
-    left: 16px;
-    right: 16px;
-    bottom: 16px;
-    max-width: none;
-  }
 }
