@@ -11,13 +11,13 @@
   "icons": [
     {
       "src": "https://i.imgur.com/53m3Fo5.png",
-      "sizes": "512x512",
+      "sizes": "720x720",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
       "src": "https://i.imgur.com/53m3Fo5.png",
-      "sizes": "512x512",
+      "sizes": "720x720",
       "type": "image/png",
       "purpose": "any maskable"
     }
