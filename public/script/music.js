@@ -1380,15 +1380,102 @@
     }
   };
 
-  /* === TAMBAH LINK === */
+/* === TAMBAH LINK (OTOMATIS PECAH FOLDER & LAGU SPOTIFY) === */
   document.getElementById("addUrlBtn").onclick = async () => {
     const urlEl = document.getElementById("urlInput");
+    const addBtn = document.getElementById("addUrlBtn");
     const rawUrl = urlEl.value.trim();
     if (!rawUrl) return;
 
     const isCustom = customFolders.some((f) => f.id === activeFolder);
     const beforeCount = getActiveFolderIndices().length;
     const parsed = parseMediaLink(rawUrl);
+
+    // Jika link Spotify Playlist / Album / Track dan sedang Online
+    if (navigator.onLine && parsed.type === "spotify") {
+      const oriBtnText = addBtn.textContent;
+      addBtn.textContent = "⏳...";
+      addBtn.disabled = true;
+
+      try {
+        const res = await fetch("/api/spotify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "resolve_url", url: rawUrl })
+        });
+
+        if (res.ok) {
+          const resolved = await res.json();
+
+          if ((resolved.kind === "playlist" || resolved.kind === "album") && Array.isArray(resolved.tracks) && resolved.tracks.length > 0) {
+            // 1. Buat folder otomatis sesuai nama Playlist / Album Spotify
+            const folderLabel = `${resolved.folderName}`.trim().slice(0, 32);
+            let targetFolder = customFolders.find(
+              (f) => f.name.toLowerCase() === folderLabel.toLowerCase()
+            );
+
+            if (!targetFolder) {
+              targetFolder = {
+                id: "fld_sp_" + Date.now(),
+                name: folderLabel
+              };
+              customFolders.push(targetFolder);
+              saveCustomFolders();
+            }
+
+            // 2. Simpan setiap lagu & artist secara terpisah ke dalam folder tersebut
+            const existingTracks = await window.getAllTracksDB();
+            let addedCount = 0;
+
+            for (const item of resolved.tracks) {
+              const duplicate = existingTracks.some(
+                (t) => t.folderId === targetFolder.id && t.spotifyUri === item.spotifyUri
+              );
+              if (!duplicate) {
+                await addTrackDB({
+                  name: item.name, // Format: "Judul Lagu - Artist"
+                  type: "spotify",
+                  spotifyUri: item.spotifyUri,
+                  url: item.url,
+                  embedUrl: item.embedUrl,
+                  thumbnail: item.thumbnail,
+                  folderId: targetFolder.id,
+                  pendingSync: false
+                });
+                addedCount++;
+              }
+            }
+
+            urlEl.value = "";
+            activeFolder = targetFolder.id; // Otomatis buka folder yang baru dibuat
+            switchLibraryTab("local");
+            await window.refreshPlaylist();
+
+            const pool = getActiveFolderIndices();
+            if (pool.length > 0 && currentIndex === -1) {
+              playTrack(pool[0]);
+            }
+
+            alert(`✅ Folder "${targetFolder.name}" berhasil dibuat dengan ${addedCount} lagu terpisah!`);
+            return;
+          } else if (resolved.kind === "track" && resolved.tracks?.[0]) {
+            const tr = resolved.tracks[0];
+            parsed.name = tr.name;
+            parsed.thumbnail = tr.thumbnail;
+            parsed.spotifyUri = tr.spotifyUri;
+            parsed.embedUrl = tr.embedUrl;
+            parsed.pendingSync = false;
+          }
+        }
+      } catch (_) {
+        // Fallback ke oEmbed jika /api/spotify belum di-update
+      } finally {
+        addBtn.textContent = oriBtnText;
+        addBtn.disabled = false;
+      }
+    }
+
+    // Fallback default (Single Track / YouTube / MP3 URL)
     if (isCustom) parsed.folderId = activeFolder;
 
     if (navigator.onLine && (parsed.type === "spotify" || parsed.type === "youtube")) {
