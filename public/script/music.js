@@ -22,6 +22,280 @@
   let isShuffle = false;
   let isVideoDisplayMode = true;
 
+  /* === SPOTIFY OAUTH & WEB PLAYBACK SDK STATE === */
+  const SP_TOKEN_KEY = "gp_spotify_auth_v1";
+  let spAuth = JSON.parse(localStorage.getItem(SP_TOKEN_KEY) || "null");
+  let spDeviceId = null;
+  let spSdkPlayer = null;
+  let spIsPlaying = false;
+  let spProgressTimer = null;
+  let spCurrentPosition = 0;
+  let spCurrentDuration = 0;
+
+  function saveSpotifyAuth(data) {
+    spAuth = data;
+    if (data) localStorage.setItem(SP_TOKEN_KEY, JSON.stringify(data));
+    else localStorage.removeItem(SP_TOKEN_KEY);
+    updateSpotifyAuthUI();
+  }
+
+  function updateSpotifyAuthUI() {
+    const loginBtn = document.getElementById("spotifyLoginBtn");
+    const syncBtn = document.getElementById("spotifySyncNowBtn");
+    if (!loginBtn) return;
+
+    if (spAuth && spAuth.access_token) {
+      const userName = spAuth.profile?.display_name || "Terhubung";
+      loginBtn.textContent = `✅ Spotify: ${userName}`;
+      if (syncBtn) syncBtn.style.display = "inline-flex";
+    } else {
+      loginBtn.textContent = "🎧 Login Spotify & Sync Folder";
+      if (syncBtn) syncBtn.style.display = "none";
+    }
+  }
+
+  async function ensureValidSpotifyToken() {
+    if (!spAuth || !spAuth.access_token) return null;
+    if (spAuth.expires_at && Date.now() < spAuth.expires_at - 60000) {
+      return spAuth.access_token;
+    }
+    if (!spAuth.refresh_token) return spAuth.access_token;
+
+    try {
+      const res = await fetch("/api/spotify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "refresh",
+          refresh_token: spAuth.refresh_token
+        })
+      });
+      const refreshed = await res.json();
+      if (res.ok && refreshed.access_token) {
+        saveSpotifyAuth({
+          ...spAuth,
+          access_token: refreshed.access_token,
+          expires_at: Date.now() + (refreshed.expires_in || 3600) * 1000
+        });
+        return refreshed.access_token;
+      }
+    } catch (_) {}
+    return spAuth.access_token;
+  }
+
+  async function syncSpotifyFoldersAndTracks(silent = false) {
+    const token = await ensureValidSpotifyToken();
+    if (!token) return;
+
+    const loginBtn = document.getElementById("spotifyLoginBtn");
+    if (loginBtn) loginBtn.textContent = "⏳ Menyinkronkan Folder Spotify...";
+
+    try {
+      const res = await fetch("/api/spotify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "sync", access_token: token })
+      });
+
+      if (res.status === 401) {
+        saveSpotifyAuth(null);
+        if (!silent) alert("Sesi Spotify berakhir, silakan klik Login Spotify lagi.");
+        return;
+      }
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Gagal sinkronisasi Spotify");
+
+      saveSpotifyAuth({
+        ...spAuth,
+        profile: data.profile
+      });
+
+      const existingTracks = await window.getAllTracksDB();
+      let addedFolders = 0;
+      let addedTracks = 0;
+
+      for (const pl of data.playlists || []) {
+        const folderId = `sp_fld_${pl.spotifyPlaylistId}`;
+        const folderLabel = `Spotify • ${pl.name}`.slice(0, 32);
+
+        let folderObj = customFolders.find((f) => f.id === folderId);
+        if (!folderObj) {
+          customFolders.push({ id: folderId, name: folderLabel, isSpotifySynced: true });
+          addedFolders++;
+        } else {
+          folderObj.name = folderLabel;
+        }
+
+        for (const item of pl.tracks || []) {
+          const alreadyExists = existingTracks.some(
+            (t) =>
+              t.folderId === folderId &&
+              (t.spotifyUri === item.spotifyUri || t.url === item.url)
+          );
+          if (!alreadyExists) {
+            await addTrackDB({
+              name: item.name,
+              type: "spotify",
+              spotifyUri: item.spotifyUri,
+              url: item.url,
+              embedUrl: item.embedUrl,
+              thumbnail: item.thumbnail,
+              folderId,
+              pendingSync: false
+            });
+            addedTracks++;
+          }
+        }
+      }
+
+      saveCustomFolders();
+      await window.refreshPlaylist();
+      updateSpotifyAuthUI();
+
+      if (!silent) {
+        alert(
+          `✅ Sinkronisasi Spotify selesai!\n• Akun: ${data.profile.display_name} (${data.profile.product.toUpperCase()})\n• ${addedFolders} folder playlist baru\n• ${addedTracks} lagu baru ditambahkan ke penyimpanan lokal`
+        );
+      }
+    } catch (err) {
+      updateSpotifyAuthUI();
+      if (!silent) alert("Gagal sinkronisasi Spotify: " + err.message);
+    }
+  }
+
+  async function initSpotifyFlow() {
+    const redirectUri = window.location.origin + window.location.pathname;
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
+
+    if (code) {
+      window.history.replaceState({}, document.title, redirectUri);
+      try {
+        const res = await fetch("/api/spotify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "exchange",
+            code,
+            redirect_uri: redirectUri
+          })
+        });
+        const tokenData = await res.json();
+        if (res.ok && tokenData.access_token) {
+          saveSpotifyAuth({
+            access_token: tokenData.access_token,
+            refresh_token: tokenData.refresh_token || null,
+            expires_at: Date.now() + (tokenData.expires_in || 3600) * 1000
+          });
+          initSpotifyWebPlaybackSDK();
+          await syncSpotifyFoldersAndTracks(false);
+        } else {
+          alert("Login Spotify gagal: " + (tokenData.error_description || tokenData.error || "Unknown error"));
+        }
+      } catch (err) {
+        alert("Gagal terhubung ke API Spotify: " + err.message);
+      }
+    } else if (spAuth && spAuth.access_token) {
+      updateSpotifyAuthUI();
+      initSpotifyWebPlaybackSDK();
+    } else {
+      updateSpotifyAuthUI();
+    }
+  }
+
+  function initSpotifyWebPlaybackSDK() {
+    if (!window.Spotify || spSdkPlayer || !spAuth?.access_token) return;
+
+    spSdkPlayer = new Spotify.Player({
+      name: "Giveaways Picker Music",
+      getOAuthToken: async (cb) => {
+        const validToken = await ensureValidSpotifyToken();
+        if (validToken) cb(validToken);
+      },
+      volume: parseFloat(document.getElementById("vol").value || 1)
+    });
+
+    spSdkPlayer.addListener("ready", ({ device_id }) => {
+      spDeviceId = device_id;
+    });
+
+    spSdkPlayer.addListener("player_state_changed", (state) => {
+      if (!state) return;
+      spIsPlaying = !state.paused;
+      spCurrentPosition = state.position;
+      spCurrentDuration = state.duration;
+      setPlayIcon(spIsPlaying);
+
+      const currentTrackMeta = state.track_window?.current_track;
+      if (currentTrackMeta?.album?.images?.[0]?.url) {
+        setAlbumThumbnail(currentTrackMeta.album.images[0].url);
+      }
+
+      if (
+        state.paused &&
+        state.position === 0 &&
+        state.track_window?.previous_tracks?.length > 0 &&
+        tracks[currentIndex]?.type === "spotify"
+      ) {
+        const autoNext = window.GP_PWA ? window.GP_PWA.getSettings().autoNext : true;
+        if (isLoop) {
+          playTrack(currentIndex);
+        } else if (autoNext) {
+          playNext();
+        }
+      }
+    });
+
+    spSdkPlayer.addListener("authentication_error", () => {
+      saveSpotifyAuth(null);
+    });
+
+    spSdkPlayer.connect();
+  }
+
+  window.onSpotifyWebPlaybackSDKReady = () => {
+    initSpotifyWebPlaybackSDK();
+  };
+
+  const spotifyLoginBtn = document.getElementById("spotifyLoginBtn");
+  if (spotifyLoginBtn) {
+    spotifyLoginBtn.onclick = async () => {
+      if (spAuth && spAuth.access_token) {
+        const choice = confirm(
+          `Akun Spotify "${spAuth.profile?.display_name || "User"}" sedang terhubung.\n\nKlik OK untuk Sinkronkan Ulang Folder & Lagu.\nKlik Cancel jika ingin Logout.`
+        );
+        if (choice) {
+          await syncSpotifyFoldersAndTracks(false);
+        } else if (confirm("Putuskan koneksi akun Spotify? (Lagu & folder lokal tetap tersimpan)")) {
+          if (spSdkPlayer) spSdkPlayer.disconnect();
+          spSdkPlayer = null;
+          spDeviceId = null;
+          saveSpotifyAuth(null);
+        }
+        return;
+      }
+
+      try {
+        const redirectUri = encodeURIComponent(window.location.origin + window.location.pathname);
+        const res = await fetch(`/api/spotify?action=login&redirect_uri=${redirectUri}`);
+        const data = await res.json();
+        if (data.authUrl) {
+          window.location.href = data.authUrl;
+        } else {
+          alert(data.error || "Gagal membuat link login Spotify.");
+        }
+      } catch (err) {
+        alert("Gagal memanggil /api/spotify: " + err.message);
+      }
+    };
+  }
+
+  const spotifySyncNowBtn = document.getElementById("spotifySyncNowBtn");
+  if (spotifySyncNowBtn) {
+    spotifySyncNowBtn.onclick = () => syncSpotifyFoldersAndTracks(false);
+  }
+
   function ensureVisualizerBuffer() {
     if (!data) {
       data = new Uint8Array(128);
@@ -37,6 +311,7 @@
     if (currentIndex === -1 || !tracks[currentIndex]) {
       videoPlayer.style.display = "none";
       ytContainer.style.display = "none";
+      spotifyEmbedContainer.style.display = "none";
       cvs.style.display = "block";
       resizeCanvas();
       return;
@@ -61,10 +336,27 @@
         cvs.style.display = "block";
       }
     } else if (track.type === "spotify") {
-      cvs.style.display = "none";
+      if (spDeviceId && spAuth?.profile?.product === "premium") {
+        spotifyEmbedContainer.style.display = "none";
+        cvs.style.display = "block";
+      } else {
+        spotifyEmbedContainer.style.display = "block";
+        if (isVideoDisplayMode) {
+          spotifyEmbedContainer.style.opacity = "1";
+          spotifyEmbedContainer.style.pointerEvents = "auto";
+          spotifyEmbedContainer.style.zIndex = "2";
+          cvs.style.display = "none";
+        } else {
+          spotifyEmbedContainer.style.opacity = "0";
+          spotifyEmbedContainer.style.pointerEvents = "none";
+          spotifyEmbedContainer.style.zIndex = "0";
+          cvs.style.display = "block";
+        }
+      }
     } else {
       videoPlayer.style.display = "none";
       ytContainer.style.display = "none";
+      spotifyEmbedContainer.style.display = "none";
       cvs.style.display = "block";
     }
 
@@ -125,8 +417,11 @@
       container.querySelectorAll(".lyric-line").forEach((el) => {
         el.onclick = () => {
           const targetSec = parseFloat(el.dataset.time);
-          if (currentIndex !== -1 && tracks[currentIndex]?.type === "youtube" && ytReady && ytPlayer && typeof ytPlayer.seekTo === "function") {
+          const currentTrack = currentIndex !== -1 ? tracks[currentIndex] : null;
+          if (currentTrack?.type === "youtube" && ytReady && ytPlayer && typeof ytPlayer.seekTo === "function") {
             ytPlayer.seekTo(targetSec, true);
+          } else if (currentTrack?.type === "spotify" && spSdkPlayer) {
+            spSdkPlayer.seek(Math.floor(targetSec * 1000));
           } else if (activeMediaEl) {
             activeMediaEl.currentTime = targetSec;
           }
@@ -324,6 +619,7 @@
       const id = spMatch[2];
       return {
         type: "spotify",
+        spotifyUri: `spotify:${kind}:${id}`,
         name: `Spotify ${kind.charAt(0).toUpperCase() + kind.slice(1)} (${id.slice(0, 6)})`,
         embedUrl: `https://open.spotify.com/embed/${kind}/${id}?utm_source=generator&theme=0`,
         url,
@@ -476,7 +772,9 @@
       typeof ytPlayer.getPlayerState === "function" &&
       ytPlayer.getPlayerState() === YT.PlayerState.PLAYING;
 
-    if (isYtPlaying) {
+    const isSpActive = currentTrack && currentTrack.type === "spotify" && spIsPlaying;
+
+    if (isYtPlaying || isSpActive) {
       const t = performance.now() * 0.006;
       for (let i = 0; i < data.length; i++) {
         const wave = Math.sin(t + i * 0.22) * 0.5 + 0.5;
@@ -553,7 +851,15 @@
     const ytFallback = document.getElementById("ytFallbackFrame");
     if (ytFallback) ytFallback.remove();
 
+    clearInterval(spProgressTimer);
+    spIsPlaying = false;
+    if (spSdkPlayer && typeof spSdkPlayer.pause === "function") {
+      spSdkPlayer.pause().catch(() => {});
+    }
     spotifyEmbedContainer.innerHTML = "";
+    spotifyEmbedContainer.style.opacity = "1";
+    spotifyEmbedContainer.style.pointerEvents = "auto";
+    spotifyEmbedContainer.style.zIndex = "2";
     spotifyEmbedContainer.style.display = "none";
 
     ytContainer.style.opacity = "1";
@@ -807,7 +1113,47 @@
     });
   };
 
-  function playTrack(idx) {
+  function getSpotifyUriFromTrack(track) {
+    if (track.spotifyUri) return track.spotifyUri;
+    const m = (track.url || track.embedUrl || "").match(/spotify\.com\/(?:embed\/)?(?:intl-[a-z]+\/)?(track|album|playlist|episode)\/([a-zA-Z0-9]+)/);
+    return m ? `spotify:${m[1]}:${m[2]}` : null;
+  }
+
+  async function playSpotifyViaWebApi(track) {
+    const token = await ensureValidSpotifyToken();
+    const spUri = getSpotifyUriFromTrack(track);
+    if (!token || !spDeviceId || !spUri) return false;
+
+    const payload = spUri.includes(":track:") ? { uris: [spUri] } : { context_uri: spUri };
+    const res = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${spDeviceId}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) return false;
+
+    clearInterval(spProgressTimer);
+    spProgressTimer = setInterval(() => {
+      if (!spIsPlaying) return;
+      spCurrentPosition += 400;
+      const currSec = spCurrentPosition / 1000;
+      const durSec = spCurrentDuration / 1000;
+      syncLyricsHighlight(currSec);
+      if (durSec > 0) {
+        document.getElementById("seek").value = (currSec / durSec) * 100;
+        document.getElementById("currTime").textContent = formatTime(currSec);
+        document.getElementById("durTime").textContent = formatTime(durSec);
+      }
+    }, 400);
+
+    return true;
+  }
+
+  async function playTrack(idx) {
     if (idx < 0 || idx >= tracks.length) return;
     currentIndex = idx;
     const track = tracks[idx];
@@ -822,18 +1168,29 @@
     fetchAutoLyrics(track.name);
 
     if (track.type === "spotify") {
+      if (track.thumbnail) setAlbumThumbnail(track.thumbnail);
+
       if (!navigator.onLine) {
         document.getElementById("nowBadge").textContent = "OFFLINE - TERSIMPAN";
         document.getElementById("nowSub").textContent = "Link Spotify tersimpan lokal, putar saat internet aktif";
         window.refreshPlaylist();
         return;
       }
-      document.getElementById("nowBadge").textContent = "SPOTIFY PLAYER" + folderSubLabel;
-      document.getElementById("nowSub").textContent = track.url;
-      cvs.style.display = "none";
-      spotifyEmbedContainer.style.display = "block";
-      spotifyEmbedContainer.innerHTML = `<iframe src="${track.embedUrl}" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
-      setPlayIcon(true);
+
+      const playedViaSdk = await playSpotifyViaWebApi(track);
+      if (playedViaSdk) {
+        document.getElementById("nowBadge").textContent = "SPOTIFY WEB API" + folderSubLabel;
+        document.getElementById("nowSub").textContent = track.url;
+        applyStageDisplayMode();
+        setPlayIcon(true);
+      } else {
+        document.getElementById("nowBadge").textContent = "SPOTIFY EMBED" + folderSubLabel;
+        document.getElementById("nowSub").textContent = track.url;
+        applyStageDisplayMode();
+        spotifyEmbedContainer.innerHTML = `<iframe src="${track.embedUrl}" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+        setPlayIcon(false);
+      }
+
       window.refreshPlaylist();
       return;
     }
@@ -1014,11 +1371,11 @@
     urlEl.value = "";
     await window.refreshPlaylist();
 
-    if (parsed.type === "youtube" && currentIndex === -1) {
+    if ((parsed.type === "youtube" || parsed.type === "spotify") && currentIndex === -1) {
       setAlbumThumbnail(parsed.thumbnail);
-      document.getElementById("nowBadge").textContent = "YOUTUBE SIAP DIPUTAR";
+      document.getElementById("nowBadge").textContent = `${parsed.type.toUpperCase()} SIAP DIPUTAR`;
       document.getElementById("nowTitle").textContent = parsed.name;
-      document.getElementById("nowSub").textContent = "Klik tombol Play (▶) untuk memutar video";
+      document.getElementById("nowSub").textContent = "Klik tombol Play (▶) untuk memutar media";
     }
 
     const updatedPool = getActiveFolderIndices();
@@ -1083,7 +1440,14 @@
       return;
     }
 
-    if (track.type === "spotify") return;
+    if (track.type === "spotify") {
+      if (spSdkPlayer && spDeviceId) {
+        spSdkPlayer.togglePlay().catch(() => playTrack(currentIndex));
+      } else {
+        playTrack(currentIndex);
+      }
+      return;
+    }
 
     if (activeMediaEl.paused) {
       initAudioGraph(activeMediaEl);
@@ -1116,6 +1480,10 @@
     if (track.type === "youtube" && ytReady && ytPlayer) {
       ytPlayer.seekTo(0);
       ytPlayer.pauseVideo();
+    } else if (track.type === "spotify" && spSdkPlayer) {
+      spSdkPlayer.seek(0);
+      spSdkPlayer.pause();
+      spIsPlaying = false;
     } else {
       activeMediaEl.pause();
       activeMediaEl.currentTime = 0;
@@ -1162,6 +1530,9 @@
     if (ytReady && ytPlayer && typeof ytPlayer.setVolume === "function") {
       ytPlayer.setVolume(val * 100);
     }
+    if (spSdkPlayer && typeof spSdkPlayer.setVolume === "function") {
+      spSdkPlayer.setVolume(val);
+    }
   };
 
   document.getElementById("bass").oninput = (e) => {
@@ -1202,6 +1573,8 @@
     if (track.type === "youtube" && ytReady && ytPlayer) {
       const dur = ytPlayer.getDuration();
       if (dur) ytPlayer.seekTo(pct * dur, true);
+    } else if (track.type === "spotify" && spSdkPlayer && spCurrentDuration > 0) {
+      spSdkPlayer.seek(Math.floor(pct * spCurrentDuration));
     } else if (activeMediaEl.duration) {
       activeMediaEl.currentTime = pct * activeMediaEl.duration;
     }
@@ -1249,6 +1622,7 @@
           name: item.name,
           type: item.type,
           url: item.url || null,
+          spotifyUri: item.spotifyUri || null,
           embedUrl: item.embedUrl || null,
           videoId: item.videoId || null,
           thumbnail: item.thumbnail || null,
@@ -1336,6 +1710,7 @@
           name: item.name || "Media Imported",
           type: item.type || "url",
           url: item.url || null,
+          spotifyUri: item.spotifyUri || null,
           embedUrl: item.embedUrl || null,
           videoId: item.videoId || null,
           thumbnail: item.thumbnail || null,
@@ -1371,4 +1746,5 @@
   };
 
   window.refreshPlaylist();
+  initSpotifyFlow();
 })();
