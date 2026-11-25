@@ -93,7 +93,7 @@
         </div>
       </div>
 
-      <!-- Kotak Pencarian & Pengelola Folder Custom -->
+     <!-- Kotak Pencarian & Pengelola Folder Custom -->
       <div class="search-folder-box">
         <div class="playlist-search-wrap">
           <span class="playlist-search-icon">🔍</span>
@@ -101,7 +101,7 @@
           <button type="button" id="clearSearchBtn" class="btn-clear-search" title="Hapus pencarian">✕</button>
         </div>
 
-    <div class="folder-bar">
+        <div class="folder-bar">
           <select id="folderSelect" title="Pilih Folder Playlist">
             <option value="all">📂 Semua Media</option>
             <option value="mp3">🎵 Folder MP3 (Audio)</option>
@@ -112,6 +112,7 @@
           <button type="button" id="editFolderBtn" class="btn-folder-act" title="Ubah Nama Folder" disabled>✏️</button>
           <button type="button" id="delFolderBtn" class="btn-folder-act del" title="Hapus Folder" disabled>🗑️</button>
         </div>
+      </div>
 
       <div class="playlist-items" id="playlistContainer">
         <div class="empty-playlist">
@@ -1086,19 +1087,38 @@
       }
     };
 
-    // Tombol Play Folder Sekali Klik
-    document.getElementById("playFolderBtn").onclick = () => {
+   document.getElementById("playPauseBtn").onclick = () => {
       const pool = getActiveFolderIndices();
-      if (!pool.length) {
-        alert("Folder ini masih kosong, belum ada media yang bisa diputar.");
+      if (!pool.length) return;
+
+      // Jika belum ada lagu dipilih ATAU lagu yang aktif bukan bagian dari folder yang sedang dibuka
+      if (currentIndex === -1 || !pool.includes(currentIndex)) {
+        playTrack(pool[0]);
         return;
       }
 
-      if (isShuffle && pool.length > 1) {
-        const randIdx = pool[Math.floor(Math.random() * pool.length)];
-        playTrack(randIdx);
+      const track = tracks[currentIndex];
+
+      if (track.type === "youtube" && ytReady && ytPlayer) {
+        const state = ytPlayer.getPlayerState();
+        if (state === YT.PlayerState.PLAYING) {
+          ytPlayer.pauseVideo();
+          setPlayIcon(false);
+        } else {
+          ytPlayer.playVideo();
+          setPlayIcon(true);
+        }
+        return;
+      }
+
+      if (track.type === "spotify") return;
+
+      if (activeMediaEl.paused) {
+        initAudioGraph(activeMediaEl);
+        activeMediaEl.play().then(() => setPlayIcon(true)).catch(() => setPlayIcon(false));
       } else {
-        playTrack(pool[0]);
+        activeMediaEl.pause();
+        setPlayIcon(false);
       }
     };
 
