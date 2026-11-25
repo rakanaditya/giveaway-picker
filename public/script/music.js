@@ -415,31 +415,109 @@
     };
   }
 
-  /* === AUTO LYRICS ENGINE (LRCLIB + SYNCED LRC) === */
+/* === AUTO LYRICS ENGINE (PRESISI ARTIST/TITLE + DURATION SCORING + FALLBACK API) === */
+  const LYRICS_CACHE_KEY = "gp_lyrics_cache_v1";
+  let lyricsCache = JSON.parse(localStorage.getItem(LYRICS_CACHE_KEY) || "{}");
   let parsedLrcLines = [];
   let activeLyricIdx = -1;
 
-  function cleanSongTitle(rawTitle) {
-    return rawTitle
-      .replace(/\(official.*?\)|\[official.*?\]|\(lyrics.*?\)|\[lyrics.*?\]|\(lirik.*?\)|\[lirik.*?\]|\(mv\)|\[mv\]|\(audio\)|ft\..*|feat\..*/gi, "")
+  function saveLyricsCache(key, payload) {
+    try {
+      const keys = Object.keys(lyricsCache);
+      if (keys.length > 80) delete lyricsCache[keys[0]];
+      lyricsCache[key] = payload;
+      localStorage.setItem(LYRICS_CACHE_KEY, JSON.stringify(lyricsCache));
+    } catch (_) {}
+  }
+
+  function extractArtistAndTitle(rawTitle) {
+    let cleaned = String(rawTitle || "")
       .replace(/\.[^/.]+$/, "")
+      .replace(/\[.*?\]|\(.*?\)/g, " ")
+      .replace(/\b(official\s*(music\s*)?video|official\s*audio|lyric\s*video|lyrics?|lirik(\s*lagu)?|mv|hd|4k|full\s*album|audio\s*only|sped\s*up|slowed\s*(\+\s*reverb)?)\b/gi, " ")
+      .replace(/\s+/g, " ")
       .trim();
+
+    // Pisahkan jika format "Bagian 1 - Bagian 2"
+    const dashParts = cleaned.split(/\s+[-–—]\s+/);
+    if (dashParts.length >= 2) {
+      const partA = dashParts[0].replace(/\s+(feat|ft|prod)\.?\s+.*/i, "").trim();
+      const partB = dashParts.slice(1).join(" - ").replace(/\s+(feat|ft|prod)\.?\s+.*/i, "").trim();
+      return {
+        fullQuery: `${partA} ${partB}`.trim(),
+        partA,
+        partB
+      };
+    }
+
+    const single = cleaned.replace(/\s+(feat|ft|prod)\.?\s+.*/i, "").trim();
+    return {
+      fullQuery: single,
+      partA: single,
+      partB: ""
+    };
+  }
+
+  function scoreLyricCandidate(candidate, parsed, targetDurationSec) {
+    let score = 0;
+    const candTrack = (candidate.trackName || "").toLowerCase();
+    const candArtist = (candidate.artistName || "").toLowerCase();
+    const a = parsed.partA.toLowerCase();
+    const b = parsed.partB.toLowerCase();
+
+    // Cek kecocokan judul & artis (mendukung format "Title - Artist" dari Spotify maupun "Artist - Title" dari YouTube)
+    if (b) {
+      if (candTrack.includes(a) && candArtist.includes(b)) score += 60;
+      else if (candTrack.includes(b) && candArtist.includes(a)) score += 60;
+      else if (candTrack.includes(a) || candTrack.includes(b)) score += 25;
+      if (candArtist.includes(a) || candArtist.includes(b)) score += 25;
+    } else if (candTrack.includes(a)) {
+      score += 45;
+    }
+
+    // Prioritaskan durasi yang paling mendekati media yang sedang diputar
+    if (targetDurationSec > 0 && candidate.duration > 0) {
+      const diff = Math.abs(candidate.duration - targetDurationSec);
+      if (diff <= 3) score += 35;
+      else if (diff <= 7) score += 20;
+      else if (diff > 20) score -= 25;
+    }
+
+    // Bonus jika memiliki lirik tersinkronisasi (LRC)
+    if (candidate.syncedLyrics) score += 15;
+    else if (candidate.plainLyrics) score += 5;
+
+    return score;
+  }
+
+  function getCurrentTrackDurationSec() {
+    if (currentIndex === -1 || !tracks[currentIndex]) return 0;
+    const tr = tracks[currentIndex];
+    if (tr.type === "spotify" && spCurrentDuration > 0) return Math.round(spCurrentDuration / 1000);
+    if (tr.type === "youtube" && ytReady && ytPlayer && typeof ytPlayer.getDuration === "function") {
+      return Math.round(ytPlayer.getDuration() || 0);
+    }
+    if (activeMediaEl && activeMediaEl.duration && !isNaN(activeMediaEl.duration)) {
+      return Math.round(activeMediaEl.duration);
+    }
+    return 0;
   }
 
   function parseLrcText(lrcString) {
     const lines = lrcString.split("\n");
     const result = [];
-    const timeRegex = /\[(\d{2}):(\d{2})(?:\.(\d{2,3}))?\]/;
+    const timeRegex = /\[(\d{2}):(\d{2})(?:\.(\d{2,3}))?\]/g;
 
     for (const line of lines) {
-      const match = line.match(timeRegex);
-      if (match) {
-        const mins = parseInt(match[1], 10);
-        const secs = parseInt(match[2], 10);
-        const ms = match[3] ? parseInt(match[3].padEnd(3, "0"), 10) : 0;
-        const time = mins * 60 + secs + ms / 1000;
-        const text = line.replace(/\[.*?\]/g, "").trim();
-        if (text) result.push({ time, text });
+      const matches = [...line.matchAll(timeRegex)];
+      const text = line.replace(/\[.*?\]/g, "").trim();
+      if (matches.length > 0 && text) {
+        for (const match of matches) {
+          const mins = parseInt(match[1], 10);
+          const secs = parseInt(match[2], 10);
+          const ms = match[3] ? parseInt(match[3].padEnd(3, "0"), 10) : 0;
+          result.push({ time: mins * 60 + secs + ms / 1000, text });
+        }
       }
     }
     return result.sort((a, b) => a.time - b.time);
@@ -480,7 +558,7 @@
     } else if (plainText) {
       container.innerHTML = `<div class="plain-lyrics">${plainText}</div>`;
     } else {
-      container.innerHTML = `<div class="empty-playlist">Lirik tidak ditemukan untuk lagu ini.<br>Coba cari manual di kotak atas atau upload file <strong>.LRC</strong>.</div>`;
+      container.innerHTML = `<div class="empty-playlist">Lirik tidak ditemukan untuk lagu ini.<br>Coba ubah kata kunci <strong>Artis - Judul</strong> di kotak atas atau upload file <strong>.LRC</strong>.</div>`;
     }
   }
 
@@ -509,17 +587,26 @@
     }
   }
 
-  async function fetchAutoLyrics(rawQuery) {
+  async function fetchAutoLyrics(rawQuery, forceRefresh = false) {
     const container = document.getElementById("lyricsContent");
     const badge = document.getElementById("lyricsStatusBadge");
     const searchInput = document.getElementById("lyricsSearchInput");
     if (!container) return;
 
-    const query = cleanSongTitle(rawQuery);
-    if (searchInput) searchInput.value = query;
-    if (badge) badge.textContent = "Mencari...";
-    container.innerHTML = `<div class="empty-playlist">⏳ Mendeteksi lirik untuk:<br><strong>${query}</strong></div>`;
+    const parsed = extractArtistAndTitle(rawQuery);
+    const cacheKey = parsed.fullQuery.toLowerCase();
+
+    if (searchInput) searchInput.value = parsed.fullQuery;
     parsedLrcLines = [];
+
+    if (!forceRefresh && lyricsCache[cacheKey]) {
+      const cached = lyricsCache[cacheKey];
+      renderLyricsUI(cached.synced || [], cached.plain || null, cached.label || "Cache ⚡");
+      return;
+    }
+
+    if (badge) badge.textContent = "Mencari...";
+    container.innerHTML = `<div class="empty-playlist">⏳ Mencocokkan lirik presisi untuk:<br><strong>${parsed.fullQuery}</strong></div>`;
 
     if (!navigator.onLine) {
       if (badge) badge.textContent = "Offline";
@@ -528,22 +615,41 @@
     }
 
     try {
-      const res = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(query)}`);
-      if (!res.ok) throw new Error("Gagal mengambil lirik");
-      const results = await res.json();
+      const targetDur = getCurrentTrackDurationSec();
+      const res = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(parsed.fullQuery)}`);
+      const results = res.ok ? await res.json() : [];
 
       if (Array.isArray(results) && results.length > 0) {
-        const bestMatch = results.find((r) => r.syncedLyrics) || results[0];
-        if (bestMatch.syncedLyrics) {
-          renderLyricsUI(parseLrcText(bestMatch.syncedLyrics), bestMatch.plainLyrics, "Synced ⚡");
-        } else if (bestMatch.plainLyrics) {
-          renderLyricsUI([], bestMatch.plainLyrics, "Teks");
-        } else {
-          renderLyricsUI([], null, "Kosong");
+        const ranked = results
+          .map((item) => ({ item, score: scoreLyricCandidate(item, parsed, targetDur) }))
+          .sort((a, b) => b.score - a.score);
+
+        const best = ranked[0].item;
+        if (best && (best.syncedLyrics || best.plainLyrics)) {
+          const synced = best.syncedLyrics ? parseLrcText(best.syncedLyrics) : [];
+          const label = synced.length > 0 ? "Synced ⚡" : "Teks";
+          saveLyricsCache(cacheKey, { synced, plain: best.plainLyrics || null, label });
+          renderLyricsUI(synced, best.plainLyrics, label);
+          return;
         }
-      } else {
-        renderLyricsUI([], null, "Tidak Ada");
       }
+
+      // Jalur 2 (Fallback ke /api/lyrics -> lyrics-finder)
+      const apiParams = new URLSearchParams({
+        artist: parsed.partB || "",
+        title: parsed.partA || parsed.fullQuery
+      });
+      const fallbackRes = await fetch(`/api/lyrics?${apiParams.toString()}`);
+      if (fallbackRes.ok) {
+        const fbData = await fallbackRes.json();
+        if (fbData.lyrics) {
+          saveLyricsCache(cacheKey, { synced: [], plain: fbData.lyrics, label: "Lyrics API" });
+          renderLyricsUI([], fbData.lyrics, "Lyrics API");
+          return;
+        }
+      }
+
+      renderLyricsUI([], null, "Tidak Ada");
     } catch (_) {
       renderLyricsUI([], null, "Error");
     }
@@ -553,11 +659,11 @@
   const lyricsSearchInput = document.getElementById("lyricsSearchInput");
   if (searchLyricsBtn && lyricsSearchInput) {
     searchLyricsBtn.onclick = () => {
-      if (lyricsSearchInput.value.trim()) fetchAutoLyrics(lyricsSearchInput.value.trim());
+      if (lyricsSearchInput.value.trim()) fetchAutoLyrics(lyricsSearchInput.value.trim(), true);
     };
     lyricsSearchInput.onkeydown = (e) => {
       if (e.key === "Enter" && lyricsSearchInput.value.trim()) {
-        fetchAutoLyrics(lyricsSearchInput.value.trim());
+        fetchAutoLyrics(lyricsSearchInput.value.trim(), true);
       }
     };
   }
@@ -571,9 +677,12 @@
       if (!file) return;
       const text = await file.text();
       const synced = parseLrcText(text);
+      const currentKey = lyricsSearchInput?.value.trim().toLowerCase();
       if (synced.length > 0) {
+        if (currentKey) saveLyricsCache(currentKey, { synced, plain: text, label: "File LRC" });
         renderLyricsUI(synced, text, "File LRC");
       } else {
+        if (currentKey) saveLyricsCache(currentKey, { synced: [], plain: text, label: "File TXT" });
         renderLyricsUI([], text, "File TXT");
       }
       e.target.value = "";
