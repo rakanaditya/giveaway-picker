@@ -723,20 +723,45 @@
     };
   }
 
-  /* === THUMBNAIL HELPER === */
-  function setAlbumThumbnail(thumbUrl) {
+/* === THUMBNAIL HELPER (SUPPORT JPG, PNG, WEBP, GIF, SVG & MP4/WEBM/MOV) === */
+  function setAlbumThumbnail(thumbUrl, forceVideo = false) {
     const artBox = document.querySelector(".album-art");
     if (!artBox) return;
-    if (thumbUrl) {
-      artBox.innerHTML = `<img src="${thumbUrl}" alt="Thumbnail" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" />`;
-      const img = artBox.querySelector("img");
-      if (img) {
-        img.onerror = () => {
-          artBox.innerHTML = DEFAULT_ALBUM_SVG;
-        };
-      }
-    } else {
+
+    if (!thumbUrl) {
       artBox.innerHTML = DEFAULT_ALBUM_SVG;
+      return;
+    }
+
+    const isVideo =
+      forceVideo ||
+      /^data:video\//i.test(thumbUrl) ||
+      /\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(thumbUrl);
+
+    if (isVideo) {
+      artBox.innerHTML = "";
+      const vid = document.createElement("video");
+      vid.src = thumbUrl;
+      vid.autoplay = true;
+      vid.loop = true;
+      vid.muted = true;
+      vid.playsInline = true;
+      vid.style.cssText = "width:100%;height:100%;object-fit:cover;border-radius:10px;display:block;";
+      vid.onerror = () => {
+        artBox.innerHTML = DEFAULT_ALBUM_SVG;
+      };
+      artBox.appendChild(vid);
+      vid.play().catch(() => {});
+    } else {
+      artBox.innerHTML = "";
+      const img = document.createElement("img");
+      img.src = thumbUrl;
+      img.alt = "Thumbnail";
+      img.style.cssText = "width:100%;height:100%;object-fit:cover;border-radius:10px;display:block;";
+      img.onerror = () => {
+        artBox.innerHTML = DEFAULT_ALBUM_SVG;
+      };
+      artBox.appendChild(img);
     }
   }
 
@@ -1536,6 +1561,7 @@
 
     if (track.type === "video" && track.blob) {
       activeBlobUrl = URL.createObjectURL(track.blob);
+      setAlbumThumbnail(activeBlobUrl, true); // 🔹 Tampilkan preview video MP4 di kotak album art
       activeMediaEl = videoPlayer;
       videoPlayer.src = activeBlobUrl;
       videoPlayer.loop = isLoop;
