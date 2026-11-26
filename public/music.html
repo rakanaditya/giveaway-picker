@@ -11,9 +11,10 @@
   <link rel="icon" type="image/jpeg" href="/icon/gpmusic.jpg" />
   <link rel="apple-touch-icon" href="/icon/gpmusic.jpg" />
   <title>Giveaways Picker - Music & Video Player</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="[https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap](https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap)" rel="stylesheet">
   <link rel="stylesheet" href="/css/music.css" />
   <link rel="stylesheet" href="/css/musicmob.css" media="screen and (max-width: 1100px)" />
+  <link rel="stylesheet" href="/yt-search/youtube-search.css" />
 </head>
 <body>
 
@@ -80,6 +81,21 @@
           Playlist Saya
         </h3>
         <span class="badge-count" id="trackCount">0 Media</span>
+      </div>
+
+      <!-- 🔹 Pencarian Video YouTube + Tambah ke Folder Bebas -->
+      <div class="yt-search-widget">
+        <div class="yt-search-bar">
+          <input type="search" id="ytSearchInput" placeholder="🔍 Cari lagu atau video YouTube..." autocomplete="off" />
+          <button type="button" id="ytSearchSubmitBtn" class="yt-search-btn">Cari</button>
+        </div>
+        <div id="ytSearchDropdown" class="yt-search-dropdown">
+          <div class="yt-dropdown-header">
+            <span>Hasil Pencarian YouTube</span>
+            <button type="button" id="ytCloseDropdownBtn" class="yt-close-dropdown">✕</button>
+          </div>
+          <div id="ytSearchResultsList"></div>
+        </div>
       </div>
 
       <div class="add-actions">
@@ -317,17 +333,16 @@
       <div class="setting-group">
         <span class="setting-label">🖼️ Edit Background</span>
         <div class="bg-presets">
-          <button type="button" class="bg-preset-btn" data-bg="https://i.imgur.com/53m3Fo5.png">Default</button>
-          <button type="button" class="bg-preset-btn" data-bg="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1000&q=80">Konser</button>
-          <button type="button" class="bg-preset-btn" data-bg="https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=1000&q=80">Galaxy</button>
+          <button type="button" class="bg-preset-btn" data-bg="[https://i.imgur.com/53m3Fo5.png](https://i.imgur.com/53m3Fo5.png)">Default</button>
+          <button type="button" class="bg-preset-btn" data-bg="[https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1000&q=80](https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1000&q=80)">Konser</button>
+          <button type="button" class="bg-preset-btn" data-bg="[https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=1000&q=80](https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=1000&q=80)">Galaxy</button>
           <button type="button" class="bg-preset-btn" data-bg="">Polos Gelap</button>
         </div>
 
-       <input type="file" id="setBgFile" accept="image/*,video/mp4,video/webm,video/ogg,video/quicktime,.mp4,.webm,.mov,.m4v" hidden />
-      <button type="button" id="triggerBgFileBtn" class="btn-upload-bg">
-     📁 Upload Gambar / Video Background dari Perangkat
-      </button>
-
+        <input type="file" id="setBgFile" accept="image/*,video/mp4,video/webm,video/ogg,video/quicktime,.mp4,.webm,.mov,.m4v" hidden />
+        <button type="button" id="triggerBgFileBtn" class="btn-upload-bg">
+          📁 Upload Gambar / Video Background dari Perangkat
+        </button>
 
         <div class="setting-row-inline">
           <input type="text" id="setBgUrl" placeholder="Atau Tempel URL gambar (.jpg/.png/.gif) atau video (.mp4)..." />
@@ -395,8 +410,7 @@
     </div>
   </div>
 
-
-<!-- 🔹 Floating Mini Player (Muncul saat scroll melewati pemutar utama) -->
+  <!-- 🔹 Floating Mini Player (Muncul saat scroll melewati pemutar utama) -->
   <div id="floatingMiniPlayer" class="floating-mini-player" aria-label="Mini Player">
     <div class="mini-progress-track">
       <div id="miniProgressFill" class="mini-progress-fill"></div>
@@ -444,9 +458,10 @@
   </footer>
 
   <audio id="audio" crossorigin="anonymous"></audio>
-  <script src="https://www.youtube.com/iframe_api"></script>
-  <script src="https://sdk.scdn.co/spotify-player.js"></script>
+  <script src="[https://www.youtube.com/iframe_api](https://www.youtube.com/iframe_api)"></script>
+  <script src="[https://sdk.scdn.co/spotify-player.js](https://sdk.scdn.co/spotify-player.js)"></script>
   <script src="/js/music-mobile-pwa.js"></script>
   <script src="/script/music.js"></script>
+  <script src="/yt-search/youtube-search.js"></script>
 </body>
 </html>
