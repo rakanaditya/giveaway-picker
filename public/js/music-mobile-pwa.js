@@ -1,6 +1,6 @@
 (function () {
   /* === 1. DETEKSI & NOTIFIKASI UPDATE OTOMATIS === */
-  const CURRENT_APP_VERSION = "v1.0.2"; // Ubah setiap kali merilis update (v1.0.2, dst.)
+  const CURRENT_APP_VERSION = "v1.0.2";
   const STORAGE_VER_KEY = "GP_MUSIC_INSTALLED_VER";
   const updateToast = document.getElementById("updateToast");
   const updateVersionLabel = document.getElementById("updateVersionLabel");
@@ -12,7 +12,6 @@
       updateVersionLabel.textContent = `App Version: ${version}`;
     }
     updateToast.classList.add("show");
-    // Otomatis hilang setelah 6 detik
     setTimeout(() => {
       updateToast.classList.remove("show");
     }, 6000);
@@ -24,7 +23,6 @@
     });
   }
 
-  // Cek apakah user baru saja mendapatkan versi terbaru saat membuka halaman
   const lastSeenVersion = localStorage.getItem(STORAGE_VER_KEY);
   if (lastSeenVersion && lastSeenVersion !== CURRENT_APP_VERSION) {
     window.addEventListener("DOMContentLoaded", () => {
@@ -33,7 +31,6 @@
   }
   localStorage.setItem(STORAGE_VER_KEY, CURRENT_APP_VERSION);
 
-  // Registrasi Service Worker & Auto-Update di latar belakang
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
       try {
@@ -42,7 +39,6 @@
       } catch (_) {}
     });
 
-    // Jika Service Worker baru mengambil alih saat halaman dibuka, reload otomatis agar langsung memakai versi baru
     let refreshing = false;
     navigator.serviceWorker.addEventListener("controllerchange", () => {
       if (!refreshing) {
@@ -51,7 +47,8 @@
       }
     });
   }
-/* === 2. TOMBOL INSTALL KE LAYAR UTAMA (SELALU TAMPIL DI BROWSER) === */
+
+  /* === 2. TOMBOL INSTALL KE LAYAR UTAMA (SELALU TAMPIL DI BROWSER) === */
   let deferredPrompt = null;
   const installBtn = document.getElementById("installAppBtn");
   const iosHint = document.getElementById("iosInstallHint");
@@ -61,7 +58,6 @@
     window.matchMedia("(display-mode: standalone)").matches ||
     window.navigator.standalone === true;
 
-  // Sembunyikan tombol hanya jika sudah dibuka sebagai aplikasi ter-install
   if (installBtn) {
     installBtn.style.display = isStandalone ? "none" : "inline-flex";
   }
@@ -81,7 +77,6 @@
 
   if (installBtn) {
     installBtn.addEventListener("click", async () => {
-      // Jika prompt otomatis dari browser tersedia, langsung munculkan
       if (deferredPrompt) {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
@@ -92,7 +87,6 @@
         return;
       }
 
-      // Fallback jika baru saja uninstall (browser menahan prompt otomatis) atau di iOS
       if (isIOS) {
         alert('Cara Install di iPhone/iPad:\n1. Tekan ikon Bagikan (Share) di bawah browser Safari.\n2. Pilih "Tambah ke Layar Utama" (Add to Home Screen).');
       } else {
@@ -105,7 +99,6 @@
     iosHint.style.display = "block";
   }
 
-  
   /* === 3. DETEKSI ONLINE / OFFLINE & SINKRONISASI ANTREAN === */
   const netBadge = document.getElementById("networkStatusBadge");
 
@@ -173,7 +166,63 @@
     });
   }
 
-  /* === 5. PENGATURAN UMUM (BACKGROUND, TEMA, VISUALIZER, SLEEP TIMER) === */
+  /* === HELPER PENYIMPANAN BACKGROUND VIDEO DI INDEXEDDB === */
+  const BG_DB_NAME = "GP_Music_CustomBg_DB";
+  const BG_STORE = "bg_media";
+
+  function openBgDB() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(BG_DB_NAME, 1);
+      req.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(BG_STORE)) {
+          db.createObjectStore(BG_STORE);
+        }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function saveBgBlob(blob) {
+    const db = await openBgDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(BG_STORE, "readwrite");
+      tx.objectStore(BG_STORE).put(blob, "active_bg_video");
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  async function getBgBlob() {
+    const db = await openBgDB();
+    return new Promise((resolve) => {
+      const tx = db.transaction(BG_STORE, "readonly");
+      const req = tx.objectStore(BG_STORE).get("active_bg_video");
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => resolve(null);
+    });
+  }
+
+  async function clearBgBlob() {
+    const db = await openBgDB();
+    return new Promise((resolve) => {
+      const tx = db.transaction(BG_STORE, "readwrite");
+      tx.objectStore(BG_STORE).delete("active_bg_video");
+      tx.oncomplete = () => resolve();
+    });
+  }
+
+  function isVideoBgSource(src) {
+    if (!src) return false;
+    return (
+      src === "indexeddb:video" ||
+      /^data:video\//i.test(src) ||
+      /\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(src)
+    );
+  }
+
+  /* === 5. PENGATURAN UMUM (BACKGROUND GAMBAR & VIDEO, TEMA, VISUALIZER, SLEEP TIMER) === */
   const SETTINGS_KEY = "GP_MUSIC_SETTINGS_V1";
   const DEFAULT_SETTINGS = {
     bgImage: "https://i.imgur.com/53m3Fo5.png",
@@ -187,6 +236,8 @@
 
   let currentSettings = { ...DEFAULT_SETTINGS };
   let sleepTimerId = null;
+  let activeBgBlobUrl = null;
+  let lastAppliedBgKey = "";
 
   function loadSettings() {
     try {
@@ -200,28 +251,101 @@
     try {
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(currentSettings));
     } catch (err) {
-      alert("Ukuran gambar terlalu besar untuk disimpan di browser. Gunakan gambar di bawah 2MB atau tempel URL gambar.");
+      alert("Ukuran gambar terlalu besar untuk disimpan di browser. Gunakan file di bawah 2MB atau tempel URL media.");
     }
     applySettingsToUI();
   }
 
-  function applySettingsToUI() {
+  function removeDynamicBgVideo() {
+    const oldVid = document.getElementById("gpDynamicBgVideo");
+    const oldOverlay = document.getElementById("gpDynamicBgOverlay");
+    if (oldVid) oldVid.remove();
+    if (oldOverlay) oldOverlay.remove();
+    if (activeBgBlobUrl) {
+      URL.revokeObjectURL(activeBgBlobUrl);
+      activeBgBlobUrl = null;
+    }
+    lastAppliedBgKey = "";
+  }
+
+  async function renderVideoBackground(targetContainer, isFullScreen, dim) {
+    const bgStateKey = `${currentSettings.bgImage}|${isFullScreen}`;
+    let vid = document.getElementById("gpDynamicBgVideo");
+    let overlay = document.getElementById("gpDynamicBgOverlay");
+
+    if (!vid || vid.parentElement !== targetContainer || lastAppliedBgKey !== bgStateKey) {
+      removeDynamicBgVideo();
+      lastAppliedBgKey = bgStateKey;
+
+      let finalVideoSrc = currentSettings.bgImage;
+      if (currentSettings.bgImage === "indexeddb:video") {
+        const blob = await getBgBlob();
+        if (!blob) return;
+        activeBgBlobUrl = URL.createObjectURL(blob);
+        finalVideoSrc = activeBgBlobUrl;
+      }
+
+      if (!isFullScreen && getComputedStyle(targetContainer).position === "static") {
+        targetContainer.style.position = "relative";
+      }
+
+      vid = document.createElement("video");
+      vid.id = "gpDynamicBgVideo";
+      vid.src = finalVideoSrc;
+      vid.autoplay = true;
+      vid.loop = true;
+      vid.muted = true;
+      vid.playsInline = true;
+      vid.style.cssText = isFullScreen
+        ? "position:fixed;inset:0;width:100vw;height:100vh;object-fit:cover;z-index:-2;pointer-events:none;"
+        : "position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;pointer-events:none;border-radius:inherit;";
+
+      overlay = document.createElement("div");
+      overlay.id = "gpDynamicBgOverlay";
+      overlay.style.cssText = isFullScreen
+        ? "position:fixed;inset:0;z-index:-1;pointer-events:none;"
+        : "position:absolute;inset:0;z-index:0;pointer-events:none;border-radius:inherit;";
+
+      targetContainer.prepend(overlay);
+      targetContainer.prepend(vid);
+      vid.play().catch(() => {});
+    }
+
+    if (overlay) {
+      overlay.style.background = `linear-gradient(rgba(9, 13, 22, ${dim}), rgba(9, 13, 22, ${Math.min(dim + 0.12, 0.96)}))`;
+    }
+  }
+
+  async function applySettingsToUI() {
     document.documentElement.style.setProperty("--accent", currentSettings.accentColor);
 
     const stageBox = document.querySelector(".stage-box");
     const dim = currentSettings.dimOpacity;
-    const bgCss = currentSettings.bgImage
-      ? `linear-gradient(rgba(9, 13, 22, ${dim}), rgba(9, 13, 22, ${Math.min(dim + 0.1, 0.95)})), url("${currentSettings.bgImage}") center/cover no-repeat`
-      : "#090d16";
+    const isVideoBg = isVideoBgSource(currentSettings.bgImage);
 
-    if (stageBox) {
-      stageBox.style.background = bgCss;
-    }
-
-    if (currentSettings.applyPageBg && currentSettings.bgImage) {
-      document.body.style.background = `linear-gradient(rgba(9, 13, 22, ${dim}), rgba(9, 13, 22, ${Math.min(dim + 0.15, 0.96)})), url("${currentSettings.bgImage}") center/cover fixed no-repeat`;
-    } else {
+    if (isVideoBg && currentSettings.bgImage) {
+      if (stageBox) stageBox.style.background = "#090d16";
       document.body.style.background = "#090d16";
+
+      const targetBox = currentSettings.applyPageBg ? document.body : stageBox;
+      if (targetBox) {
+        await renderVideoBackground(targetBox, currentSettings.applyPageBg, dim);
+      }
+    } else {
+      removeDynamicBgVideo();
+      const bgCss = currentSettings.bgImage
+        ? `linear-gradient(rgba(9, 13, 22, ${dim}), rgba(9, 13, 22, ${Math.min(dim + 0.1, 0.95)})), url("${currentSettings.bgImage}") center/cover no-repeat`
+        : "#090d16";
+
+      if (stageBox) {
+        stageBox.style.background = bgCss;
+      }
+
+      if (currentSettings.applyPageBg && currentSettings.bgImage) {
+        document.body.style.background = `linear-gradient(rgba(9, 13, 22, ${dim}), rgba(9, 13, 22, ${Math.min(dim + 0.15, 0.96)})), url("${currentSettings.bgImage}") center/cover fixed no-repeat`;
+      } else {
+        document.body.style.background = "#090d16";
+      }
     }
 
     // Sinkronkan nilai input di dalam modal pengaturan
@@ -232,7 +356,11 @@
     const shakeChk = document.getElementById("setBassShake");
     const autoNextChk = document.getElementById("setAutoNext");
 
-    if (bgUrlInput) bgUrlInput.value = currentSettings.bgImage.startsWith("data:") ? "" : currentSettings.bgImage;
+    if (bgUrlInput) {
+      const hideVal =
+        currentSettings.bgImage.startsWith("data:") || currentSettings.bgImage === "indexeddb:video";
+      bgUrlInput.value = hideVal ? "" : currentSettings.bgImage;
+    }
     if (applyPageChk) applyPageChk.checked = currentSettings.applyPageBg;
     if (dimRange) dimRange.value = currentSettings.dimOpacity;
     if (vizSelect) vizSelect.value = currentSettings.vizStyle;
@@ -263,27 +391,39 @@
       if (e.target === modal) modal.style.display = "none";
     });
 
-    // Upload background dari HP/PC
+    // Upload background Gambar atau Video (MP4/WEBM/MOV/M4V) dari HP/PC
     const bgFileInput = document.getElementById("setBgFile");
     if (bgFileInput) {
-      bgFileInput.addEventListener("change", (e) => {
+      bgFileInput.addEventListener("change", async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        const reader = new FileReader();
-        reader.onload = () => {
-          currentSettings.bgImage = reader.result;
+
+        const isVideoFile =
+          file.type.startsWith("video/") || /\.(mp4|webm|ogg|mov|m4v)$/i.test(file.name);
+
+        if (isVideoFile) {
+          await saveBgBlob(file);
+          currentSettings.bgImage = "indexeddb:video";
           saveSettings();
-        };
-        reader.readAsDataURL(file);
+        } else {
+          await clearBgBlob();
+          const reader = new FileReader();
+          reader.onload = () => {
+            currentSettings.bgImage = reader.result;
+            saveSettings();
+          };
+          reader.readAsDataURL(file);
+        }
         e.target.value = "";
       });
     }
 
-    // URL Background
+    // URL Background (mendukung link .jpg, .png, .webp, .gif maupun .mp4/.webm)
     const applyUrlBtn = document.getElementById("applyBgUrlBtn");
     if (applyUrlBtn) {
-      applyUrlBtn.addEventListener("click", () => {
+      applyUrlBtn.addEventListener("click", async () => {
         const val = document.getElementById("setBgUrl").value.trim();
+        await clearBgBlob();
         currentSettings.bgImage = val;
         saveSettings();
       });
@@ -291,7 +431,8 @@
 
     // Preset Background
     document.querySelectorAll(".bg-preset-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", async () => {
+        await clearBgBlob();
         currentSettings.bgImage = btn.dataset.bg;
         saveSettings();
       });
@@ -355,7 +496,8 @@
     }
 
     // Reset Pengaturan Default
-    document.getElementById("resetSettingsBtn").addEventListener("click", () => {
+    document.getElementById("resetSettingsBtn").addEventListener("click", async () => {
+      await clearBgBlob();
       currentSettings = { ...DEFAULT_SETTINGS };
       saveSettings();
     });
