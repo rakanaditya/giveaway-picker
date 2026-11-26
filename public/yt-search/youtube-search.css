@@ -1,0 +1,268 @@
+.yt-search-widget {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.yt-search-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.yt-search-bar input {
+  flex: 1;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.yt-search-bar input:focus {
+  border-color: #ff3b30;
+}
+
+.yt-search-btn {
+  background: #ff3b30;
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.yt-search-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.yt-search-dropdown {
+  margin-top: 8px;
+  background: #0f1624;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  max-height: 340px;
+  overflow-y: auto;
+  display: none;
+  flex-direction: column;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
+}
+
+.yt-search-dropdown.open {
+  display: flex;
+}
+
+.yt-dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  font-size: 0.78rem;
+  color: #94a3b8;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: sticky;
+  top: 0;
+  background: #0f1624;
+  z-index: 2;
+}
+
+.yt-close-dropdown {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.yt-result-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background 0.15s;
+}
+
+.yt-result-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.yt-thumb-wrap {
+  position: relative;
+  width: 76px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #1e293b;
+}
+
+.yt-thumb-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.yt-dur-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 3px;
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  font-size: 0.65rem;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.yt-result-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.yt-result-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #f8fafc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.yt-result-channel {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.yt-add-btn {
+  background: var(--accent, #1db954);
+  color: #090d16;
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 1.15rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, opacity 0.15s;
+}
+
+.yt-add-btn:hover {
+  transform: scale(1.06);
+}
+
+/* Modal Pilih Folder Playlist Tujuan */
+.yt-folder-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+}
+
+.yt-folder-modal-backdrop.open {
+  display: flex;
+}
+
+.yt-folder-modal {
+  background: #131b2e;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 380px;
+  padding: 18px;
+  color: #fff;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65);
+}
+
+.yt-folder-modal h4 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+
+.yt-folder-modal p {
+  margin: 0 0 12px;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.yt-folder-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+
+.yt-folder-choice {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+  padding: 10px 12px;
+  border-radius: 9px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.86rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.yt-folder-choice:hover {
+  border-color: var(--accent, #1db954);
+  background: rgba(29, 185, 84, 0.14);
+}
+
+.yt-new-folder-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.yt-new-folder-row input {
+  flex: 1;
+  background: #0b101d;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.84rem;
+}
+
+.yt-new-folder-row button {
+  background: #334155;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.yt-modal-cancel {
+  width: 100%;
+  background: rgba(239, 68, 68, 0.16);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
