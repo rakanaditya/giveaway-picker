@@ -2562,6 +2562,42 @@
       } catch (_) {}
     }
   }
+  /* === AUTO KEEP SCREEN AWAKE (WAKE LOCK API UNTUK YOUTUBE & SPOTIFY) === */
+  let screenWakeLock = null;
+
+  async function manageScreenWakeLock() {
+    if (!("wakeLock" in navigator)) return;
+
+    const tr = currentIndex !== -1 ? tracks[currentIndex] : null;
+    const isPlaying = playPauseIcon.innerHTML === ICON_PAUSE;
+    const needsWakeLock =
+      Boolean(tr) &&
+      isPlaying &&
+      (tr.type === "youtube" || tr.type === "spotify" || isHybridAudioPlaying);
+
+    if (needsWakeLock && !screenWakeLock) {
+      try {
+        screenWakeLock = await navigator.wakeLock.request("screen");
+        screenWakeLock.addEventListener("release", () => {
+          screenWakeLock = null;
+        });
+      } catch (_) {}
+    } else if (!needsWakeLock && screenWakeLock) {
+      try {
+        await screenWakeLock.release();
+      } catch (_) {}
+      screenWakeLock = null;
+    }
+  }
+
+  // Aktifkan kembali Wake Lock jika user berpindah tab lalu kembali ke halaman pemutar
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      manageScreenWakeLock();
+    }
+  });
+
+  setInterval(manageScreenWakeLock, 1500);
 
   window.refreshPlaylist();
   initSpotifyFlow();
