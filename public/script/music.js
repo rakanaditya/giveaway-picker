@@ -2381,7 +2381,7 @@
     switchLibraryTab("local");
   });
 
-  /* === FLOATING MINI PLAYER & LOCKSCREEN MEDIA SESSION API === */
+/* === FLOATING MINI PLAYER & LOCKSCREEN MEDIA SESSION API === */
   const miniPlayerEl = document.getElementById("floatingMiniPlayer");
   const miniTitleEl = document.getElementById("miniTitle");
   const miniSubEl = document.getElementById("miniSub");
@@ -2390,8 +2390,19 @@
   const miniProgressFill = document.getElementById("miniProgressFill");
   const mainPlayerSection = document.querySelector(".spotify-main");
 
+  let lastMetaTrackIdx = -1;
+  let isMainPlayerOutOfView = false;
+
   function syncMiniPlayerState() {
     if (!miniPlayerEl) return;
+
+    const hasTrack = currentIndex !== -1 && Boolean(tracks[currentIndex]);
+    if (hasTrack && isMainPlayerOutOfView) {
+      miniPlayerEl.classList.add("show");
+    } else {
+      miniPlayerEl.classList.remove("show");
+    }
+
     const isPlaying = playPauseIcon.innerHTML === ICON_PAUSE;
     if (miniPlayPauseIcon) {
       miniPlayPauseIcon.innerHTML = isPlaying ? ICON_PAUSE : ICON_PLAY;
@@ -2402,10 +2413,16 @@
       miniProgressFill.style.width = `${Math.min(100, Math.max(0, seekVal))}%`;
     }
 
-    if (currentIndex !== -1 && tracks[currentIndex]) {
+    if (hasTrack) {
       const tr = tracks[currentIndex];
       if (miniTitleEl) miniTitleEl.textContent = tr.name;
       if (miniSubEl) miniSubEl.textContent = document.getElementById("nowBadge")?.textContent || "MEMUTAR";
+
+      if (lastMetaTrackIdx !== currentIndex) {
+        lastMetaTrackIdx = currentIndex;
+        updateLockscreenMetadata(tr);
+      }
+
       if (miniThumbEl) {
         const thumb =
           tr.thumbnail ||
@@ -2429,29 +2446,20 @@
     }
   }
 
-  // Pantau visibilitas pemutar utama agar Mini Player muncul otomatis saat di-scroll
-  if (mainPlayerSection && miniPlayerEl && "IntersectionObserver" in window) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        const hasTrack = currentIndex !== -1 && Boolean(tracks[currentIndex]);
-        if (!entry.isIntersecting && hasTrack) {
-          syncMiniPlayerState();
-          miniPlayerEl.classList.add("show");
-        } else {
-          miniPlayerEl.classList.remove("show");
-        }
-      },
-      { threshold: 0.15 }
-    );
-    observer.observe(mainPlayerSection);
+  function checkMainPlayerVisibility() {
+    if (!mainPlayerSection) return;
+    const rect = mainPlayerSection.getBoundingClientRect();
+    isMainPlayerOutOfView = rect.bottom < 80;
+    syncMiniPlayerState();
   }
 
-  // Sinkronkan progres mini player & posisi lockscreen secara berkala
+  window.addEventListener("scroll", checkMainPlayerVisibility, { passive: true });
+  window.addEventListener("resize", checkMainPlayerVisibility, { passive: true });
+
   setInterval(() => {
-    syncMiniPlayerState();
+    checkMainPlayerVisibility();
     updateLockscreenPosition();
-  }, 500);
+  }, 400);
 
   document.getElementById("miniScrollTopBtn")?.addEventListener("click", () => {
     mainPlayerSection?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -2474,20 +2482,28 @@
   function updateLockscreenMetadata(track) {
     if (!("mediaSession" in navigator) || !track) return;
 
-    const artworkUrl =
+    let artworkUrl =
       track.thumbnail ||
-      (track.type === "youtube" && track.videoId ? `https://i.ytimg.com/vi/${track.videoId}/hqdefault.jpg` : "/icon/gpmusic.jpg");
+      (track.type === "youtube" && track.videoId
+        ? `https://i.ytimg.com/vi/${track.videoId}/hqdefault.jpg`
+        : `${window.location.origin}/icon/gpmusic.jpg`);
+
+    if (artworkUrl.startsWith("/")) {
+      artworkUrl = `${window.location.origin}${artworkUrl}`;
+    }
 
     const folderObj = customFolders.find((f) => f.id === track.folderId);
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: track.name || "GP Music",
-      artist: folderObj ? folderObj.name : "Giveaways Picker Music",
-      album: track.type ? track.type.toUpperCase() : "Media Player",
-      artwork: [
-        { src: artworkUrl, sizes: "256x256", type: "image/jpeg" },
-        { src: artworkUrl, sizes: "512x512", type: "image/jpeg" }
-      ]
-    });
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: track.name || "GP Music",
+        artist: folderObj ? folderObj.name : "Giveaways Picker Music",
+        album: track.type ? track.type.toUpperCase() : "Media Player",
+        artwork: [
+          { src: artworkUrl, sizes: "256x256", type: "image/jpeg" },
+          { src: artworkUrl, sizes: "512x512", type: "image/jpeg" }
+        ]
+      });
+    } catch (_) {}
   }
 
   function updateLockscreenPosition() {
@@ -2522,48 +2538,30 @@
   }
 
   if ("mediaSession" in navigator) {
-    navigator.mediaSession.setActionHandler("play", () => {
-      if (playPauseIcon.innerHTML !== ICON_PAUSE) {
-        document.getElementById("playPauseBtn")?.click();
-      }
-    });
+    const actions = [
+      ["play", () => { if (playPauseIcon.innerHTML !== ICON_PAUSE) document.getElementById("playPauseBtn")?.click(); }],
+      ["pause", () => { if (playPauseIcon.innerHTML === ICON_PAUSE) document.getElementById("playPauseBtn")?.click(); }],
+      ["previoustrack", () => document.getElementById("prevBtn")?.click()],
+      ["nexttrack", () => playNext()],
+      ["seekto", (details) => {
+        if (details.seekTime == null || currentIndex === -1) return;
+        const tr = tracks[currentIndex];
+        if ((tr.type === "youtube" || isHybridAudioPlaying) && ytReady && ytPlayer) {
+          ytPlayer.seekTo(details.seekTime, true);
+        } else if (tr.type === "spotify" && spSdkPlayer) {
+          spSdkPlayer.seek(Math.floor(details.seekTime * 1000));
+        } else if (activeMediaEl) {
+          activeMediaEl.currentTime = details.seekTime;
+        }
+      }]
+    ];
 
-    navigator.mediaSession.setActionHandler("pause", () => {
-      if (playPauseIcon.innerHTML === ICON_PAUSE) {
-        document.getElementById("playPauseBtn")?.click();
-      }
-    });
-
-    navigator.mediaSession.setActionHandler("previoustrack", () => {
-      document.getElementById("prevBtn")?.click();
-    });
-
-    navigator.mediaSession.setActionHandler("nexttrack", () => {
-      playNext();
-    });
-
-    navigator.mediaSession.setActionHandler("seekto", (details) => {
-      if (details.seekTime == null || currentIndex === -1) return;
-      const tr = tracks[currentIndex];
-      if ((tr.type === "youtube" || isHybridAudioPlaying) && ytReady && ytPlayer) {
-        ytPlayer.seekTo(details.seekTime, true);
-      } else if (tr.type === "spotify" && spSdkPlayer) {
-        spSdkPlayer.seek(Math.floor(details.seekTime * 1000));
-      } else if (activeMediaEl) {
-        activeMediaEl.currentTime = details.seekTime;
-      }
-    });
-  }
-
-  // Hook otomatis ke playTrack agar metadata lockscreen & mini player selalu ter-update
-  const _origPlayTrack = playTrack;
-  playTrack = async function (idx) {
-    await _origPlayTrack(idx);
-    if (tracks[idx]) {
-      updateLockscreenMetadata(tracks[idx]);
-      syncMiniPlayerState();
+    for (const [action, handler] of actions) {
+      try {
+        navigator.mediaSession.setActionHandler(action, handler);
+      } catch (_) {}
     }
-  };
+  }
 
   window.refreshPlaylist();
   initSpotifyFlow();
