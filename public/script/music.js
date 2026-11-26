@@ -2625,6 +2625,24 @@
 
   setInterval(manageScreenWakeLock, 1500);
 
+  /* === BRIDGE GLOBAL UNTUK MODUL YOUTUBE SEARCH (public/yt-search) === */
+  window.reloadCustomFolders = function (selectFolderId = null) {
+    customFolders = JSON.parse(localStorage.getItem(FOLDERS_KEY) || "[]");
+    if (selectFolderId) {
+      activeFolder = selectFolderId;
+    }
+    renderFolderDropdown();
+  };
+
+  window.playTrackById = async function (trackId) {
+    switchLibraryTab("local");
+    await window.refreshPlaylist();
+    const targetIdx = tracks.findIndex((t) => t.id === trackId);
+    if (targetIdx !== -1) {
+      await playTrack(targetIdx);
+    }
+  };
+
   window.refreshPlaylist();
   initSpotifyFlow();
 })();
