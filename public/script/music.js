@@ -2625,9 +2625,13 @@
 
   setInterval(manageScreenWakeLock, 1500);
 
-  /* === BRIDGE GLOBAL UNTUK MODUL YOUTUBE SEARCH (public/yt-search) === */
+/* === BRIDGE GLOBAL UNTUK MODUL YOUTUBE SEARCH (public/yt-search) === */
   window.reloadCustomFolders = function (selectFolderId = null) {
-    customFolders = JSON.parse(localStorage.getItem(FOLDERS_KEY) || "[]");
+    try {
+      customFolders = JSON.parse(localStorage.getItem(FOLDERS_KEY) || "[]");
+    } catch (_) {
+      customFolders = [];
+    }
     if (selectFolderId) {
       activeFolder = selectFolderId;
     }
@@ -2635,9 +2639,22 @@
   };
 
   window.playTrackById = async function (trackId) {
-    switchLibraryTab("local");
+    if (trackId == null) return;
+    if (activeLibraryTab !== "local") {
+      activeLibraryTab = "local";
+      const localPane = document.getElementById("localLibraryPage");
+      const spPane = document.getElementById("spotifyLibraryPage");
+      if (localPane) localPane.style.display = "flex";
+      if (spPane) spPane.style.display = "none";
+      document.getElementById("tabSpotifyLibraryBtn")?.classList.remove("active");
+      document.getElementById("tabLocalLibraryBtn")?.classList.add("active");
+    }
+
     await window.refreshPlaylist();
-    const targetIdx = tracks.findIndex((t) => t.id === trackId);
+    const numericId = Number(trackId);
+    const targetIdx = tracks.findIndex(
+      (t) => t.id === trackId || (!Number.isNaN(numericId) && t.id === numericId)
+    );
     if (targetIdx !== -1) {
       await playTrack(targetIdx);
     }
