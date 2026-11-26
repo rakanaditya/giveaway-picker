@@ -20,30 +20,59 @@
     });
   }
 
-  async function saveYoutubeTrackToDB(videoItem, targetFolderId = null) {
+  async function saveYoutubeTrackToDB(videoItem, targetFolderId = null, autoPlay = false) {
     const db = await openPlaylistDB();
-    const record = {
-      name: videoItem.title,
-      type: "youtube",
-      videoId: videoItem.videoId,
-      thumbnail: videoItem.thumbnail,
-      url: videoItem.url,
-      pendingSync: false
-    };
-    if (targetFolderId) {
-      record.folderId = targetFolderId;
-    }
 
-    await new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE_NAME, "readwrite");
-      const req = tx.objectStore(STORE_NAME).add(record);
-      req.onsuccess = () => resolve(req.result);
+    // Cek apakah videoId yang sama sudah ada di folder tujuan
+    const existingList = await new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, "readonly");
+      const req = tx.objectStore(STORE_NAME).getAll();
+      req.onsuccess = () => resolve(req.result || []);
       req.onerror = () => reject(req.error);
     });
 
-    if (typeof window.refreshPlaylist === "function") {
+    const duplicate = existingList.find(
+      (t) =>
+        t.type === "youtube" &&
+        t.videoId === videoItem.videoId &&
+        (t.folderId || null) === (targetFolderId || null)
+    );
+
+    let savedId = duplicate ? duplicate.id : null;
+
+    if (!savedId) {
+      const record = {
+        name: videoItem.title,
+        type: "youtube",
+        videoId: videoItem.videoId,
+        thumbnail: videoItem.thumbnail || `https://i.ytimg.com/vi/${videoItem.videoId}/hqdefault.jpg`,
+        url: videoItem.url || `https://www.youtube.com/watch?v=${videoItem.videoId}`,
+        pendingSync: false
+      };
+      if (targetFolderId) {
+        record.folderId = targetFolderId;
+      }
+
+      savedId = await new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        const req = tx.objectStore(STORE_NAME).add(record);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    // Sinkronkan dropdown folder di music.js
+    if (typeof window.reloadCustomFolders === "function") {
+      window.reloadCustomFolders(targetFolderId || "all");
+    }
+
+    if (autoPlay && typeof window.playTrackById === "function") {
+      await window.playTrackById(savedId);
+    } else if (typeof window.refreshPlaylist === "function") {
       await window.refreshPlaylist();
     }
+
+    return savedId;
   }
 
   function getCustomFolders() {
@@ -69,9 +98,13 @@
       <div class="yt-folder-modal">
         <h4>📁 Simpan ke Folder Playlist</h4>
         <p id="ytSelectedVideoTitle"></p>
+        <label class="yt-autoplay-check">
+          <input type="checkbox" id="ytAutoPlayAfterSave" checked />
+          <span>Langsung putar setelah disimpan</span>
+        </label>
         <div class="yt-folder-list" id="ytFolderChoiceList"></div>
         <div class="yt-new-folder-row">
-          <input type="text" id="ytQuickNewFolderInput" placeholder="Atau buat folder baru..." maxlength="32" />
+          <input type="text" id="ytQuickNewFolderInput" placeholder="Atau ketik nama folder baru..." maxlength="32" />
           <button type="button" id="ytQuickCreateFolderBtn">+ Buat & Simpan</button>
         </div>
         <button type="button" class="yt-modal-cancel" id="ytCancelFolderModalBtn">Batal</button>
@@ -91,8 +124,12 @@
     document.getElementById("ytQuickCreateFolderBtn").addEventListener("click", async () => {
       if (!pendingVideoToSave) return;
       const input = document.getElementById("ytQuickNewFolderInput");
+      const shouldPlay = document.getElementById("ytAutoPlayAfterSave")?.checked ?? true;
       const name = input.value.trim();
-      if (!name) return;
+      if (!name) {
+        input.focus();
+        return;
+      }
 
       const folders = getCustomFolders();
       const newFolder = {
@@ -102,11 +139,12 @@
       folders.push(newFolder);
       saveCustomFolders(folders);
 
-      await saveYoutubeTrackToDB(pendingVideoToSave, newFolder.id);
+      const videoCopy = pendingVideoToSave;
+      pendingVideoToSave = null;
       input.value = "";
       backdrop.classList.remove("open");
-      alert(`✅ "${pendingVideoToSave.title}" disimpan ke folder "${newFolder.name}"!`);
-      pendingVideoToSave = null;
+
+      await saveYoutubeTrackToDB(videoCopy, newFolder.id, shouldPlay);
     });
 
     return backdrop;
@@ -142,11 +180,12 @@
       btn.addEventListener("click", async () => {
         if (!pendingVideoToSave) return;
         const folderId = btn.dataset.folderId || null;
-        const folderLabel = btn.querySelector("span").textContent;
-        await saveYoutubeTrackToDB(pendingVideoToSave, folderId);
-        backdrop.classList.remove("open");
-        alert(`✅ "${pendingVideoToSave.title}" ditambahkan ke ${folderLabel}!`);
+        const shouldPlay = document.getElementById("ytAutoPlayAfterSave")?.checked ?? true;
+        const videoCopy = pendingVideoToSave;
         pendingVideoToSave = null;
+        backdrop.classList.remove("open");
+
+        await saveYoutubeTrackToDB(videoCopy, folderId, shouldPlay);
       });
     });
 
@@ -183,18 +222,28 @@
         const row = document.createElement("div");
         row.className = "yt-result-item";
         row.innerHTML = `
-          <div class="yt-thumb-wrap">
-            <img src="${item.thumbnail}" alt="" loading="lazy" />
-            ${item.duration ? `<span class="yt-dur-badge">${item.duration}</span>` : ""}
+          <div class="yt-result-click-area" title="Klik untuk langsung putar">
+            <div class="yt-thumb-wrap">
+              <img src="${item.thumbnail}" alt="" loading="lazy" />
+              ${item.duration ? `<span class="yt-dur-badge">${item.duration}</span>` : ""}
+            </div>
+            <div class="yt-result-meta">
+              <div class="yt-result-title" title="${item.title.replace(/"/g, "&quot;")}">${item.title}</div>
+              <div class="yt-result-channel">${item.channel}</div>
+            </div>
           </div>
-          <div class="yt-result-meta">
-            <div class="yt-result-title" title="${item.title.replace(/"/g, "&quot;")}">${item.title}</div>
-            <div class="yt-result-channel">${item.channel}</div>
-          </div>
-          <button type="button" class="yt-add-btn" title="Tambah ke Folder Playlist">+</button>
+          <button type="button" class="yt-add-btn" title="Simpan ke Folder Playlist">+</button>
         `;
 
-        row.querySelector(".yt-add-btn").addEventListener("click", () => {
+        // Klik pada area thumbnail/judul -> langsung simpan & putar
+        row.querySelector(".yt-result-click-area").addEventListener("click", async () => {
+          dropdown.classList.remove("open");
+          await saveYoutubeTrackToDB(item, null, true);
+        });
+
+        // Klik tombol + -> buka pilihan folder playlist
+        row.querySelector(".yt-add-btn").addEventListener("click", (e) => {
+          e.stopPropagation();
           openFolderSelectionModal(item);
         });
 
