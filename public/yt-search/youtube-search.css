@@ -266,3 +266,28 @@
   cursor: pointer;
   font-size: 0.85rem;
 }
+
+  .yt-result-click-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.yt-autoplay-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.yt-autoplay-check input[type="checkbox"] {
+  accent-color: var(--accent, #1db954);
+  width: 15px;
+  height: 15px;
+  }
